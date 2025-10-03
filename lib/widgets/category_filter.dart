@@ -13,14 +13,22 @@ class CategoryFilter extends StatelessWidget {
 
   final List<Map<String, dynamic>> categories = const [
     {'name': 'All', 'icon': '🍽️'},
+    {'name': 'Nasi Goreng', 'icon': '🍚'},
+    {'name': 'Mie', 'icon': '🍜'},
     {'name': 'Burger', 'icon': '🍔'},
-    {'name': 'Taco', 'icon': '🌮'},
-    {'name': 'Burrito', 'icon': '🌯'},
-    {'name': 'Drink', 'icon': '🥤'},
-    {'name': 'Pizza', 'icon': '🍕'},
-    {'name': 'Donut', 'icon': '🍩'},
+    {'name': 'Jus', 'icon': '🥤'},
+    {'name': 'Es Krim', 'icon': '🍦'},
+    {'name': 'Roti', 'icon': '🍞'},
+    {'name': 'Gorengan', 'icon': '🍤'},
+    {'name': 'Soto', 'icon': '🍲'},
+    {'name': 'Bakso', 'icon': '🥟'},
+    {'name': 'Sate', 'icon': '🍢'},
+    {'name': 'Nasi Kuning', 'icon': '🍛'},
+    {'name': 'Nasi Uduk', 'icon': '🍚'},
+    {'name': 'Pecel Lele', 'icon': '🐟'},
+    {'name': 'Minuman', 'icon': '☕'},
     {'name': 'Salad', 'icon': '🥗'},
-    {'name': 'Noodles', 'icon': '🍜'},
+    {'name': 'Pizza', 'icon': '🍕'},
   ];
 
   @override

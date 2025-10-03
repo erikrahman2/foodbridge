@@ -17,7 +17,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    orderData ??= ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    orderData ??=
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
   }
 
   @override
@@ -27,7 +28,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.primaryPink,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
