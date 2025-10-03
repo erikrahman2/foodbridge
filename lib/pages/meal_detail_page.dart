@@ -19,7 +19,8 @@ class _MealDetailPageState extends State<MealDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    food ??= ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    food ??=
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
   }
 
   @override
@@ -74,13 +75,41 @@ class _MealDetailPageState extends State<MealDetailPage> {
 
   Widget _buildFoodImage() {
     return Container(
-      height: 200,
+      height: 250,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: const Icon(Icons.fastfood, size: 80, color: Colors.grey),
+      child:
+          food!['image'] != null
+              ? ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.asset(
+                  food!['image'],
+                  fit: BoxFit.cover,
+                  height: 250,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        Icons.fastfood,
+                        size: 80,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              )
+              : const Icon(Icons.fastfood, size: 80, color: Colors.grey),
     );
   }
 

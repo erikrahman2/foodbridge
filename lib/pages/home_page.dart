@@ -18,61 +18,32 @@ class _HomePageState extends State<HomePage> {
   String deliveryAddress = "No. 1 Bungo Pasang";
 
   final List<Map<String, dynamic>> categories = [
-    {
-      'icon': 'assets/icons/burgercat.png',
-      'name': 'Burger',
-      'color': Colors.orange,
-    },
-    {
-      'icon': 'assets/icons/friedcat.png',
-      'name': 'Fried',
-      'color': Colors.yellow,
-    },
-    {
-      'icon': 'assets/icons/iscat.png',
-      'name': 'Ice Cream',
-      'color': Colors.blue,
-    },
-    {'icon': 'assets/icons/juscat.png', 'name': 'Drink', 'color': Colors.red},
-
-    {
-      'icon': 'assets/icons/roticat.png',
-      'name': 'Bread',
-      'color': Colors.brown,
-    },
-    {
-      'icon': 'assets/icons/sotocat.png',
-      'name': 'Soto',
-      'color': Colors.orange,
-    },
-    {
-      'icon': 'assets/icons/nasningcat.png',
-      'name': 'Nasi Kuning',
-      'color': Colors.yellow,
-    },
-    {
-      'icon': 'assets/icons/nasgorcat.png',
-      'name': 'Nasi Goreng',
-      'color': Colors.orange,
-    },
-    {'icon': 'assets/icons/more.png', 'name': 'More', 'color': Colors.grey},
+    {'icon': 'assets/icons/nasigoreng.png', 'name': 'Nasi Goreng'},
+    {'icon': 'assets/icons/mie.png', 'name': 'Mie'},
+    {'icon': 'assets/icons/burger.png', 'name': 'Burger'},
+    {'icon': 'assets/icons/jus.png', 'name': 'Jus'},
+    {'icon': 'assets/icons/icecream.png', 'name': 'Es Krim'},
+    {'icon': 'assets/icons/bread.png', 'name': 'Roti'},
+    {'icon': 'assets/icons/gorengan.png', 'name': 'Gorengan'},
+    {'icon': 'assets/icons/sotocat.png', 'name': 'Soto'},
+    {'icon': 'assets/icons/nasningcat.png', 'name': 'Nasi Kuning'},
+    {'icon': 'assets/icons/salad.png', 'name': 'Salad'},
   ];
-
   final List<Map<String, dynamic>> specialOffers = [
     {
-      'title': 'Delicious Burger',
+      'title': 'Nasi Goreng Special',
       'rating': 4.9,
-      'time': '15 min',
-      'image': 'assets/burger1.jpg',
-      'price': 25000,
+      'time': '20 min',
+      'image': 'assets/images/nasigoreng.jpg',
+      'price': 30000,
       'discount': 20,
     },
     {
-      'title': 'Crispy Chicken',
-      'rating': 4.8,
-      'time': '20 min',
-      'image': 'assets/burger2.jpg',
-      'price': 30000,
+      'title': 'Mie Ayam',
+      'rating': 4.7,
+      'time': '15 min',
+      'image': 'assets/images/mieayam.jpg',
+      'price': 25000,
       'discount': 15,
     },
   ];
@@ -80,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryPink,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -212,15 +183,12 @@ class _HomePageState extends State<HomePage> {
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
-          final String iconPath = category['icon'] as String;
-          final String categoryName = category['name'] as String;
-
           return GestureDetector(
             onTap: () {
               Navigator.pushNamed(
                 context,
                 AppRoutes.menuList,
-                arguments: categoryName,
+                arguments: category['name'],
               );
             },
             child: Container(
@@ -228,13 +196,25 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
               ),
-              padding: const EdgeInsets.all(12),
-              child: Image.asset(
-                iconPath,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.fastfood, size: 40);
-                },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    category['icon'], // ambil dari assets/icons/*.png
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    category['name'],
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -328,7 +308,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
       'title': 'GET YOUR SWEET\nICE CREAM',
       'subtitle': '40% OFF',
       'color': Colors.orange,
-      'image': 'assets/images/jussehat.jpg',
+      'image': 'assets/images/eskrim.jpg',
     },
     {
       'category': 'COUPON',
@@ -340,7 +320,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
     {
       'category': 'GREEN DAY',
       'title': 'UP TO\n60% OFF',
-      'subtitle': 'Salad Category',
+      'subtitle': 'mie Category',
       'color': Colors.teal,
       'image': 'assets/images/mieayam.jpg',
     },
@@ -449,7 +429,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
               children: [
                 // Left side - Text content
                 Expanded(
-                  flex: 5,
+                  flex: 7,
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
@@ -506,7 +486,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                 ),
                 // Right side - Image
                 Expanded(
-                  flex: 4,
+                  flex: 13,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(

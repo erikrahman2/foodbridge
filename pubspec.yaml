@@ -45,6 +45,7 @@ flutter:
   # Assets (uncomment when you have actual assets)
   assets:
     #   - assets/images/
+    - assets/images/aicream.png
     - assets/images/eskrim.jpg
     - assets/images/ph1.jpg
     - assets/images/mieayam.jpg
@@ -63,7 +64,6 @@ flutter:
     - assets/images/roti'i.jpg
     - assets/images/satepadang.jpg
     - assets/images/soto.jpg
-
     - assets/images/eskrim2.jpg
     - assets/images/roti2.jpg
     - assets/images/nasiuduk2.jpg
@@ -71,7 +71,6 @@ flutter:
     - assets/images/nasikuning2.jpg
     - assets/images/nasigoreng2.jpg
     - assets/images/gorengan.jpg
-
     - assets/images/soto2.jpg
     - assets/images/burger2.jpg
     - assets/images/gorengan2.jpg
