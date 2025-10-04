@@ -74,6 +74,8 @@ flutter:
     - assets/images/soto2.jpg
     - assets/images/burger2.jpg
     - assets/images/gorengan2.jpg
+    - assets/images/salad.jpg
+    - assets/images/saladb.png
 
     #   - assets/icons/
     - assets/icons/friedcat.png

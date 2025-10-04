@@ -18,32 +18,57 @@ class _HomePageState extends State<HomePage> {
   String deliveryAddress = "No. 1 Bungo Pasang";
 
   final List<Map<String, dynamic>> categories = [
-    {'icon': 'assets/icons/nasigoreng.png', 'name': 'Nasi Goreng'},
-    {'icon': 'assets/icons/mie.png', 'name': 'Mie'},
-    {'icon': 'assets/icons/burger.png', 'name': 'Burger'},
-    {'icon': 'assets/icons/jus.png', 'name': 'Jus'},
-    {'icon': 'assets/icons/icecream.png', 'name': 'Es Krim'},
-    {'icon': 'assets/icons/bread.png', 'name': 'Roti'},
-    {'icon': 'assets/icons/gorengan.png', 'name': 'Gorengan'},
-    {'icon': 'assets/icons/sotocat.png', 'name': 'Soto'},
-    {'icon': 'assets/icons/nasningcat.png', 'name': 'Nasi Kuning'},
-    {'icon': 'assets/icons/salad.png', 'name': 'Salad'},
+    {
+      'icon': 'assets/icons/burger.png',
+      'name': 'Burger',
+      'color': Colors.orange,
+    },
+    {
+      'icon': 'assets/icons/gorengan.png',
+      'name': 'Fried',
+      'color': Colors.yellow,
+    },
+    {
+      'icon': 'assets/icons/icecream.png',
+      'name': 'Ice Cream',
+      'color': Colors.blue,
+    },
+    {'icon': 'assets/icons/jus.png', 'name': 'Drink', 'color': Colors.red},
+    {'icon': 'assets/icons/mie.png', 'name': 'Noodles', 'color': Colors.yellow},
+    {'icon': 'assets/icons/.png', 'name': 'Bread', 'color': Colors.brown},
+    {
+      'icon': 'assets/icons/sotocat.png',
+      'name': 'Soto',
+      'color': Colors.orange,
+    },
+    {
+      'icon': 'assets/icons/nasningcat.png',
+      'name': 'Nasi Kuning',
+      'color': Colors.yellow,
+    },
+    {
+      'icon': 'assets/icons/nasigoreng.png',
+      'name': 'Nasi Goreng',
+      'color': Colors.orange,
+    },
+    {'icon': 'assets/icons/more.png', 'name': 'More', 'color': Colors.grey},
   ];
+
   final List<Map<String, dynamic>> specialOffers = [
     {
-      'title': 'Nasi Goreng Special',
+      'title': 'Delicious Burger',
       'rating': 4.9,
-      'time': '20 min',
-      'image': 'assets/images/nasigoreng.jpg',
-      'price': 30000,
+      'time': '15 min',
+      'image': 'assets/burger1.jpg',
+      'price': 25000,
       'discount': 20,
     },
     {
-      'title': 'Mie Ayam',
-      'rating': 4.7,
-      'time': '15 min',
-      'image': 'assets/images/mieayam.jpg',
-      'price': 25000,
+      'title': 'Crispy Chicken',
+      'rating': 4.8,
+      'time': '20 min',
+      'image': 'assets/burger2.jpg',
+      'price': 30000,
       'discount': 15,
     },
   ];
@@ -183,12 +208,15 @@ class _HomePageState extends State<HomePage> {
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
+          final String iconPath = category['icon'] as String;
+          final String categoryName = category['name'] as String;
+
           return GestureDetector(
             onTap: () {
               Navigator.pushNamed(
                 context,
                 AppRoutes.menuList,
-                arguments: category['name'],
+                arguments: categoryName,
               );
             },
             child: Container(
@@ -196,25 +224,13 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    category['icon'], // ambil dari assets/icons/*.png
-                    width: 32,
-                    height: 32,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    category['name'],
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.all(12),
+              child: Image.asset(
+                iconPath,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.fastfood, size: 40);
+                },
               ),
             ),
           );
@@ -249,11 +265,13 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 15),
-          Row(
-            children:
-                specialOffers.map((offer) {
-                  return Expanded(
-                    child: Container(
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children:
+                  specialOffers.map((offer) {
+                    return Container(
+                      width: 160,
                       margin: const EdgeInsets.only(right: 10),
                       child: FoodCard(
                         title: offer['title'],
@@ -268,9 +286,9 @@ class _HomePageState extends State<HomePage> {
                               arguments: offer,
                             ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+            ),
           ),
         ],
       ),
@@ -287,6 +305,53 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+}
+
+// Custom Painter untuk background diagonal split
+class _DiagonalSplitPainter extends CustomPainter {
+  final Color color;
+
+  _DiagonalSplitPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint =
+        Paint()
+          ..shader = LinearGradient(
+            colors: [color, color.withOpacity(0.8), color.withOpacity(0.6)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width * 0.45, 0); // 45% dari atas
+    path.lineTo(size.width * 0.65, size.height); // 65% dari bawah
+    path.lineTo(0, size.height);
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Custom Clipper untuk gambar diagonal
+class _DiagonalClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width * 0.2, size.height); // Mulai dari 20% kiri bawah
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 // Promo Banner Widget dengan Auto-Scroll
@@ -307,22 +372,25 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
       'category': 'ICE CREAM DAY',
       'title': 'GET YOUR SWEET\nICE CREAM',
       'subtitle': '40% OFF',
-      'color': Colors.orange,
-      'image': 'assets/images/eskrim.jpg',
+      'color': Color(0xFFFDB863),
+      'image': 'assets/images/aicream.png',
+      'type': 'gradient_with_image',
     },
     {
-      'category': 'COUPON',
-      'title': 'Don\'t miss our\nhot offers',
-      'subtitle': 'Hope you hungry',
+      'category': 'COUPLES DEAL',
+      'title': 'Double\nhappiness.',
+      'subtitle': 'Happy Valentine\'s Day',
       'color': Colors.black87,
-      'image': 'assets/images/ph1.jpg',
+      'image': 'assets/images/mieayam.jpg',
+      'type': 'image_background',
     },
     {
       'category': 'GREEN DAY',
       'title': 'UP TO\n60% OFF',
-      'subtitle': 'mie Category',
-      'color': Colors.teal,
-      'image': 'assets/images/mieayam.jpg',
+      'subtitle': 'Salad Category',
+      'color': Color(0xFF0D9488),
+      'image': 'assets/images/saladb.png',
+      'type': 'split_layout',
     },
   ];
 
@@ -373,12 +441,14 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
             },
             itemCount: banners.length,
             itemBuilder: (context, index) {
+              final banner = banners[index];
               return _buildPromoBannerItem(
-                banners[index]['category'],
-                banners[index]['title'],
-                banners[index]['subtitle'],
-                banners[index]['color'],
-                banners[index]['image'],
+                banner['category'],
+                banner['title'],
+                banner['subtitle'],
+                banner['color'],
+                banner['image'],
+                banner['type'],
               );
             },
           ),
@@ -395,6 +465,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
     String subtitle,
     Color color,
     String imagePath,
+    String type,
   ) {
     return Container(
       margin: const EdgeInsets.only(right: 10),
@@ -412,111 +483,131 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Background color
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [color, color.withOpacity(0.8)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+            // 🔹 Cek type untuk tentukan style
+            if (type == 'gradient_with_image') ...[
+              // Background diagonal split
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _DiagonalSplitPainter(color: color),
                 ),
               ),
-            ),
-            // Content
-            Row(
-              children: [
-                // Left side - Text content
-                Expanded(
-                  flex: 7,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          category.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 1,
+              Row(
+                children: [
+                  // Left side text
+                  Expanded(
+                    flex: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            category.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 1,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            height: 1.2,
+                          const SizedBox(height: 8),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(height: 8),
+                          Text(
+                            subtitle,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                // Gradient separator
-                Container(
-                  width: 2,
-                  height: double.infinity,
+                  // Right side image diagonal
+                  Expanded(
+                    flex: 4,
+                    child: ClipPath(
+                      clipper: _DiagonalClipper(),
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        height: double.infinity,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              // 🔹 Full background image (banner ke-2 & ke-3)
+              Positioned.fill(child: Image.asset(imagePath, fit: BoxFit.cover)),
+              // Tambahin gradient biar teks kebaca
+              Positioned.fill(
+                child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.white.withOpacity(0.0),
-                        Colors.white.withOpacity(0.3),
-                        Colors.white.withOpacity(0.0),
+                        Colors.black.withOpacity(0.5),
+                        Colors.transparent,
                       ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.topRight,
                     ),
                   ),
                 ),
-                // Right side - Image
-                Expanded(
-                  flex: 13,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.1),
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
+              ),
+              // Text overlay di atas gambar
+              Positioned(
+                left: 20,
+                top: 20,
+                right: 20,
+                bottom: 20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      category.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1,
                       ),
                     ),
-                    child: Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.white.withOpacity(0.2),
-                          child: const Icon(
-                            Icons.fastfood,
-                            color: Colors.white,
-                            size: 50,
-                          ),
-                        );
-                      },
+                    const SizedBox(height: 8),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ],
         ),
       ),
