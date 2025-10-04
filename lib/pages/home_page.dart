@@ -19,23 +19,27 @@ class _HomePageState extends State<HomePage> {
 
   final List<Map<String, dynamic>> categories = [
     {
-      'icon': 'assets/icons/burger.png',
+      'icon': 'assets/icons/burgercat.png',
       'name': 'Burger',
       'color': Colors.orange,
     },
     {
-      'icon': 'assets/icons/gorengan.png',
+      'icon': 'assets/icons/friedcat.png',
       'name': 'Fried',
       'color': Colors.yellow,
     },
     {
-      'icon': 'assets/icons/icecream.png',
+      'icon': 'assets/icons/iscat.png',
       'name': 'Ice Cream',
       'color': Colors.blue,
     },
-    {'icon': 'assets/icons/jus.png', 'name': 'Drink', 'color': Colors.red},
+    {'icon': 'assets/icons/juscat.png', 'name': 'Drink', 'color': Colors.red},
     {'icon': 'assets/icons/mie.png', 'name': 'Noodles', 'color': Colors.yellow},
-    {'icon': 'assets/icons/.png', 'name': 'Bread', 'color': Colors.brown},
+    {
+      'icon': 'assets/icons/roticat.png',
+      'name': 'Bread',
+      'color': Colors.brown,
+    },
     {
       'icon': 'assets/icons/sotocat.png',
       'name': 'Soto',
@@ -47,7 +51,7 @@ class _HomePageState extends State<HomePage> {
       'color': Colors.yellow,
     },
     {
-      'icon': 'assets/icons/nasigoreng.png',
+      'icon': 'assets/icons/nasgorcat.png',
       'name': 'Nasi Goreng',
       'color': Colors.orange,
     },
@@ -195,13 +199,13 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategoryGrid() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          childAspectRatio: 1,
+          childAspectRatio: 0.9, // biar ada space untuk teks di bawah icon
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
@@ -221,16 +225,48 @@ class _HomePageState extends State<HomePage> {
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color.fromARGB(
+                  255,
+                  255,
+                  255,
+                  255,
+                ), // warna background soft
                 borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-              padding: const EdgeInsets.all(12),
-              child: Image.asset(
-                iconPath,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.fastfood, size: 40);
-                },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.asset(
+                        iconPath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.fastfood, size: 40);
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    categoryName,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 5),
+                ],
               ),
             ),
           );
