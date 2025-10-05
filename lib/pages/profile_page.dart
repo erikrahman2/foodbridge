@@ -14,7 +14,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   // Data user
-  String userName = 'Kimi Maulana Najwa';
+  String userName = 'Kimi Maulana Najna';
   String userPhone = '(+62) 822 1457 1111';
   String userEmail = 'kimimaulana@icloud.com';
   String userLanguage = 'Indonesia';
@@ -26,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCE4EC),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: Column(
           children: [
@@ -99,13 +99,13 @@ class _ProfilePageState extends State<ProfilePage> {
           Stack(
             children: [
               CircleAvatar(
-                radius: 40,
+                radius: 60,
                 backgroundColor: Colors.grey[300],
                 backgroundImage: const AssetImage('assets/images/profile.jpg'),
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey[400],
+                    color: Colors.grey[100],
                   ),
                   child: const Icon(
                     Icons.person,
@@ -124,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(1),
                     decoration: BoxDecoration(
                       color: Colors.orange,
                       shape: BoxShape.circle,
@@ -146,7 +146,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.orange,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 8),
@@ -177,7 +177,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.orange, width: 1.5),
+              border: Border.all(color: Colors.black, width: 1.5),
               borderRadius: BorderRadius.circular(20),
             ),
             child: InkWell(
@@ -185,12 +185,12 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Icon(Icons.logout, color: Colors.orange, size: 18),
+                  Icon(Icons.logout, color: Colors.black, size: 18),
                   SizedBox(width: 8),
                   Text(
                     'Logout',
                     style: TextStyle(
-                      color: Colors.orange,
+                      color: Colors.black,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
