@@ -7,17 +7,28 @@ import '../pages/payment_page.dart';
 import '../pages/order_tracking_page.dart';
 import '../pages/delivery_success_page.dart';
 import '../pages/orders_history_page.dart';
+import '../pages/notifications_page.dart';
+import '../pages/favorite_page.dart';
+// import '../pages/profile_page.dart';
 import 'app_routes.dart';
 
 class AppPages {
   static Map<String, WidgetBuilder> routes = {
-    AppRoutes.home: (context) => HomePage(),
-    AppRoutes.menuList: (context) => MenuListPage(),
-    AppRoutes.mealDetail: (context) => MealDetailPage(),
-    AppRoutes.cart: (context) => CartPage(),
-    AppRoutes.payment: (context) => PaymentPage(),
-    AppRoutes.orderTracking: (context) => OrderTrackingPage(),
-    AppRoutes.deliverySuccess: (context) => DeliverySuccessPage(),
-    AppRoutes.ordersHistory: (context) => OrdersHistoryPage(),
+    AppRoutes.home: (context) => HomePage(), // PERBAIKAN: Tanpa const
+    AppRoutes.menuList: (context) => MenuListPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.mealDetail:
+        (context) => MealDetailPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.cart: (context) => CartPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.payment: (context) => PaymentPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.orderTracking:
+        (context) => OrderTrackingPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.deliverySuccess:
+        (context) => DeliverySuccessPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.ordersHistory:
+        (context) => OrdersHistoryPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.notifications:
+        (context) => NotificationsPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.favorites: (context) => FavoritePage(),
+    // AppRoutes.profile: (context) => ProfilePage(),
   };
 }

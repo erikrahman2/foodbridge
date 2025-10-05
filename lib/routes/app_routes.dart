@@ -9,4 +9,6 @@ class AppRoutes {
   static const String ordersHistory = '/orders-history';
   static const String orderDetail = '/order-detail';
   static const String notifications = '/notifications';
+  static const String favorites = '/favorites';
+  static const String profile = '/profile';
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../widgets/custom_bottom_navigation.dart';
+import '../providers/notification_provider.dart';
 import '../utils/constants.dart';
 import '../routes/app_routes.dart';
 
@@ -14,78 +17,93 @@ class _NotificationsPageState extends State<NotificationsPage> {
     {
       'id': '1',
       'type': 'order_update',
-      'title': 'Order Confirmed',
-      'message':
-          'Your order #SP0023900 has been confirmed and is being prepared.',
-      'time': '2 min ago',
+      'title': 'Pesanan Diterima',
+      'message': 'Pesanan #SP_0023900 telah berhasil dikirim.',
+      'time': '10:15',
+      'date': '10/05/2024',
       'isRead': false,
-      'orderId': 'SP0023900',
+      'orderId': 'SP_0023900',
       'status': 'confirmed',
     },
     {
       'id': '2',
-      'type': 'order_update',
-      'title': 'Order Preparing',
-      'message': 'Your order #SP0023512 is being prepared by the restaurant.',
-      'time': '15 min ago',
+      'type': 'promotion',
+      'title': 'Dapatkan 10% Kode Diskon',
+      'message': 'Kode diskon liburan.',
+      'time': '11:10',
+      'date': '10/05/2024',
       'isRead': false,
-      'orderId': 'SP0023512',
-      'status': 'preparing',
+      'status': 'promotion',
     },
     {
       'id': '3',
       'type': 'order_update',
-      'title': 'Order Ready for Pickup',
-      'message':
-          'Your order #SP0023502 is ready for pickup. Driver is on the way.',
-      'time': '30 min ago',
-      'isRead': true,
-      'orderId': 'SP0023502',
-      'status': 'pickup',
+      'title': 'Pesanan Diterima',
+      'message': 'Pesanan #SP_0044200 telah berhasil dikirim.',
+      'time': '10:15',
+      'date': '10/05/2024',
+      'isRead': false,
+      'orderId': 'SP_0044200',
+      'status': 'confirmed',
     },
     {
       'id': '4',
-      'type': 'order_update',
-      'title': 'Order Delivered',
+      'type': 'order_tracking',
+      'title': 'Pesanan Sedang Dalam Perjalanan',
       'message':
-          'Your order #SP0023450 has been delivered successfully. Enjoy your meal!',
-      'time': '1 hour ago',
-      'isRead': true,
-      'orderId': 'SP0023450',
-      'status': 'delivered',
+          'Driver pengiriman Anda sedang dalam perjalanan dengan pesanan Anda.',
+      'time': '10:10',
+      'date': '10/05/2024',
+      'isRead': false,
+      'orderId': 'SP_0023900',
+      'status': 'pickup',
     },
     {
       'id': '5',
-      'type': 'promotion',
-      'title': 'Special Discount',
-      'message':
-          'Get 30% off on your next order! Use code SAVE30. Valid until tomorrow.',
-      'time': '2 hours ago',
-      'isRead': true,
-      'status': 'promotion',
+      'type': 'order_update',
+      'title': 'Pesanan Anda Telah Dikonfirmasi',
+      'message': 'Your order #SP_0023900 has been confirmed.',
+      'time': '09:59',
+      'date': '10/05/2024',
+      'isRead': false,
+      'orderId': 'SP_0023900',
+      'status': 'confirmed',
     },
     {
       'id': '6',
       'type': 'order_update',
-      'title': 'Order Cancelled',
-      'message':
-          'Your order #SP0023400 has been cancelled due to restaurant unavailability.',
-      'time': '1 day ago',
-      'isRead': true,
-      'orderId': 'SP0023400',
-      'status': 'cancelled',
+      'title': 'Pesanan Berhasil',
+      'message': 'Pesanan #SP_0023900 telah berhasil dilakukan.',
+      'time': '09:56',
+      'date': '10/05/2024',
+      'isRead': false,
+      'orderId': 'SP_0023900',
+      'status': 'delivered',
     },
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
-            Expanded(child: _buildNotificationsList()),
+            _buildSearchBar(),
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: notifications.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _buildTodayLabel();
+                  }
+                  return _buildNotificationItem(notifications[index - 1]);
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -101,12 +119,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
           IconButton(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back, color: Colors.black),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
           const Expanded(
             child: Text(
-              'Notifications',
+              'Notification',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -115,47 +135,63 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
           IconButton(
             onPressed: _markAllAsRead,
-            icon: const Icon(Icons.done_all, color: Colors.black),
+            icon: const Icon(Icons.more_horiz, color: Colors.black),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNotificationsList() {
-    if (notifications.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.notifications_off, size: 80, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No notifications yet',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
+  Widget _buildSearchBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.search, color: Colors.grey, size: 20),
+                  SizedBox(width: 10),
+                  Text(
+                    'Search',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 8),
-            Text(
-              'We\'ll notify you when something happens',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
-        ),
-      );
-    }
+            child: const Icon(Icons.tune, color: Colors.black, size: 20),
+          ),
+        ],
+      ),
+    );
+  }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      child: ListView.builder(
-        itemCount: notifications.length,
-        itemBuilder: (context, index) {
-          final notification = notifications[index];
-          return _buildNotificationItem(notification);
-        },
+  Widget _buildTodayLabel() {
+    return const Padding(
+      padding: EdgeInsets.only(top: 10, bottom: 15),
+      child: Text(
+        'Today',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
       ),
     );
   }
@@ -163,16 +199,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget _buildNotificationItem(Map<String, dynamic> notification) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color:
-            notification['isRead']
-                ? Colors.white
-                : Colors.white.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(15),
-        border:
-            notification['isRead']
-                ? null
-                : Border.all(color: Colors.orange.withOpacity(0.3), width: 1),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -181,88 +211,51 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(15),
-          onTap: () => _onNotificationTap(notification),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildNotificationIcon(
-                  notification['type'],
-                  notification['status'],
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              notification['title'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight:
-                                    notification['isRead']
-                                        ? FontWeight.w500
-                                        : FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          if (!notification['isRead'])
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.orange,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        notification['message'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          height: 1.3,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            notification['time'],
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                          if (notification['orderId'] != null)
-                            Text(
-                              '#${notification['orderId']}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+      child: InkWell(
+        onTap: () => _onNotificationTap(notification),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildNotificationIcon(
+              notification['type'],
+              notification['status'],
             ),
-          ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notification['title'],
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight:
+                          notification['isRead']
+                              ? FontWeight.w500
+                              : FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notification['message'],
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${notification['time']} ${notification['date']}',
+                    style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -275,7 +268,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     if (type == 'order_update') {
       switch (status) {
         case 'confirmed':
-          iconData = Icons.check_circle;
+          iconData = Icons.shopping_bag;
           iconColor = Colors.green;
           break;
         case 'preparing':
@@ -283,36 +276,35 @@ class _NotificationsPageState extends State<NotificationsPage> {
           iconColor = Colors.orange;
           break;
         case 'pickup':
-          iconData = Icons.local_shipping;
+          iconData = Icons.delivery_dining;
           iconColor = Colors.blue;
           break;
         case 'delivered':
-          iconData = Icons.done_all;
+          iconData = Icons.check_circle;
           iconColor = Colors.green;
           break;
-        case 'cancelled':
-          iconData = Icons.cancel;
-          iconColor = Colors.red;
-          break;
         default:
-          iconData = Icons.notifications;
-          iconColor = Colors.orange;
+          iconData = Icons.shopping_bag;
+          iconColor = Colors.green;
       }
     } else if (type == 'promotion') {
       iconData = Icons.local_offer;
-      iconColor = Colors.purple;
+      iconColor = Colors.amber;
+    } else if (type == 'order_tracking') {
+      iconData = Icons.location_on;
+      iconColor = Colors.teal;
     } else {
       iconData = Icons.notifications;
       iconColor = Colors.orange;
     }
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: iconColor.withOpacity(0.1),
+        color: iconColor.withOpacity(0.15),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(iconData, color: iconColor, size: 20),
+      child: Icon(iconData, color: iconColor, size: 22),
     );
   }
 
@@ -322,30 +314,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
     });
 
     if (notification['orderId'] != null) {
-      // Navigate to order detail page
       Navigator.pushNamed(
         context,
-        AppRoutes.orderDetail,
+        AppRoutes.orderTracking,
         arguments: {
-          'id': notification['orderId'],
-          'status': _getOrderStatus(notification['status']),
+          'orderId': notification['orderId'],
+          'status': notification['status'],
         },
       );
-    }
-  }
-
-  String _getOrderStatus(String? notificationStatus) {
-    switch (notificationStatus) {
-      case 'confirmed':
-      case 'preparing':
-      case 'pickup':
-        return 'Active';
-      case 'delivered':
-        return 'Completed';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
-        return 'Active';
     }
   }
 
@@ -364,72 +340,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildBottomNavBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        currentIndex: 3, // Notifications tab is selected
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: '',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: '',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.notifications, color: Colors.white),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: CircleAvatar(
-              radius: 12,
-              backgroundColor: Colors.grey[300],
-              child: const Icon(Icons.person, size: 16, color: Colors.white),
-            ),
-            label: '',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-          } else if (index == 1) {
-            Navigator.pushNamed(context, AppRoutes.ordersHistory);
-          }
-          // Handle other nav items
-        },
-      ),
+    return Consumer<NotificationProvider>(
+      builder: (context, notificationProvider, child) {
+        return CustomBottomNavigation(
+          currentIndex: 3,
+          notificationCount: notificationProvider.unreadCount,
+        );
+      },
     );
   }
 }

@@ -22,6 +22,7 @@ class FoodProvider extends ChangeNotifier {
         'time': '15 min',
         'price': 25000,
         'discount': 20,
+        'isFavorite': false,
         'description':
             'Juicy beef patty with fresh lettuce, tomato, and our special sauce',
         'ingredients': [
@@ -35,7 +36,7 @@ class FoodProvider extends ChangeNotifier {
       },
       {
         'id': 2,
-        'title': 'Chicken Taco',
+        'title': 'Bakso lado',
         'category': 'Taco',
         'rating': 4.6,
         'time': '12 min',
@@ -87,7 +88,7 @@ class FoodProvider extends ChangeNotifier {
       },
       {
         'id': 6,
-        'title': 'Glazed Donut',
+        'title': 'roti pasir putih',
         'category': 'Donat',
         'rating': 4.3,
         'time': '8 min',
@@ -445,6 +446,14 @@ class FoodProvider extends ChangeNotifier {
       return _foods.firstWhere((food) => food['id'] == id);
     } catch (e) {
       return null;
+    }
+  }
+
+  void toggleFavorite(int id) {
+    final index = _foods.indexWhere((food) => food['id'] == id);
+    if (index != -1) {
+      _foods[index]['isFavorite'] = !(_foods[index]['isFavorite'] ?? false);
+      notifyListeners();
     }
   }
 }
