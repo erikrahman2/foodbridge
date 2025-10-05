@@ -69,7 +69,7 @@ class CustomBottomNavigation extends StatelessWidget {
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
                 index: 4,
-                route: null,
+                route: AppRoutes.profile,
                 isProfile: true,
               ),
             ],

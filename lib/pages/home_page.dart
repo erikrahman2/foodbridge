@@ -150,7 +150,7 @@ class _HomePageState extends State<HomePage> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          childAspectRatio: 1,
+          childAspectRatio: 0.75, // UBAH dari 1 ke 0.75 untuk beri ruang teks
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
@@ -172,14 +172,41 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                ],
               ),
-              padding: const EdgeInsets.all(12),
-              child: Image.asset(
-                iconPath,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.fastfood, size: 40);
-                },
+              padding: const EdgeInsets.all(8), // UBAH dari 12 ke 8
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Image.asset(
+                      iconPath,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.fastfood, size: 32);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    categoryName,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
           );
