@@ -74,7 +74,14 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.7),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.purple, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.18),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                ],
               ),
               child: Row(
                 children: [
