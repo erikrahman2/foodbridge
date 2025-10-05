@@ -11,26 +11,6 @@ class CategoryFilter extends StatelessWidget {
     required this.selectedCategory,
   });
 
-  final List<Map<String, dynamic>> categories = const [
-    {'name': 'All', 'icon': '🍽️'},
-    {'name': 'Nasi Goreng', 'icon': '🍚'},
-    {'name': 'Mie', 'icon': '🍜'},
-    {'name': 'Burger', 'icon': '🍔'},
-    {'name': 'Jus', 'icon': '🥤'},
-    {'name': 'Es Krim', 'icon': '🍦'},
-    {'name': 'Roti', 'icon': '🍞'},
-    {'name': 'Gorengan', 'icon': '🍤'},
-    {'name': 'Soto', 'icon': '🍲'},
-    {'name': 'Bakso', 'icon': '🥟'},
-    {'name': 'Sate', 'icon': '🍢'},
-    {'name': 'Nasi Kuning', 'icon': '🍛'},
-    {'name': 'Nasi Uduk', 'icon': '🍚'},
-    {'name': 'Pecel Lele', 'icon': '🐟'},
-    {'name': 'Minuman', 'icon': '☕'},
-    {'name': 'Salad', 'icon': '🥗'},
-    {'name': 'Pizza', 'icon': '🍕'},
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -39,9 +19,9 @@ class CategoryFilter extends StatelessWidget {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: AppSizes.paddingMedium),
-        itemCount: categories.length,
+        itemCount: AppCategories.filterCategories.length,
         itemBuilder: (context, index) {
-          final category = categories[index];
+          final category = AppCategories.filterCategories[index];
           final isSelected = category['name'] == selectedCategory;
 
           return GestureDetector(

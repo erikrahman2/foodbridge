@@ -77,3 +77,66 @@ class AppTextStyles {
     color: Colors.white,
   );
 }
+
+class AppCategories {
+  static const List<Map<String, dynamic>> categories = [
+    {
+      'name': 'Burger',
+      'icon': 'assets/icons/burgercat.png',
+      'color': Colors.orange,
+    },
+    {
+      'name': 'Fried',
+      'icon': 'assets/icons/friedcat.png',
+      'color': Colors.yellow,
+    },
+    {
+      'name': 'Ice Cream',
+      'icon': 'assets/icons/iscat.png',
+      'color': Colors.blue,
+    },
+    {'name': 'Drink', 'icon': 'assets/icons/juscat.png', 'color': Colors.red},
+    {'name': 'Noodles', 'icon': 'assets/icons/mie.png', 'color': Colors.yellow},
+    {
+      'name': 'Bread',
+      'icon': 'assets/icons/roticat.png',
+      'color': Colors.brown,
+    },
+    {
+      'name': 'Soto',
+      'icon': 'assets/icons/sotocat.png',
+      'color': Colors.orange,
+    },
+    {
+      'name': 'Nasi Kuning',
+      'icon': 'assets/icons/nasningcat.png',
+      'color': Colors.yellow,
+    },
+    {
+      'name': 'Nasi Goreng',
+      'icon': 'assets/icons/nasgorcat.png',
+      'color': Colors.orange,
+    },
+    {'name': 'More', 'icon': 'assets/icons/more.png', 'color': Colors.grey},
+  ];
+
+  static const List<Map<String, dynamic>> filterCategories = [
+    {'name': 'All', 'icon': '🍽️'},
+    {'name': 'Nasi Goreng', 'icon': '🍚'},
+    {'name': 'Mie', 'icon': '🍜'},
+    {'name': 'Burger', 'icon': '🍔'},
+    {'name': 'Jus', 'icon': '🥤'},
+    {'name': 'Es Krim', 'icon': '🍦'},
+    {'name': 'Roti', 'icon': '🍞'},
+    {'name': 'Gorengan', 'icon': '🍤'},
+    {'name': 'Soto', 'icon': '🍲'},
+    {'name': 'Bakso', 'icon': '🥟'},
+    {'name': 'Sate', 'icon': '🍢'},
+    {'name': 'Nasi Kuning', 'icon': '🍛'},
+    {'name': 'Nasi Uduk', 'icon': '🍚'},
+    {'name': 'Pecel Lele', 'icon': '🐟'},
+    {'name': 'Minuman', 'icon': '☕'},
+    {'name': 'Salad', 'icon': '🥗'},
+    {'name': 'Pizza', 'icon': '🍕'},
+  ];
+}

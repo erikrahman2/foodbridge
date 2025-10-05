@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../widgets/food_card.dart';
 import '../widgets/custom_bottom_navigation.dart';
 import '../providers/notification_provider.dart';
+import '../providers/food_provider.dart'; // ✅ TAMBAHAN: Import FoodProvider
 import '../utils/constants.dart';
 import '../routes/app_routes.dart';
 
@@ -17,65 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String deliveryAddress = "No. 1 Bungo Pasang";
 
-  final List<Map<String, dynamic>> categories = [
-    {
-      'icon': 'assets/icons/burgercat.png',
-      'name': 'Burger',
-      'color': Colors.orange,
-    },
-    {
-      'icon': 'assets/icons/friedcat.png',
-      'name': 'Fried',
-      'color': Colors.yellow,
-    },
-    {
-      'icon': 'assets/icons/iscat.png',
-      'name': 'Ice Cream',
-      'color': Colors.blue,
-    },
-    {'icon': 'assets/icons/juscat.png', 'name': 'Drink', 'color': Colors.red},
-    {'icon': 'assets/icons/mie.png', 'name': 'Noodles', 'color': Colors.yellow},
-    {
-      'icon': 'assets/icons/roticat.png',
-      'name': 'Bread',
-      'color': Colors.brown,
-    },
-    {
-      'icon': 'assets/icons/sotocat.png',
-      'name': 'Soto',
-      'color': Colors.orange,
-    },
-    {
-      'icon': 'assets/icons/nasningcat.png',
-      'name': 'Nasi Kuning',
-      'color': Colors.yellow,
-    },
-    {
-      'icon': 'assets/icons/nasgorcat.png',
-      'name': 'Nasi Goreng',
-      'color': Colors.orange,
-    },
-    {'icon': 'assets/icons/more.png', 'name': 'More', 'color': Colors.grey},
-  ];
-
-  final List<Map<String, dynamic>> specialOffers = [
-    {
-      'title': 'Delicious Burger',
-      'rating': 4.9,
-      'time': '15 min',
-      'image': 'assets/burger1.jpg',
-      'price': 25000,
-      'discount': 20,
-    },
-    {
-      'title': 'Crispy Chicken',
-      'rating': 4.8,
-      'time': '20 min',
-      'image': 'assets/burger2.jpg',
-      'price': 30000,
-      'discount': 15,
-    },
-  ];
+  // ✅ DIHAPUS: List specialOffers hardcoded, sekarang ambil dari FoodProvider
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +26,8 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: SingleChildScrollView(
+          physics:
+              const BouncingScrollPhysics(), // PERBAIKAN: Scroll lebih mulus
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -199,19 +144,19 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategoryGrid() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          childAspectRatio: 0.9, // biar ada space untuk teks di bawah icon
+          childAspectRatio: 1,
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
-        itemCount: categories.length,
+        itemCount: AppCategories.categories.length,
         itemBuilder: (context, index) {
-          final category = categories[index];
+          final category = AppCategories.categories[index];
           final String iconPath = category['icon'] as String;
           final String categoryName = category['name'] as String;
 
@@ -225,48 +170,16 @@ class _HomePageState extends State<HomePage> {
             },
             child: Container(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(
-                  255,
-                  255,
-                  255,
-                  255,
-                ), // warna background soft
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        iconPath,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.fastfood, size: 40);
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    categoryName,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 5),
-                ],
+              padding: const EdgeInsets.all(12),
+              child: Image.asset(
+                iconPath,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.fastfood, size: 40);
+                },
               ),
             ),
           );
@@ -275,59 +188,86 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // ✅ PERUBAHAN: Menggunakan Consumer FoodProvider untuk ambil data dinamis
   Widget _buildSpecialOffers() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<FoodProvider>(
+      builder: (context, foodProvider, child) {
+        // Filter makanan yang punya diskon dari FoodProvider
+        final specialOffers =
+            foodProvider.foods
+                .where(
+                  (food) =>
+                      food['discount'] != null && (food['discount'] as num) > 0,
+                )
+                .toList();
+
+        // Sembunyikan section jika tidak ada diskon
+        if (specialOffers.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // Batasi maksimal 4 item untuk ditampilkan
+        final displayOffers = specialOffers.take(15).toList();
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
             children: [
-              const Text(
-                'Special Offers',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.menuList),
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Special Offers',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                  GestureDetector(
+                    onTap:
+                        () => Navigator.pushNamed(context, AppRoutes.menuList),
+                    child: const Text(
+                      'View All',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+              // PERBAIKAN: Gunakan GridView tanpa horizontal scroll
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
                 ),
+                itemCount: displayOffers.length,
+                itemBuilder: (context, index) {
+                  final offer = displayOffers[index];
+                  return FoodCard(
+                    title: offer['title'] as String,
+                    rating: (offer['rating'] as num).toDouble(),
+                    time: offer['time'] as String,
+                    price: offer['price'] as int,
+                    discount: offer['discount'] as int,
+                    imagePath: offer['image'] as String,
+                    onTap:
+                        () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.mealDetail,
+                          arguments: offer,
+                        ),
+                  );
+                },
               ),
             ],
           ),
-          const SizedBox(height: 15),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children:
-                  specialOffers.map((offer) {
-                    return Container(
-                      width: 160,
-                      margin: const EdgeInsets.only(right: 10),
-                      child: FoodCard(
-                        title: offer['title'],
-                        rating: offer['rating'],
-                        time: offer['time'],
-                        price: offer['price'],
-                        discount: offer['discount'],
-                        onTap:
-                            () => Navigator.pushNamed(
-                              context,
-                              AppRoutes.mealDetail,
-                              arguments: offer,
-                            ),
-                      ),
-                    );
-                  }).toList(),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -425,8 +365,9 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
       'title': 'UP TO\n60% OFF',
       'subtitle': 'Salad Category',
       'color': Color(0xFF0D9488),
-      'image': 'assets/images/saladb.png',
-      'type': 'split_layout',
+      'image': 'assets/images/saladb.png', // PERBAIKAN: Gunakan saladb.png
+      'type':
+          'image_background', // PERBAIKAN: Ubah ke image_background untuk full background
     },
   ];
 
@@ -501,7 +442,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
     String subtitle,
     Color color,
     String imagePath,
-    String type,
+    String type, // ✅ PERBAIKAN: Tambahkan parameter type yang hilang
   ) {
     return Container(
       margin: const EdgeInsets.only(right: 10),
@@ -519,7 +460,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // 🔹 Cek type untuk tentukan style
+            // ✅ CEK TYPE: Tentukan style banner berdasarkan type
             if (type == 'gradient_with_image') ...[
               // Background diagonal split
               Positioned.fill(
@@ -579,34 +520,59 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                         imagePath,
                         fit: BoxFit.cover,
                         height: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.white.withOpacity(0.2),
+                            child: const Icon(
+                              Icons.fastfood,
+                              color: Colors.white,
+                              size: 50,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
                 ],
               ),
-            ] else ...[
-              // 🔹 Full background image (banner ke-2 & ke-3)
-              Positioned.fill(child: Image.asset(imagePath, fit: BoxFit.cover)),
-              // Tambahin gradient biar teks kebaca
+            ] else if (type == 'image_background') ...[
+              // Full background image untuk banner ke-2
+              Positioned.fill(
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.black87,
+                      child: const Icon(
+                        Icons.fastfood,
+                        color: Colors.white,
+                        size: 50,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // Gradient overlay untuk keterbacaan teks
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.black.withOpacity(0.5),
+                        Colors.black.withOpacity(0.7),
                         Colors.transparent,
+                        Colors.black.withOpacity(0.4),
                       ],
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.topRight,
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                     ),
                   ),
                 ),
               ),
-              // Text overlay di atas gambar
+              // Text overlay
               Positioned(
                 left: 20,
                 top: 20,
-                right: 20,
                 bottom: 20,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,23 +581,30 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                     Text(
                       category.toUpperCase(),
                       style: const TextStyle(
-                        color: Colors.white70,
+                        color: Colors.white,
                         fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
+                      style: TextStyle(
+                        color: Colors.orange[400],
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        height: 1.2,
+                        height: 1.0,
+                        shadows: const [
+                          Shadow(
+                            color: Colors.black54,
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       subtitle,
                       style: const TextStyle(
@@ -642,6 +615,77 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                     ),
                   ],
                 ),
+              ),
+            ] else ...[
+              // Split layout untuk banner ke-3
+              Row(
+                children: [
+                  // Left: Gradient background
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [color, color.withOpacity(0.7)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            category.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            subtitle,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Right: Image
+                  Expanded(
+                    child: Image.asset(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[300],
+                          child: Icon(
+                            Icons.restaurant,
+                            color: Colors.grey[600],
+                            size: 50,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ],
