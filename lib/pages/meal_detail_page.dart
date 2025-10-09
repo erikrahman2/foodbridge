@@ -215,61 +215,202 @@ class _MealDetailPageState extends State<MealDetailPage> {
       ),
       child: Row(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
+          // Harga di kiri
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  onPressed:
-                      quantity > 1
-                          ? () {
-                            setState(() {
-                              quantity--;
-                            });
-                          }
-                          : null,
-                  icon: const Icon(Icons.remove),
+                Text(
+                  'Total Price',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
-                Text(quantity.toString()),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      quantity++;
-                    });
-                  },
-                  icon: const Icon(Icons.add),
+                const SizedBox(height: 4),
+                Text(
+                  'Rp ${food!['price'].toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                context.read<CartProvider>().addToCart(
-                  food!,
-                  quantity: quantity,
-                );
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Added to cart!')));
-                Navigator.pushNamed(context, AppRoutes.cart);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+          const SizedBox(width: 12),
+          // Tombol Add to Cart (icon keranjang)
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.orange, width: 2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              onPressed: () => _showQuantityDialog(isAddToCart: true),
+              icon: const Icon(Icons.shopping_cart_outlined),
+              color: Colors.orange,
+              iconSize: 28,
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Tombol Buy Now
+          ElevatedButton(
+            onPressed: () => _showQuantityDialog(isAddToCart: false),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                'Add to Cart - Rp ${(food!['price'] * quantity).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
-                style: const TextStyle(color: Colors.white),
-              ),
+            ),
+            child: const Text(
+              'Buy Now',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // Fungsi untuk menampilkan dialog quantity
+  void _showQuantityDialog({required bool isAddToCart}) {
+    int tempQuantity = 1;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text(
+                'Select Quantity',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Quantity selector
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              onPressed:
+                                  tempQuantity > 1
+                                      ? () {
+                                        setDialogState(() {
+                                          tempQuantity--;
+                                        });
+                                      }
+                                      : null,
+                              icon: const Icon(Icons.remove, size: 20),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Text(
+                                tempQuantity.toString(),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setDialogState(() {
+                                  tempQuantity++;
+                                });
+                              },
+                              icon: const Icon(Icons.add, size: 20),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Total harga
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Total:',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'Rp ${(food!['price'] * tempQuantity).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      quantity = tempQuantity;
+                    });
+
+                    // Add to cart
+                    context.read<CartProvider>().addToCart(
+                      food!,
+                      quantity: tempQuantity,
+                    );
+
+                    Navigator.pop(context);
+
+                    if (isAddToCart) {
+                      // Show snackbar for add to cart
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Added to cart!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      // Navigate to payment for buy now
+                      Navigator.pushNamed(context, AppRoutes.payment);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(isAddToCart ? 'Add to Cart' : 'Buy Now'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

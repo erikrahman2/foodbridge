@@ -274,9 +274,7 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: Icons.help_outline,
             title: 'Pusat Bantuan',
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Membuka pusat bantuan...')),
-              );
+              Navigator.pushNamed(context, AppRoutes.helpCenter);
             },
           ),
         ],

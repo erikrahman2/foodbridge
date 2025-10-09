@@ -10,6 +10,7 @@ import '../pages/orders_history_page.dart';
 import '../pages/notifications_page.dart';
 import '../pages/favorite_page.dart';
 import '../pages/profile_page.dart';
+import '../pages/help_center_page.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -29,6 +30,7 @@ class AppPages {
     AppRoutes.notifications:
         (context) => NotificationsPage(), // PERBAIKAN: Tanpa const
     AppRoutes.favorites: (context) => FavoritePage(),
+    AppRoutes.helpCenter: (context) => const HelpCenterPage(),
     AppRoutes.profile: (context) => ProfilePage(),
   };
 }
