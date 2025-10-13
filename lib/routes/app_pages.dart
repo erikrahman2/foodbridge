@@ -12,6 +12,7 @@ import '../pages/favorite_page.dart';
 import '../pages/profile_page.dart';
 import '../pages/help_center_page.dart';
 import 'app_routes.dart';
+import '../pages/location_picker_page.dart';
 
 class AppPages {
   static Map<String, WidgetBuilder> routes = {
@@ -29,8 +30,9 @@ class AppPages {
         (context) => OrdersHistoryPage(), // PERBAIKAN: Tanpa const
     AppRoutes.notifications:
         (context) => NotificationsPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.favorites: (context) => FavoritePage(),
+    AppRoutes.favorite: (context) => FavoritePage(),
     AppRoutes.helpCenter: (context) => const HelpCenterPage(),
     AppRoutes.profile: (context) => ProfilePage(),
+    AppRoutes.locationPicker: (context) => const LocationPickerPage(),
   };
 }

@@ -3,12 +3,16 @@ import '../utils/constants.dart';
 
 class CartItem extends StatelessWidget {
   final Map<String, dynamic> food;
+  final bool isSelected;
+  final Function(bool?) onSelectedChanged;
   final Function(int) onQuantityChanged;
   final VoidCallback onRemoved;
 
   const CartItem({
     super.key,
     required this.food,
+    required this.isSelected,
+    required this.onSelectedChanged,
     required this.onQuantityChanged,
     required this.onRemoved,
   });
@@ -19,28 +23,118 @@ class CartItem extends StatelessWidget {
     final price = food['price'] as int;
     final totalPrice = price * quantity;
 
+    return Dismissible(
+      key: Key(food['id'].toString()),
+      direction: DismissDirection.endToStart,
+      background: _buildSwipeBackground(),
+      confirmDismiss: (direction) async {
+        return await _showDeleteConfirmDialog(context);
+      },
+      onDismissed: (direction) {
+        onRemoved();
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppSizes.borderRadius),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryOrange : Colors.transparent,
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Checkbox
+            Transform.scale(
+              scale: 1.2,
+              child: Checkbox(
+                value: isSelected,
+                onChanged: onSelectedChanged,
+                activeColor: AppColors.primaryOrange,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _buildFoodImage(),
+            const SizedBox(width: 12),
+            Expanded(child: _buildFoodInfo()),
+            _buildQuantityControls(quantity),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwipeBackground() {
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.red,
         borderRadius: BorderRadius.circular(AppSizes.borderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-            offset: Offset(0, 2),
+      ),
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.delete_outline, color: Colors.white, size: 32),
+          SizedBox(height: 4),
+          Text(
+            'Delete',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          _buildFoodImage(),
-          SizedBox(width: 12),
-          Expanded(child: _buildFoodInfo()),
-          _buildQuantityControls(quantity),
-        ],
-      ),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Text(
+              'Delete Item',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Text(
+              'Are you sure you want to remove "${food['title']}" from cart?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
     );
   }
 
@@ -83,26 +177,14 @@ class CartItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                food['title'],
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            GestureDetector(
-              onTap: onRemoved,
-              child: Icon(Icons.delete_outline, color: Colors.red, size: 20),
-            ),
-          ],
+        Text(
+          food['title'],
+          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
-        SizedBox(height: 4),
-        if (food['discount'] != null) ...[
+        const SizedBox(height: 4),
+        if (food['discount'] != null && food['discount'] > 0) ...[
           Text(
             'Rp ${((price * (1 + food['discount'] / 100)).toInt()).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
             style: AppTextStyles.bodySmall.copyWith(
@@ -110,7 +192,7 @@ class CartItem extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
         ],
         Text(
           'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} × $quantity',
@@ -118,7 +200,7 @@ class CartItem extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           'Rp ${totalPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
           style: AppTextStyles.bodyMedium.copyWith(
@@ -142,7 +224,7 @@ class CartItem extends StatelessWidget {
           GestureDetector(
             onTap: quantity > 1 ? () => onQuantityChanged(quantity - 1) : null,
             child: Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               child: Icon(
                 Icons.remove,
                 size: 16,
@@ -151,7 +233,7 @@ class CartItem extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Text(
               quantity.toString(),
               style: AppTextStyles.bodyMedium.copyWith(
@@ -162,8 +244,8 @@ class CartItem extends StatelessWidget {
           GestureDetector(
             onTap: () => onQuantityChanged(quantity + 1),
             child: Container(
-              padding: EdgeInsets.all(8),
-              child: Icon(Icons.add, size: 16, color: Colors.black),
+              padding: const EdgeInsets.all(8),
+              child: const Icon(Icons.add, size: 16, color: Colors.black),
             ),
           ),
         ],

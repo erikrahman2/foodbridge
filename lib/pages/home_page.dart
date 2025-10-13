@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../pages/location_picker_page.dart';
 import '../widgets/food_card.dart';
 import '../widgets/custom_bottom_navigation.dart';
 import '../providers/notification_provider.dart';
-import '../providers/food_provider.dart'; // ✅ TAMBAHAN: Import FoodProvider
+import '../providers/food_provider.dart';
+import '../providers/cart_provider.dart';
 import '../utils/constants.dart';
 import '../routes/app_routes.dart';
 
@@ -16,9 +19,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String deliveryAddress = "No. 1 Bungo Pasang";
-
-  // ✅ DIHAPUS: List specialOffers hardcoded, sekarang ambil dari FoodProvider
+  String deliveryAddress = "Select your address";
+  String deliveryLabel = "Home";
+  double? latitude;
+  double? longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +30,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: SingleChildScrollView(
-          physics:
-              const BouncingScrollPhysics(), // PERBAIKAN: Scroll lebih mulus
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -50,50 +53,135 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Text(
-                      'Deliver to',
-                      style: TextStyle(color: Colors.black54, fontSize: 14),
-                    ),
-                    Icon(Icons.keyboard_arrow_right, color: Colors.black54),
-                    Text(
-                      'Home',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+            child: GestureDetector(
+              onTap: () async {
+                // Navigate ke location picker
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => LocationPickerPage(
+                          initialPosition:
+                              latitude != null && longitude != null
+                                  ? LatLng(latitude!, longitude!)
+                                  : null,
+                          currentAddress: deliveryAddress,
+                        ),
+                  ),
+                );
+
+                // Update alamat jika user memilih lokasi
+                if (result != null) {
+                  setState(() {
+                    deliveryAddress = result['address'];
+                    latitude = result['latitude'];
+                    longitude = result['longitude'];
+                  });
+                }
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'Deliver to',
+                        style: TextStyle(color: Colors.black54, fontSize: 14),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      deliveryAddress,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      const Icon(
+                        Icons.keyboard_arrow_right,
+                        color: Colors.black54,
                       ),
-                    ),
-                    const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-                  ],
-                ),
-              ],
+                      Text(
+                        deliveryLabel,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          deliveryAddress,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.keyboard_arrow_down,
+                        color: AppColors.primaryOrange,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
+          // ✅ FITUR BARU: Shopping bag dengan badge dan navigasi ke cart
+          Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.cart);
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.shopping_bag_outlined,
+                        color: Colors.black,
+                        size: 24,
+                      ),
+                    ),
+                    if (cartProvider.totalItems > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryOrange,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Text(
+                            cartProvider.totalItems > 99
+                                ? '99+'
+                                : cartProvider.totalItems.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -158,7 +246,7 @@ class _HomePageState extends State<HomePage> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          childAspectRatio: 0.75, // UBAH dari 1 ke 0.75 untuk beri ruang teks
+          childAspectRatio: 0.75,
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
@@ -189,7 +277,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.all(8), // UBAH dari 12 ke 8
+              padding: const EdgeInsets.all(8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -223,11 +311,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ✅ PERUBAHAN: Menggunakan Consumer FoodProvider untuk ambil data dinamis
   Widget _buildSpecialOffers() {
     return Consumer<FoodProvider>(
       builder: (context, foodProvider, child) {
-        // Filter makanan yang punya diskon dari FoodProvider
         final specialOffers =
             foodProvider.foods
                 .where(
@@ -236,12 +322,10 @@ class _HomePageState extends State<HomePage> {
                 )
                 .toList();
 
-        // Sembunyikan section jika tidak ada diskon
         if (specialOffers.isEmpty) {
           return const SizedBox.shrink();
         }
 
-        // Batasi maksimal 4 item untuk ditampilkan
         final displayOffers = specialOffers.take(15).toList();
 
         return Container(
@@ -270,7 +354,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 15),
-              // PERBAIKAN: Gunakan GridView tanpa horizontal scroll
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -336,8 +419,8 @@ class _DiagonalSplitPainter extends CustomPainter {
 
     final path = Path();
     path.moveTo(0, 0);
-    path.lineTo(size.width * 0.45, 0); // 45% dari atas
-    path.lineTo(size.width * 0.65, size.height); // 65% dari bawah
+    path.lineTo(size.width * 0.45, 0);
+    path.lineTo(size.width * 0.65, size.height);
     path.lineTo(0, size.height);
     path.close();
 
@@ -356,7 +439,7 @@ class _DiagonalClipper extends CustomClipper<Path> {
     path.moveTo(0, 0);
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
-    path.lineTo(size.width * 0.2, size.height); // Mulai dari 20% kiri bawah
+    path.lineTo(size.width * 0.2, size.height);
     path.close();
     return path;
   }
@@ -390,7 +473,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
     {
       'category': 'COUPLES DEAL',
       'title': 'Double\nhappiness.',
-      'subtitle': 'Happy Valentine\'s Day',
+      'subtitle': 'Happy Family Day',
       'color': Colors.black87,
       'image': 'assets/images/mieayam.jpg',
       'type': 'image_background',
@@ -400,9 +483,8 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
       'title': 'UP TO\n60% OFF',
       'subtitle': 'Salad Category',
       'color': Color(0xFF0D9488),
-      'image': 'assets/images/saladb.png', // PERBAIKAN: Gunakan saladb.png
-      'type':
-          'image_background', // PERBAIKAN: Ubah ke image_background untuk full background
+      'image': 'assets/images/saladb.png',
+      'type': 'image_background',
     },
   ];
 
@@ -477,7 +559,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
     String subtitle,
     Color color,
     String imagePath,
-    String type, // ✅ PERBAIKAN: Tambahkan parameter type yang hilang
+    String type,
   ) {
     return Container(
       margin: const EdgeInsets.only(right: 10),
@@ -495,9 +577,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // ✅ CEK TYPE: Tentukan style banner berdasarkan type
             if (type == 'gradient_with_image') ...[
-              // Background diagonal split
               Positioned.fill(
                 child: CustomPaint(
                   painter: _DiagonalSplitPainter(color: color),
@@ -505,7 +585,6 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
               ),
               Row(
                 children: [
-                  // Left side text
                   Expanded(
                     flex: 5,
                     child: Padding(
@@ -546,7 +625,6 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                       ),
                     ),
                   ),
-                  // Right side image diagonal
                   Expanded(
                     flex: 4,
                     child: ClipPath(
@@ -571,7 +649,6 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                 ],
               ),
             ] else if (type == 'image_background') ...[
-              // Full background image untuk banner ke-2
               Positioned.fill(
                 child: Image.asset(
                   imagePath,
@@ -588,7 +665,6 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                   },
                 ),
               ),
-              // Gradient overlay untuk keterbacaan teks
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
@@ -604,7 +680,6 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                   ),
                 ),
               ),
-              // Text overlay
               Positioned(
                 left: 20,
                 top: 20,
@@ -652,10 +727,8 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                 ),
               ),
             ] else ...[
-              // Split layout untuk banner ke-3
               Row(
                 children: [
-                  // Left: Gradient background
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -702,7 +775,6 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                       ),
                     ),
                   ),
-                  // Right: Image
                   Expanded(
                     child: Image.asset(
                       imagePath,

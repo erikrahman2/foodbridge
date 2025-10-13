@@ -21,8 +21,11 @@ class CartPage extends StatelessWidget {
 
           return Column(
             children: [
-              Expanded(child: _buildCartItems(cartProvider)),
-              _buildOrderSummary(context, cartProvider),
+              _buildSelectAllSection(cartProvider),
+              Expanded(child: _buildCartItems(cartProvider, context)),
+              // ✅ Order Summary hanya muncul jika ada item yang diceklis
+              if (cartProvider.selectedItemIds.isNotEmpty)
+                _buildOrderSummary(context, cartProvider),
             ],
           );
         },
@@ -40,6 +43,88 @@ class CartPage extends StatelessWidget {
       ),
       title: const Text('My Cart', style: AppTextStyles.heading3),
       centerTitle: true,
+      actions: [
+        Consumer<CartProvider>(
+          builder: (context, cartProvider, child) {
+            if (cartProvider.cartItems.isEmpty) return const SizedBox.shrink();
+
+            return PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.black),
+              onSelected: (value) {
+                if (value == 'clear_all') {
+                  _showClearCartDialog(context, cartProvider);
+                } else if (value == 'clear_selected') {
+                  _showClearSelectedDialog(context, cartProvider);
+                }
+              },
+              itemBuilder:
+                  (context) => [
+                    const PopupMenuItem(
+                      value: 'clear_selected',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete_outline, color: Colors.orange),
+                          SizedBox(width: 8),
+                          Text('Clear Selected'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'clear_all',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete_forever, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Clear All'),
+                        ],
+                      ),
+                    ),
+                  ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectAllSection(CartProvider cartProvider) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.paddingMedium,
+        vertical: 12,
+      ),
+      child: Row(
+        children: [
+          Transform.scale(
+            scale: 1.2,
+            child: Checkbox(
+              value: cartProvider.areAllItemsSelected,
+              onChanged: (isSelected) {
+                if (isSelected == true) {
+                  cartProvider.selectAllItems();
+                } else {
+                  cartProvider.deselectAllItems();
+                }
+              },
+              activeColor: AppColors.primaryOrange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            'Select All',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const Spacer(),
+          Text(
+            '${cartProvider.selectedItemIds.length} of ${cartProvider.cartItems.length} selected',
+            style: AppTextStyles.bodySmall.copyWith(color: Colors.grey[600]),
+          ),
+        ],
+      ),
     );
   }
 
@@ -76,7 +161,7 @@ class CartPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCartItems(CartProvider cartProvider) {
+  Widget _buildCartItems(CartProvider cartProvider, BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.all(AppSizes.paddingMedium),
       itemCount: cartProvider.cartItems.length,
@@ -84,15 +169,21 @@ class CartPage extends StatelessWidget {
         final item = cartProvider.cartItems[index];
         return CartItem(
           food: item,
+          isSelected: cartProvider.isItemSelected(item['id']),
+          onSelectedChanged: (isSelected) {
+            cartProvider.toggleItemSelection(item['id'], isSelected ?? false);
+          },
           onQuantityChanged: (quantity) {
             cartProvider.updateQuantity(item['id'], quantity);
           },
           onRemoved: () {
             cartProvider.removeFromCart(item['id']);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Item removed from cart'),
+              SnackBar(
+                content: Text('${item['title']} removed from cart'),
                 backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
               ),
             );
           },
@@ -102,7 +193,8 @@ class CartPage extends StatelessWidget {
   }
 
   Widget _buildOrderSummary(BuildContext context, CartProvider cartProvider) {
-    final subtotal = cartProvider.totalPrice;
+    // ✅ Hitung hanya dari item yang diceklis
+    final subtotal = cartProvider.selectedTotalPrice;
     const deliveryFee = 5000.0;
     final tax = subtotal * 0.1;
     final total = subtotal + deliveryFee + tax;
@@ -123,42 +215,85 @@ class CartPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Order Summary', style: AppTextStyles.heading3),
-          const SizedBox(height: 16),
-          _buildSummaryRow('Subtotal', subtotal),
-          _buildSummaryRow('Delivery Fee', deliveryFee),
-          _buildSummaryRow('Tax (10%)', tax),
-          const Divider(thickness: 1),
-          _buildSummaryRow('Total', total, isTotal: true),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.payment);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryOrange,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Order Summary', style: AppTextStyles.heading3),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryOrange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${cartProvider.selectedItemsCount} items',
+                    style: const TextStyle(
+                      color: AppColors.primaryOrange,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSummaryRow('Subtotal', subtotal),
+            _buildSummaryRow('Delivery Fee', deliveryFee),
+            _buildSummaryRow('Tax (10%)', tax),
+            const Divider(thickness: 1),
+            _buildSummaryRow('Total', total, isTotal: true),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.payment,
+                    arguments: {
+                      'items': cartProvider.selectedItems,
+                      'subtotal': subtotal,
+                      'deliveryFee': deliveryFee,
+                      'tax': tax,
+                      'total': total,
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryOrange,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Proceed to Checkout',
+                  style: AppTextStyles.button,
                 ),
               ),
-              child: const Text(
-                'Proceed to Checkout',
-                style: AppTextStyles.button,
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSummaryRow(String label, double amount, {bool isTotal = false}) {
+    // Format number dengan pemisah ribuan
+    String formatPrice(int price) {
+      return price.toString().replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]}.',
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -174,7 +309,7 @@ class CartPage extends StatelessWidget {
                     : AppTextStyles.bodyMedium,
           ),
           Text(
-            'Rp ${amount.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+            'Rp ${formatPrice(amount.toInt())}',
             style:
                 isTotal
                     ? AppTextStyles.bodyLarge.copyWith(
@@ -185,6 +320,119 @@ class CartPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showClearCartDialog(BuildContext context, CartProvider cartProvider) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Text(
+              'Clear Cart',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: const Text(
+              'Are you sure you want to remove all items from your cart?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  cartProvider.clearCart();
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Cart cleared'),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Clear All',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showClearSelectedDialog(
+    BuildContext context,
+    CartProvider cartProvider,
+  ) {
+    if (cartProvider.selectedItemIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No items selected'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Text(
+              'Clear Selected Items',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Text(
+              'Remove ${cartProvider.selectedItemIds.length} selected items from cart?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  final count = cartProvider.selectedItemIds.length;
+                  cartProvider.clearSelectedItems();
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('$count items removed'),
+                      backgroundColor: AppColors.primaryOrange,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Remove',
+                  style: TextStyle(
+                    color: AppColors.primaryOrange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
     );
   }
 }

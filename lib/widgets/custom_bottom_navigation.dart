@@ -109,7 +109,7 @@ class CustomBottomNavigation extends StatelessWidget {
             // Handle custom routes
             if (index == 2) {
               // Favorites
-              Navigator.pushNamed(context, '/favorites');
+              Navigator.pushNamed(context, '/favorite');
             } else if (index == 4) {
               // Profile
               Navigator.pushNamed(context, '/profile');
