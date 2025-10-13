@@ -43,6 +43,17 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void paymentSuccessful(String orderId) {
+    addNotification(
+      title: 'Payment Successful',
+      message:
+          'Thank you for your order! Your payment has been successfully processed.',
+      type: 'payment_success',
+      orderId: orderId,
+      status: 'paid',
+    );
+  }
+
   void orderConfirmed(String orderId) {
     addNotification(
       title: 'Order Confirmed',

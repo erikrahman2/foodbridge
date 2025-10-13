@@ -14,9 +14,9 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   // Data user
-  String userName = 'Kimi Maulana Najna';
+  String userName = 'Foodbridge User';
   String userPhone = '(+62) 822 1457 1111';
-  String userEmail = 'kimimaulana@icloud.com';
+  String userEmail = 'Foodbridgenoname@icloud.com';
   String userLanguage = 'Indonesia';
   bool notificationsEnabled = true;
   bool darkModeEnabled = false;

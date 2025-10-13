@@ -14,7 +14,13 @@ dependencies:
     sdk: flutter
 
   # State Management
-  provider: ^6.0.5
+  provider:
+    ^6.1.1
+
+    # Google Maps & Location
+  google_maps_flutter: ^2.5.0
+  geolocator: ^10.1.0
+  geocoding: ^2.1.1
 
   # UI Components
   cupertino_icons: ^1.0.8
