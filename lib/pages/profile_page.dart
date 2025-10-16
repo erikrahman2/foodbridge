@@ -68,8 +68,9 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Text(
               'Profile',
               style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
@@ -144,6 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Text(
             userName,
             style: const TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black,
@@ -157,7 +159,11 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(width: 4),
               Text(
                 userPhone,
-                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 13,
+                  color: Colors.grey[700],
+                ),
               ),
             ],
           ),
@@ -169,7 +175,11 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(width: 4),
               Text(
                 userEmail,
-                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 13,
+                  color: Colors.grey[700],
+                ),
               ),
             ],
           ),
@@ -190,6 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Text(
                     'Logout',
                     style: TextStyle(
+                      fontFamily: 'Poppins',
                       color: Colors.black,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
@@ -300,6 +311,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 const Text(
                   'Bahasa',
                   style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
@@ -321,6 +333,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Text(
                           userLanguage,
                           style: const TextStyle(
+                            fontFamily: 'Poppins',
                             fontSize: 13,
                             color: Colors.black87,
                           ),
@@ -392,6 +405,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text(
                 title,
                 style: const TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: Colors.black87,
@@ -418,6 +432,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Text(
             title,
             style: const TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 15,
               fontWeight: FontWeight.w500,
               color: Colors.black87,
@@ -455,11 +470,20 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Edit $title'),
+            title: Text(
+              'Edit $title',
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             content: TextField(
               controller: controller,
               decoration: InputDecoration(
                 labelText: title,
+                labelStyle: const TextStyle(
+                  fontFamily: 'Poppins',
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -468,21 +492,38 @@ class _ProfilePageState extends State<ProfilePage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Batal'),
+                child: const Text(
+                  'Batal',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
                   onSave(controller.text);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('$title berhasil diperbarui')),
+                    SnackBar(
+                      content: Text(
+                        '$title berhasil diperbarui',
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Simpan'),
+                child: const Text(
+                  'Simpan',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                  ),
+                ),
               ),
             ],
           ),
@@ -494,12 +535,23 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Pilih Bahasa'),
+            title: const Text(
+              'Pilih Bahasa',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  title: const Text('Indonesia'),
+                  title: const Text(
+                    'Indonesia',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
                   trailing:
                       userLanguage == 'Indonesia'
                           ? const Icon(Icons.check, color: Colors.orange)
@@ -510,7 +562,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 ),
                 ListTile(
-                  title: const Text('English'),
+                  title: const Text(
+                    'English',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
                   trailing:
                       userLanguage == 'English'
                           ? const Icon(Icons.check, color: Colors.orange)
@@ -531,7 +588,13 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Keamanan'),
+            title: const Text(
+              'Keamanan',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,7 +602,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.lock_outline),
-                  title: const Text('Ubah Password'),
+                  title: const Text(
+                    'Ubah Password',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     _showChangePasswordDialog();
@@ -548,7 +616,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.fingerprint),
-                  title: const Text('Biometric Login'),
+                  title: const Text(
+                    'Biometric Login',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -561,7 +634,12 @@ class _ProfilePageState extends State<ProfilePage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Tutup'),
+                child: const Text(
+                  'Tutup',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                  ),
+                ),
               ),
             ],
           ),
@@ -577,34 +655,49 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Ubah Password'),
+            title: const Text(
+              'Ubah Password',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: oldPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Password Lama',
-                    border: OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Poppins',
+                    ),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: newPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Password Baru',
-                    border: OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Poppins',
+                    ),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: confirmPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Konfirmasi Password Baru',
-                    border: OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Poppins',
+                    ),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
               ],
@@ -612,7 +705,12 @@ class _ProfilePageState extends State<ProfilePage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Batal'),
+                child: const Text(
+                  'Batal',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -620,11 +718,25 @@ class _ProfilePageState extends State<ProfilePage> {
                       confirmPasswordController.text) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Password berhasil diubah')),
+                      const SnackBar(
+                        content: Text(
+                          'Password berhasil diubah',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Password tidak cocok')),
+                      const SnackBar(
+                        content: Text(
+                          'Password tidak cocok',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
                     );
                   }
                 },
@@ -632,7 +744,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Simpan'),
+                child: const Text(
+                  'Simpan',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                  ),
+                ),
               ),
             ],
           ),
@@ -644,12 +761,28 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Logout'),
-            content: const Text('Apakah Anda yakin ingin keluar?'),
+            title: const Text(
+              'Logout',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            content: const Text(
+              'Apakah Anda yakin ingin keluar?',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+              ),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Batal'),
+                child: const Text(
+                  'Batal',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -660,14 +793,26 @@ class _ProfilePageState extends State<ProfilePage> {
                     (route) => false,
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Berhasil logout')),
+                    const SnackBar(
+                      content: Text(
+                        'Berhasil logout',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Logout'),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                  ),
+                ),
               ),
             ],
           ),
