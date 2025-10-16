@@ -104,15 +104,21 @@ flutter:
     - assets/icons/jus.png
     - assets/icons/more.png
 
+  # Custom fonts
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
+
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icons/burgercat.png"
-
-  # Custom fonts (uncomment when you have font files)
-  # fonts:
-  #   - family: SF Pro Display
-  #     fonts:
-  #       - asset: assets/fonts/SF-Pro-Display-Regular.ttf
-  #       - asset: assets/fonts/SF-Pro-Display-Bold.ttf
-  #         weight: 700
