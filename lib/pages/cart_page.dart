@@ -195,8 +195,8 @@ class CartPage extends StatelessWidget {
   Widget _buildOrderSummary(BuildContext context, CartProvider cartProvider) {
     // ✅ Hitung hanya dari item yang diceklis
     final subtotal = cartProvider.selectedTotalPrice;
-    const deliveryFee = 5000.0;
-    final tax = subtotal * 0.1;
+    const deliveryFee = 2000.0;
+    final tax = subtotal * 0.01;
     final total = subtotal + deliveryFee + tax;
 
     return Container(
@@ -246,7 +246,7 @@ class CartPage extends StatelessWidget {
             const SizedBox(height: 16),
             _buildSummaryRow('Subtotal', subtotal),
             _buildSummaryRow('Delivery Fee', deliveryFee),
-            _buildSummaryRow('Tax (10%)', tax),
+            _buildSummaryRow('Tax', tax),
             const Divider(thickness: 1),
             _buildSummaryRow('Total', total, isTotal: true),
             const SizedBox(height: 20),
