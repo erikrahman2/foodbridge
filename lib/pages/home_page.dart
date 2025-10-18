@@ -24,6 +24,11 @@ class _HomePageState extends State<HomePage> {
   double? latitude;
   double? longitude;
 
+  // Variable detail alamat
+  String streetNumber = "";
+  String streetName = "";
+  String city = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +70,10 @@ class _HomePageState extends State<HomePage> {
                               latitude != null && longitude != null
                                   ? LatLng(latitude!, longitude!)
                                   : null,
-                          currentAddress: deliveryAddress,
+                          currentAddress:
+                              deliveryAddress != "Select your address"
+                                  ? deliveryAddress
+                                  : null,
                         ),
                   ),
                 );
@@ -73,7 +81,10 @@ class _HomePageState extends State<HomePage> {
                 // Update alamat jika user memilih lokasi
                 if (result != null) {
                   setState(() {
-                    deliveryAddress = result['address'];
+                    deliveryAddress = result['address'] ?? 'Selected Location';
+                    streetNumber = result['streetNumber'] ?? '';
+                    streetName = result['streetName'] ?? '';
+                    city = result['city'] ?? '';
                     latitude = result['latitude'];
                     longitude = result['longitude'];
                   });
@@ -88,9 +99,11 @@ class _HomePageState extends State<HomePage> {
                         'Deliver to',
                         style: TextStyle(color: Colors.black54, fontSize: 14),
                       ),
+                      const SizedBox(width: 4),
                       const Icon(
                         Icons.keyboard_arrow_right,
                         color: Colors.black54,
+                        size: 18,
                       ),
                       Text(
                         deliveryLabel,
@@ -107,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Flexible(
                         child: Text(
-                          deliveryAddress,
+                          _getShortAddress(),
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -129,7 +142,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // ✅ FITUR BARU: Shopping bag dengan badge dan navigasi ke cart
+          // Shopping bag dengan badge dan navigasi ke cart
           Consumer<CartProvider>(
             builder: (context, cartProvider, child) {
               return GestureDetector(
@@ -186,6 +199,39 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  // Method untuk format alamat singkat
+  String _getShortAddress() {
+    if (deliveryAddress == "Select your address") {
+      return "Select your address";
+    }
+
+    // Format: "No. X Jl. Nama, Kota"
+    List<String> parts = [];
+
+    if (streetNumber.isNotEmpty) {
+      parts.add('No. $streetNumber');
+    }
+    if (streetName.isNotEmpty) {
+      // Hapus prefix "Jalan" atau "Jl." jika sudah ada
+      String cleanStreetName = streetName
+          .replaceFirst(RegExp(r'^Jalan\s+', caseSensitive: false), '')
+          .replaceFirst(RegExp(r'^Jl\.?\s+', caseSensitive: false), '');
+      parts.add('Jl. $cleanStreetName');
+    }
+
+    String streetPart = parts.join(' ');
+
+    if (streetPart.isNotEmpty && city.isNotEmpty) {
+      return '$streetPart, $city';
+    } else if (city.isNotEmpty) {
+      return city;
+    } else if (streetPart.isNotEmpty) {
+      return streetPart;
+    }
+
+    return deliveryAddress;
   }
 
   Widget _buildPromoBanner() {

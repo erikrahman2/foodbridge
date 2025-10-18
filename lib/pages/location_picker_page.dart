@@ -28,6 +28,12 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   bool _isLoading = false;
   final Set<Marker> _markers = {};
 
+  // Variable untuk menyimpan detail alamat
+  String _streetNumber = '';
+  String _streetName = '';
+  String _city = '';
+  String _subLocality = '';
+
   @override
   void initState() {
     super.initState();
@@ -111,7 +117,22 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
+
+        // Debug print untuk melihat data yang didapat
+        print('=== DEBUG PLACEMARK ===');
+        print('Street: ${place.street}');
+        print('SubThoroughfare (Nomor): ${place.subThoroughfare}');
+        print('Thoroughfare: ${place.thoroughfare}');
+        print('SubLocality: ${place.subLocality}');
+        print('Locality (Kota): ${place.locality}');
+        print('SubAdministrativeArea: ${place.subAdministrativeArea}');
+        print('=======================');
+
         setState(() {
+          _streetNumber = place.subThoroughfare ?? '';
+          _streetName = place.street ?? place.thoroughfare ?? '';
+          _subLocality = place.subLocality ?? '';
+          _city = place.locality ?? place.subAdministrativeArea ?? '';
           _selectedAddress = _formatAddress(place);
         });
         _addMarker(position); // Update marker with new address
@@ -128,16 +149,21 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   String _formatAddress(Placemark place) {
     List<String> addressParts = [];
 
+    // Format: Nomor Jalan, Nama Jalan, Kelurahan, Kota
+    if (place.subThoroughfare != null && place.subThoroughfare!.isNotEmpty) {
+      addressParts.add(place.subThoroughfare!);
+    }
     if (place.street != null && place.street!.isNotEmpty) {
       addressParts.add(place.street!);
+    } else if (place.thoroughfare != null && place.thoroughfare!.isNotEmpty) {
+      addressParts.add(place.thoroughfare!);
     }
     if (place.subLocality != null && place.subLocality!.isNotEmpty) {
       addressParts.add(place.subLocality!);
     }
     if (place.locality != null && place.locality!.isNotEmpty) {
       addressParts.add(place.locality!);
-    }
-    if (place.subAdministrativeArea != null &&
+    } else if (place.subAdministrativeArea != null &&
         place.subAdministrativeArea!.isNotEmpty) {
       addressParts.add(place.subAdministrativeArea!);
     }
@@ -160,6 +186,10 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   void _confirmLocation() {
     Navigator.pop(context, {
       'address': _selectedAddress,
+      'streetNumber': _streetNumber,
+      'streetName': _streetName,
+      'subLocality': _subLocality,
+      'city': _city,
       'latitude': _currentPosition.latitude,
       'longitude': _currentPosition.longitude,
     });
