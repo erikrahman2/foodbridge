@@ -50,9 +50,10 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
             child: Text(
               'Orders',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
+                fontFamily: 'Poppins',
               ),
               textAlign: TextAlign.center,
             ),
@@ -76,9 +77,9 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
+                    color: Colors.black.withOpacity(0.08),
                     blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    offset: const Offset(0, 2),
                     spreadRadius: 0,
                   ),
                 ],
@@ -90,13 +91,20 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                   Expanded(
                     child: TextField(
                       controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
+                      decoration: InputDecoration(
+                        hintText: 'Search orders',
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
+                        hintStyle: TextStyle(
+                          color: Colors.grey[500],
+                          fontFamily: 'Poppins',
+                        ),
                       ),
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                   ),
                 ],
@@ -109,6 +117,13 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.7),
               borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: const Icon(Icons.tune, color: Colors.black, size: 20),
           ),
@@ -141,6 +156,16 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                               ? Colors.orange
                               : Colors.white.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(25),
+                      boxShadow:
+                          isSelected
+                              ? [
+                                BoxShadow(
+                                  color: Colors.orange.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                              : null,
                     ),
                     child: Text(
                       filter,
@@ -148,8 +173,9 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black,
                         fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
                         fontSize: 13,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                   ),
@@ -173,6 +199,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
           margin: const EdgeInsets.symmetric(horizontal: 20),
           child: ListView.builder(
             itemCount: filteredOrders.length,
+            padding: const EdgeInsets.symmetric(vertical: 8),
             itemBuilder: (context, index) {
               final order = filteredOrders[index];
               return _buildOrderCard(order);
@@ -197,20 +224,32 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
+          ),
           const SizedBox(height: 16),
           Text(
             'No orders found',
             style: TextStyle(
               fontSize: 18,
-              color: Colors.grey[600],
+              color: Colors.grey[700],
               fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Your orders will appear here',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+              fontFamily: 'Poppins',
+            ),
           ),
         ],
       ),
@@ -227,7 +266,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -246,13 +285,17 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
           child: Row(
             children: [
               Container(
-                width: 60,
-                height: 60,
+                width: 70,
+                height: 70,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Colors.orange[50],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.fastfood, size: 30, color: Colors.grey),
+                child: Icon(
+                  Icons.fastfood,
+                  size: 35,
+                  color: Colors.orange[400],
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -260,8 +303,13 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Order ID : ${order['id']}',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      'Order ID: ${order['id']}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -270,6 +318,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -302,8 +351,9 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                   order['status'],
                   style: TextStyle(
                     color: _getStatusColor(order['status']),
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
                   ),
                 ),
               ),
