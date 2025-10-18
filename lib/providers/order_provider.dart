@@ -10,18 +10,28 @@ class OrderProvider extends ChangeNotifier {
   void createOrder(
     List<Map<String, dynamic>> items,
     double totalPrice,
+    String paymentMethod,
     void Function(String orderId)? onOrderCreated,
   ) {
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Ambil image dari item pertama (jika ada multiple items, bisa dimodifikasi)
+    String? orderImage;
+    if (items.isNotEmpty && items.first['image'] != null) {
+      orderImage = items.first['image'];
+    }
 
     final order = {
       'id': orderId,
       'items': items,
       'totalPrice': totalPrice,
-      'status': 'Preparing',
+      'status': 'Active',
+      'rating': 5.0,
       'orderTime': DateTime.now(),
       'estimatedDelivery': DateTime.now().add(const Duration(minutes: 30)),
       'deliveryAddress': 'No. 1 Bungo Pasang',
+      'paymentMethod': paymentMethod,
+      'image': orderImage,
     };
 
     _orders.insert(0, order);

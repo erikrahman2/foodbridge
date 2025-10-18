@@ -38,7 +38,15 @@ class _MealDetailPageState extends State<MealDetailPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(food!['title'] ?? 'Food Detail'),
+        title: Text(
+          food!['title'] ?? 'Food Detail',
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w700,
+            color: Colors.black87,
+            fontSize: 16,
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -65,7 +73,7 @@ class _MealDetailPageState extends State<MealDetailPage> {
             _buildDescription(),
             const SizedBox(height: 20),
             _buildIngredients(),
-            const SizedBox(height: 100), // Space for bottom bar
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -119,27 +127,45 @@ class _MealDetailPageState extends State<MealDetailPage> {
       children: [
         Text(
           food!['title'],
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Poppins',
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
             const Icon(Icons.star, color: Colors.orange, size: 20),
             const SizedBox(width: 4),
-            Text(food!['rating'].toString()),
+            Text(
+              food!['rating'].toString(),
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(width: 16),
             const Icon(Icons.access_time, color: Colors.grey, size: 20),
             const SizedBox(width: 4),
-            Text(food!['time']),
+            Text(
+              food!['time'],
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
         Text(
-          'Rp ${food!['price'].toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+          'Rp ${_formatPrice(food!['price'])}',
           style: const TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             color: Colors.orange,
+            fontFamily: 'Poppins',
           ),
         ),
       ],
@@ -152,13 +178,23 @@ class _MealDetailPageState extends State<MealDetailPage> {
       children: [
         const Text(
           'Description',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Poppins',
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
           food!['description'] ??
               'Delicious food prepared with fresh ingredients.',
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -172,7 +208,12 @@ class _MealDetailPageState extends State<MealDetailPage> {
       children: [
         const Text(
           'Ingredients',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Poppins',
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -191,7 +232,12 @@ class _MealDetailPageState extends State<MealDetailPage> {
                   ),
                   child: Text(
                     ingredient,
-                    style: const TextStyle(color: Colors.orange, fontSize: 12),
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontSize: 12,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 );
               }).toList(),
@@ -215,7 +261,6 @@ class _MealDetailPageState extends State<MealDetailPage> {
       ),
       child: Row(
         children: [
-          // Harga di kiri
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,22 +268,27 @@ class _MealDetailPageState extends State<MealDetailPage> {
               children: [
                 Text(
                   'Total Price',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Rp ${food!['price'].toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                  'Rp ${_formatPrice(food!['price'])}',
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.orange,
+                    fontFamily: 'Poppins',
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 12),
-          // Tombol Add to Cart (icon keranjang)
           Container(
             decoration: BoxDecoration(
               border: Border.all(color: Colors.orange, width: 2),
@@ -252,7 +302,6 @@ class _MealDetailPageState extends State<MealDetailPage> {
             ),
           ),
           const SizedBox(width: 12),
-          // Tombol Buy Now
           ElevatedButton(
             onPressed: () => _showQuantityDialog(isAddToCart: false),
             style: ElevatedButton.styleFrom(
@@ -265,7 +314,11 @@ class _MealDetailPageState extends State<MealDetailPage> {
             ),
             child: const Text(
               'Buy Now',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                fontFamily: 'Poppins',
+              ),
             ),
           ),
         ],
@@ -273,7 +326,6 @@ class _MealDetailPageState extends State<MealDetailPage> {
     );
   }
 
-  // Fungsi untuk menampilkan dialog quantity
   void _showQuantityDialog({required bool isAddToCart}) {
     int tempQuantity = 1;
 
@@ -283,14 +335,19 @@ class _MealDetailPageState extends State<MealDetailPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               title: const Text(
                 'Select Quantity',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Poppins',
+                ),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Quantity selector
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -320,7 +377,8 @@ class _MealDetailPageState extends State<MealDetailPage> {
                                 tempQuantity.toString(),
                                 style: const TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Poppins',
                                 ),
                               ),
                             ),
@@ -338,7 +396,6 @@ class _MealDetailPageState extends State<MealDetailPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Total harga
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -352,15 +409,17 @@ class _MealDetailPageState extends State<MealDetailPage> {
                           'Total:',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Poppins',
                           ),
                         ),
                         Text(
-                          'Rp ${(food!['price'] * tempQuantity).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                          'Rp ${_formatPrice(food!['price'] * tempQuantity)}',
                           style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: Colors.orange,
+                            fontFamily: 'Poppins',
                           ),
                         ),
                       ],
@@ -371,7 +430,13 @@ class _MealDetailPageState extends State<MealDetailPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -379,7 +444,7 @@ class _MealDetailPageState extends State<MealDetailPage> {
                       quantity = tempQuantity;
                     });
 
-                    // Add to cart
+                    // Simpan data food ke cart dengan image dan icon
                     context.read<CartProvider>().addToCart(
                       food!,
                       quantity: tempQuantity,
@@ -388,15 +453,20 @@ class _MealDetailPageState extends State<MealDetailPage> {
                     Navigator.pop(context);
 
                     if (isAddToCart) {
-                      // Show snackbar for add to cart
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Added to cart!'),
+                          content: Text(
+                            'Added to cart!',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                           duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
                     } else {
-                      // Navigate to payment for buy now
                       Navigator.pushNamed(context, AppRoutes.payment);
                     }
                   },
@@ -404,13 +474,27 @@ class _MealDetailPageState extends State<MealDetailPage> {
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text(isAddToCart ? 'Add to Cart' : 'Buy Now'),
+                  child: Text(
+                    isAddToCart ? 'Add to Cart' : 'Buy Now',
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ],
             );
           },
         );
       },
+    );
+  }
+
+  String _formatPrice(dynamic price) {
+    final intPrice = (price as num).toInt();
+    return intPrice.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
     );
   }
 }
