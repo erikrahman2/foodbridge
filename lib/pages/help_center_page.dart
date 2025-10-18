@@ -338,7 +338,7 @@ class HelpDetailPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Help Center _ Detail',
+          'Help Center',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
