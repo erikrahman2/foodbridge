@@ -257,7 +257,7 @@ class _PaymentPageState extends State<PaymentPage> {
         const SizedBox(height: 12),
         _buildPaymentMethodCard('credit_card', 'Credit Card', Icons.credit_card, '•••• •••• •••• 4242'),
         const SizedBox(height: 12),
-        _buildPaymentMethodCard('paypal', 'PayPal', Icons.payment, 'foodbridge@email.com'),
+        _buildPaymentMethodCard('paypal', 'PayPal', Icons.payment, 'food@email.com'),
         const SizedBox(height: 12),
         _buildPaymentMethodCard('cash', 'Cash on Delivery', Icons.money, 'Pay when it arrives'),
       ],
