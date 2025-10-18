@@ -257,7 +257,7 @@ class _PaymentPageState extends State<PaymentPage> {
         const SizedBox(height: 12),
         _buildPaymentMethodCard('credit_card', 'Credit Card', Icons.credit_card, '•••• •••• •••• 4242'),
         const SizedBox(height: 12),
-        _buildPaymentMethodCard('paypal', 'PayPal', Icons.payment, 'foodbridge@email.com'),
+        _buildPaymentMethodCard('paypal', 'PayPal', Icons.payment, 'john.doe@email.com'),
         const SizedBox(height: 12),
         _buildPaymentMethodCard('cash', 'Cash on Delivery', Icons.money, 'Pay when it arrives'),
       ],
@@ -502,15 +502,15 @@ class _PaymentPageState extends State<PaymentPage> {
       // Ambil payment method name
       final paymentMethodName = _getPaymentMethodName(selectedPayment);
 
-      // Create order dengan items yang memiliki image
-      orderProvider.createOrder(cartProvider.cartItems, total, (orderId) {
-        notificationProvider.orderConfirmed(orderId);
-      });
-
-      // Simpan payment method ke order yang baru dibuat
-      if (orderProvider.orders.isNotEmpty) {
-        orderProvider.orders.last['paymentMethod'] = paymentMethodName;
-      }
+      // Create order dengan payment method
+      orderProvider.createOrder(
+        cartProvider.cartItems,
+        total,
+        paymentMethodName,
+        (orderId) {
+          notificationProvider.orderConfirmed(orderId);
+        },
+      );
 
       cartProvider.clearCart();
 

@@ -24,7 +24,19 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   @override
   Widget build(BuildContext context) {
     if (orderData == null) {
-      return const Scaffold(body: Center(child: Text('Order not found')));
+      return Scaffold(
+        backgroundColor: AppColors.backgroundLight,
+        body: const Center(
+          child: Text(
+            'Order not found',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      );
     }
 
     return Scaffold(
@@ -37,7 +49,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildOrderSummary(),
+                    _buildStatusCard(),
                     const SizedBox(height: 16),
                     _buildOrderItems(),
                     const SizedBox(height: 16),
@@ -66,7 +78,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           IconButton(
@@ -75,67 +87,112 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           Expanded(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  orderData!['id'] ?? 'Order',
+                  'Order ${orderData!['id']}',
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
+                    color: Colors.black87,
                   ),
                 ),
                 Text(
-                  'Order Summary',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  'Order Details',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
           ),
-          IconButton(
-            onPressed: () {},
+          PopupMenuButton(
             icon: const Icon(Icons.more_horiz, color: Colors.black),
+            itemBuilder:
+                (context) => [
+                  PopupMenuItem(
+                    child: const Text(
+                      'Share Order',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onTap: () {},
+                  ),
+                  PopupMenuItem(
+                    child: const Text(
+                      'Print Receipt',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onTap: () {},
+                  ),
+                ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderSummary() {
+  Widget _buildStatusCard() {
+    final statusColor = _getStatusColor(orderData!['status']);
+    final statusIcon = _getStatusIcon(orderData!['status']);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: LinearGradient(
+          colors: [statusColor.withOpacity(0.1), statusColor.withOpacity(0.05)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: statusColor.withOpacity(0.3), width: 1.5),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Order Summary',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(orderData!['status']),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  orderData!['status'] ?? 'Active',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(statusIcon, color: statusColor, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Order ${orderData!['status']}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
+                    color: statusColor,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  _getStatusMessage(orderData!['status']),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'Poppins',
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -149,30 +206,35 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         'price': 59000.00,
         'originalPrice': 59000.00,
         'isAddOn': false,
+        'quantity': 1,
       },
       {
         'name': 'Add Cheese',
         'price': 0,
         'originalPrice': 15000.00,
         'isAddOn': true,
+        'quantity': 1,
       },
       {
         'name': 'Add Meat (Cow meat)',
         'price': 0,
         'originalPrice': 18000.00,
         'isAddOn': true,
+        'quantity': 1,
       },
       {
         'name': 'Ramen Noodles',
         'price': 25000.00,
         'originalPrice': 25000.00,
         'isAddOn': false,
+        'quantity': 2,
       },
       {
         'name': 'Cherry Tomato Salad',
         'price': 7000.00,
         'originalPrice': 7000.00,
         'isAddOn': false,
+        'quantity': 1,
       },
     ];
 
@@ -181,26 +243,51 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
-        children: items.map((item) => _buildOrderItem(item)).toList(),
+        children: List.generate(items.length, (index) {
+          return Column(
+            children: [
+              _buildOrderItem(items[index]),
+              if (index < items.length - 1)
+                Divider(color: Colors.grey[100], height: 1, thickness: 1),
+            ],
+          );
+        }),
       ),
     );
   }
 
   Widget _buildOrderItem(Map<String, dynamic> item) {
+    final quantity = item['quantity'] as int;
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 55,
+            height: 55,
             decoration: BoxDecoration(
-              color: Colors.orange[100],
-              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.orange.withOpacity(0.2),
+                  Colors.orange.withOpacity(0.05),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.withOpacity(0.2)),
             ),
-            child: const Icon(Icons.fastfood, color: Colors.orange),
+            child: const Icon(Icons.fastfood, color: Colors.orange, size: 28),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -211,36 +298,42 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   item['name'],
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
+                    color: Colors.black87,
                   ),
                 ),
+                const SizedBox(height: 4),
                 if (item['isAddOn'] && item['price'] == 0) ...[
                   Row(
                     children: [
                       Text(
-                        'Rp ${item['originalPrice'].toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')},00',
+                        'Rp ${_formatPrice(item['originalPrice'])}',
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           decoration: TextDecoration.lineThrough,
                           color: Colors.grey,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
+                          horizontal: 8,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
                           'FREE',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Poppins',
                           ),
                         ),
                       ),
@@ -248,8 +341,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ),
                 ] else ...[
                   Text(
-                    'Rp ${item['price'].toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')},00',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    'Rp ${_formatPrice(item['price'])} x $quantity',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ],
@@ -259,12 +357,27 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: const Text(
                 'Remove',
-                style: TextStyle(color: Colors.white, fontSize: 10),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            )
+          else
+            Text(
+              quantity > 1 ? '($quantity x)' : '',
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 12,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
               ),
             ),
         ],
@@ -279,16 +392,23 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.red[100],
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.red.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.location_on, color: Colors.red, size: 20),
+            child: const Icon(Icons.location_on, color: Colors.red, size: 22),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -296,18 +416,46 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Deliver to',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  'Delivery Address',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                SizedBox(height: 4),
                 Text(
                   'Home',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
+                    color: Colors.black87,
+                  ),
                 ),
+                SizedBox(height: 4),
                 Text(
-                  '221B Baker Street, London, United Kingdom',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  '221B Baker Street, London, UK',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ],
+            ),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              'Edit',
+              style: TextStyle(
+                color: Colors.orange,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+              ),
             ),
           ),
         ],
@@ -322,16 +470,23 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.red[100],
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.payment, color: Colors.red, size: 20),
+            child: const Icon(Icons.credit_card, color: Colors.blue, size: 22),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -339,12 +494,32 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Payment method',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  'Payment Method',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                SizedBox(height: 4),
                 Text(
-                  'Cash',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  'Cash on Delivery',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Pay when it arrives',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ],
             ),
@@ -361,46 +536,73 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.orange[100],
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.orange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
               Icons.local_offer,
               color: Colors.orange,
-              size: 20,
+              size: 22,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Promotions',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                const Text(
+                  'Active Promotions',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(
-                      'Restaurant',
+                    const Text(
+                      'Restaurant Discount',
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Poppins',
+                        color: Colors.black87,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Text(
-                      '30%',
-                      style: TextStyle(
-                        fontSize: 12,
-                        backgroundColor: Colors.orange,
-                        color: Colors.white,
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        '30% OFF',
+                        style: TextStyle(
+                          fontSize: 11,
+                          backgroundColor: Colors.orange,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
                     ),
                   ],
@@ -420,43 +622,68 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          _buildPriceRow('Subtotal', 'Rp 68.000,00'),
-          _buildPriceRow('Delivery fee', 'FREE'),
-          _buildPriceRow('Discount', '- Rp 21.000,00'),
-          const Divider(),
-          _buildPriceRow('Total', 'Rp 47.000,00', isTotal: true),
+          _buildBreakdownRow('Subtotal', 'Rp 109.000,00'),
+          const SizedBox(height: 12),
+          _buildBreakdownRow('Delivery Fee', 'Rp 5.000,00'),
+          const SizedBox(height: 12),
+          _buildBreakdownRow('Tax (10%)', 'Rp 11.400,00'),
+          const SizedBox(height: 12),
+          _buildBreakdownRow(
+            'Discount (30%)',
+            '- Rp 32.700,00',
+            isDiscount: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(color: Colors.grey[200], thickness: 1, height: 1),
+          ),
+          _buildBreakdownRow('Total Amount', 'Rp 92.700,00', isTotal: true),
         ],
       ),
     );
   }
 
-  Widget _buildPriceRow(String label, String amount, {bool isTotal = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: isTotal ? 16 : 14,
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Colors.black : Colors.grey[600],
-            ),
+  Widget _buildBreakdownRow(
+    String label,
+    String amount, {
+    bool isTotal = false,
+    bool isDiscount = false,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isTotal ? 15 : 13,
+            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w600,
+            fontFamily: 'Poppins',
+            color: isTotal ? Colors.black87 : Colors.grey[600],
           ),
-          Text(
-            amount,
-            style: TextStyle(
-              fontSize: isTotal ? 16 : 14,
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Colors.black : Colors.grey[600],
-            ),
+        ),
+        Text(
+          amount,
+          style: TextStyle(
+            fontSize: isTotal ? 16 : 13,
+            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w600,
+            fontFamily: 'Poppins',
+            color:
+                isDiscount
+                    ? Colors.green
+                    : (isTotal ? Colors.orange : Colors.black87),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -467,17 +694,29 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Rate your experience',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            'How was your experience?',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Poppins',
+              color: Colors.black87,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(5, (index) {
               return GestureDetector(
                 onTap: () {
@@ -487,25 +726,39 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 },
                 child: Icon(
                   Icons.star,
-                  size: 40,
-                  color: index < userRating ? Colors.orange : Colors.grey[300],
+                  size: 42,
+                  color: index < userRating ? Colors.orange : Colors.grey[200],
                 ),
               );
             }),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           TextField(
             controller: _reviewController,
-            maxLines: 3,
+            maxLines: 4,
             decoration: InputDecoration(
-              hintText: 'Type your feedback',
-              hintStyle: TextStyle(color: Colors.grey[400]),
+              hintText: 'Share your feedback (optional)',
+              hintStyle: TextStyle(
+                color: Colors.grey[400],
+                fontFamily: 'Poppins',
+                fontSize: 13,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(color: Colors.grey[200]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.orange, width: 2),
               ),
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: Colors.grey[50],
+              contentPadding: const EdgeInsets.all(14),
+            ),
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -515,7 +768,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Widget _buildBottomActions() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.only(
@@ -524,94 +777,227 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 15,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          if (orderData!['status'] == 'Active') ...[
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () {
-                  // Cancel order logic
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            if (orderData!['status'] == 'Active') ...[
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    _showCancelDialog();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: const BorderSide(color: Colors.red, width: 1.5),
                   ),
-                ),
-                child: const Text('Cancel Order'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.orderTracking);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  child: const Text(
+                    'Cancel Order',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'Track Order',
-                  style: TextStyle(color: Colors.white),
                 ),
               ),
-            ),
-          ] else if (orderData!['status'] == 'Completed') ...[
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Submit review
-                  if (userRating > 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Review submitted!')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.orderTracking);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Track Order',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Reorder',
-                  style: TextStyle(color: Colors.white),
+              ),
+            ] else if (orderData!['status'] == 'Completed') ...[
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (userRating > 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Thank you for your review!',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Please give a rating',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          backgroundColor: Colors.orange,
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Submit Review',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ] else if (orderData!['status'] == 'Cancelled') ...[
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Reorder',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCancelDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: const Text(
+            'Cancel Order?',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to cancel this order? You will receive a refund to your original payment method.',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Keep Order',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
                 ),
               ),
             ),
-          ] else if (orderData!['status'] == 'Cancelled') ...[
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Reorder logic
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Order cancelled successfully',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
                   ),
-                ),
-                child: const Text(
-                  'Reorder',
-                  style: TextStyle(color: Colors.white),
+                );
+              },
+              child: const Text(
+                'Cancel Order',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
                 ),
               ),
             ),
           ],
-        ],
-      ),
+        );
+      },
+    );
+  }
+
+  String _formatPrice(dynamic price) {
+    final intPrice = (price as num).toInt();
+    return intPrice.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
     );
   }
 
@@ -625,6 +1011,32 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         return Colors.red;
       default:
         return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status) {
+      case 'Active':
+        return Icons.local_shipping;
+      case 'Completed':
+        return Icons.check_circle;
+      case 'Cancelled':
+        return Icons.cancel;
+      default:
+        return Icons.info;
+    }
+  }
+
+  String _getStatusMessage(String status) {
+    switch (status) {
+      case 'Active':
+        return 'Your order is being prepared and will be delivered soon';
+      case 'Completed':
+        return 'Order successfully delivered. Thank you for your purchase!';
+      case 'Cancelled':
+        return 'This order has been cancelled';
+      default:
+        return 'Order status unknown';
     }
   }
 

@@ -335,7 +335,9 @@ class _MealDetailPageState extends State<MealDetailPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               title: const Text(
                 'Select Quantity',
                 style: TextStyle(
@@ -455,7 +457,10 @@ class _MealDetailPageState extends State<MealDetailPage> {
                         const SnackBar(
                           content: Text(
                             'Added to cart!',
-                            style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           duration: Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,

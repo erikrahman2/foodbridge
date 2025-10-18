@@ -10,6 +10,7 @@ class OrderProvider extends ChangeNotifier {
   void createOrder(
     List<Map<String, dynamic>> items,
     double totalPrice,
+    String paymentMethod,
     void Function(String orderId)? onOrderCreated,
   ) {
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -29,7 +30,8 @@ class OrderProvider extends ChangeNotifier {
       'orderTime': DateTime.now(),
       'estimatedDelivery': DateTime.now().add(const Duration(minutes: 30)),
       'deliveryAddress': 'No. 1 Bungo Pasang',
-      'image': orderImage, // Simpan image di order
+      'paymentMethod': paymentMethod,
+      'image': orderImage,
     };
 
     _orders.insert(0, order);
