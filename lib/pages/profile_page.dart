@@ -125,9 +125,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.all(1),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.orange,
+                      color: Colors.black,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
@@ -441,8 +441,8 @@ class _ProfilePageState extends State<ProfilePage> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: Colors.orange,
-            inactiveThumbColor: Colors.grey[300],
+            activeColor: Colors.grey[800],
+            inactiveThumbColor: Colors.grey[400],
             inactiveTrackColor: Colors.grey[200],
           ),
         ],
@@ -481,9 +481,7 @@ class _ProfilePageState extends State<ProfilePage> {
               controller: controller,
               decoration: InputDecoration(
                 labelText: title,
-                labelStyle: const TextStyle(
-                  fontFamily: 'Poppins',
-                ),
+                labelStyle: const TextStyle(fontFamily: 'Poppins'),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -494,9 +492,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Batal',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins'),
                 ),
               ),
               ElevatedButton(
@@ -507,9 +503,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SnackBar(
                       content: Text(
                         '$title berhasil diperbarui',
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                        ),
+                        style: const TextStyle(fontFamily: 'Poppins'),
                       ),
                     ),
                   );
@@ -520,9 +514,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: const Text(
                   'Simpan',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins'),
                 ),
               ),
             ],
@@ -548,9 +540,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ListTile(
                   title: const Text(
                     'Indonesia',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                    ),
+                    style: TextStyle(fontFamily: 'Poppins'),
                   ),
                   trailing:
                       userLanguage == 'Indonesia'
@@ -564,9 +554,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ListTile(
                   title: const Text(
                     'English',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                    ),
+                    style: TextStyle(fontFamily: 'Poppins'),
                   ),
                   trailing:
                       userLanguage == 'English'
@@ -604,9 +592,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   leading: const Icon(Icons.lock_outline),
                   title: const Text(
                     'Ubah Password',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                    ),
+                    style: TextStyle(fontFamily: 'Poppins'),
                   ),
                   onTap: () {
                     Navigator.pop(context);
@@ -618,9 +604,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   leading: const Icon(Icons.fingerprint),
                   title: const Text(
                     'Biometric Login',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                    ),
+                    style: TextStyle(fontFamily: 'Poppins'),
                   ),
                   onTap: () {
                     Navigator.pop(context);
@@ -636,9 +620,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Tutup',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins'),
                 ),
               ),
             ],
@@ -670,9 +652,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password Lama',
-                    labelStyle: const TextStyle(
-                      fontFamily: 'Poppins',
-                    ),
+                    labelStyle: const TextStyle(fontFamily: 'Poppins'),
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -682,9 +662,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password Baru',
-                    labelStyle: const TextStyle(
-                      fontFamily: 'Poppins',
-                    ),
+                    labelStyle: const TextStyle(fontFamily: 'Poppins'),
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -694,9 +672,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Konfirmasi Password Baru',
-                    labelStyle: const TextStyle(
-                      fontFamily: 'Poppins',
-                    ),
+                    labelStyle: const TextStyle(fontFamily: 'Poppins'),
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -707,9 +683,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Batal',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins'),
                 ),
               ),
               ElevatedButton(
@@ -721,9 +695,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SnackBar(
                         content: Text(
                           'Password berhasil diubah',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                          ),
+                          style: TextStyle(fontFamily: 'Poppins'),
                         ),
                       ),
                     );
@@ -732,9 +704,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SnackBar(
                         content: Text(
                           'Password tidak cocok',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                          ),
+                          style: TextStyle(fontFamily: 'Poppins'),
                         ),
                       ),
                     );
@@ -746,9 +716,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: const Text(
                   'Simpan',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins'),
                 ),
               ),
             ],
@@ -770,18 +738,14 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             content: const Text(
               'Apakah Anda yakin ingin keluar?',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-              ),
+              style: TextStyle(fontFamily: 'Poppins'),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Batal',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins'),
                 ),
               ),
               ElevatedButton(
@@ -796,9 +760,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SnackBar(
                       content: Text(
                         'Berhasil logout',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                        ),
+                        style: TextStyle(fontFamily: 'Poppins'),
                       ),
                     ),
                   );
@@ -809,9 +771,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: const Text(
                   'Logout',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                  ),
+                  style: TextStyle(fontFamily: 'Poppins'),
                 ),
               ),
             ],
