@@ -259,7 +259,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
   Widget _buildOrderCard(Map<String, dynamic> order) {
     // Ambil gambar dari order jika tersedia
     final orderImage = order['image'] as String?;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -294,28 +294,29 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                   color: Colors.orange[50],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: orderImage != null && orderImage.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(
-                          orderImage,
-                          fit: BoxFit.cover,
-                          width: 70,
-                          height: 70,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.fastfood,
-                              size: 35,
-                              color: Colors.orange[400],
-                            );
-                          },
+                child:
+                    orderImage != null && orderImage.isNotEmpty
+                        ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            orderImage,
+                            fit: BoxFit.cover,
+                            width: 70,
+                            height: 70,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.fastfood,
+                                size: 35,
+                                color: Colors.orange[400],
+                              );
+                            },
+                          ),
+                        )
+                        : Icon(
+                          Icons.fastfood,
+                          size: 35,
+                          color: Colors.orange[400],
                         ),
-                      )
-                    : Icon(
-                        Icons.fastfood,
-                        size: 35,
-                        color: Colors.orange[400],
-                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
