@@ -1,3 +1,4 @@
+// food_provider.dart - FULL CODE
 import 'package:flutter/foundation.dart';
 
 class FoodProvider extends ChangeNotifier {
