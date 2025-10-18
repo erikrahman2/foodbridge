@@ -195,9 +195,10 @@ class CartPage extends StatelessWidget {
   Widget _buildOrderSummary(BuildContext context, CartProvider cartProvider) {
     // ✅ Hitung hanya dari item yang diceklis
     final subtotal = cartProvider.selectedTotalPrice;
-    const deliveryFee = 2000.0;
+    const deliveryFee = 5000.0;
     final tax = subtotal * 0.01;
-    final total = subtotal + deliveryFee + tax;
+    final discount = subtotal * 0.1;
+    final total = subtotal + deliveryFee + tax - discount;
 
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingLarge),
@@ -246,7 +247,8 @@ class CartPage extends StatelessWidget {
             const SizedBox(height: 16),
             _buildSummaryRow('Subtotal', subtotal),
             _buildSummaryRow('Delivery Fee', deliveryFee),
-            _buildSummaryRow('Tax', tax),
+            _buildSummaryRow('Tax (1%)', tax),
+            _buildSummaryRow('Discount', discount, isDiscount: true),
             const Divider(thickness: 1),
             _buildSummaryRow('Total', total, isTotal: true),
             const SizedBox(height: 20),
@@ -262,6 +264,7 @@ class CartPage extends StatelessWidget {
                       'subtotal': subtotal,
                       'deliveryFee': deliveryFee,
                       'tax': tax,
+                      'discount': discount,
                       'total': total,
                     },
                   );
@@ -285,7 +288,12 @@ class CartPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryRow(String label, double amount, {bool isTotal = false}) {
+  Widget _buildSummaryRow(
+    String label,
+    double amount, {
+    bool isTotal = false,
+    bool isDiscount = false,
+  }) {
     // Format number dengan pemisah ribuan
     String formatPrice(int price) {
       return price.toString().replaceAllMapped(
@@ -309,14 +317,16 @@ class CartPage extends StatelessWidget {
                     : AppTextStyles.bodyMedium,
           ),
           Text(
-            'Rp ${formatPrice(amount.toInt())}',
+            '${isDiscount ? '- ' : ''}Rp ${formatPrice(amount.toInt())}',
             style:
                 isTotal
                     ? AppTextStyles.bodyLarge.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primaryOrange,
                     )
-                    : AppTextStyles.bodyMedium,
+                    : AppTextStyles.bodyMedium.copyWith(
+                      color: isDiscount ? Colors.green : Colors.black87,
+                    ),
           ),
         ],
       ),

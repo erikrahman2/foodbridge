@@ -25,7 +25,7 @@ class OrderProvider extends ChangeNotifier {
       'id': orderId,
       'items': items,
       'totalPrice': totalPrice,
-      'status': 'Active',
+      'status': 'Prepared',
       'rating': 5.0,
       'orderTime': DateTime.now(),
       'estimatedDelivery': DateTime.now().add(const Duration(minutes: 30)),
