@@ -14,14 +14,22 @@ class OrderProvider extends ChangeNotifier {
   ) {
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
 
+    // Ambil image dari item pertama (jika ada multiple items, bisa dimodifikasi)
+    String? orderImage;
+    if (items.isNotEmpty && items.first['image'] != null) {
+      orderImage = items.first['image'];
+    }
+
     final order = {
       'id': orderId,
       'items': items,
       'totalPrice': totalPrice,
-      'status': 'Preparing',
+      'status': 'Active',
+      'rating': 5.0,
       'orderTime': DateTime.now(),
       'estimatedDelivery': DateTime.now().add(const Duration(minutes: 30)),
       'deliveryAddress': 'No. 1 Bungo Pasang',
+      'image': orderImage, // Simpan image di order
     };
 
     _orders.insert(0, order);

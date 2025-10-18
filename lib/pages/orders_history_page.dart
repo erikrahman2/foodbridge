@@ -1,4 +1,3 @@
-// orders_history_page.dart - FULL CODE
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/order_provider.dart';
@@ -138,47 +137,51 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
       height: 50,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Row(
-        children: filters.map((filter) {
-          final isSelected = selectedFilter == filter;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedFilter = filter;
-                });
-              },
-              child: Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.orange
-                      : Colors.white.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: Colors.orange.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  filter,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    fontSize: 13,
-                    fontFamily: 'Poppins',
+        children:
+            filters.map((filter) {
+              final isSelected = selectedFilter == filter;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedFilter = filter;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected
+                              ? Colors.orange
+                              : Colors.white.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(25),
+                      boxShadow:
+                          isSelected
+                              ? [
+                                BoxShadow(
+                                  color: Colors.orange.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                              : null,
+                    ),
+                    child: Text(
+                      filter,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontSize: 13,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -254,11 +257,9 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
   }
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
-    // Ambil item pertama dari order untuk mendapatkan gambar
-    final items = order['items'] as List<Map<String, dynamic>>?;
-    final firstItem = items != null && items.isNotEmpty ? items[0] : null;
-    final imagePath = firstItem?['image'] as String?;
-
+    // Ambil gambar dari order jika tersedia
+    final orderImage = order['image'] as String?;
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -286,7 +287,6 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
           },
           child: Row(
             children: [
-              // Image or Icon Container
               Container(
                 width: 70,
                 height: 70,
@@ -294,12 +294,14 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                   color: Colors.orange[50],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: imagePath != null
-                      ? Image.asset(
-                          imagePath,
+                child: orderImage != null && orderImage.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          orderImage,
                           fit: BoxFit.cover,
+                          width: 70,
+                          height: 70,
                           errorBuilder: (context, error, stackTrace) {
                             return Icon(
                               Icons.fastfood,
@@ -307,13 +309,13 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                               color: Colors.orange[400],
                             );
                           },
-                        )
-                      : Icon(
-                          Icons.fastfood,
-                          size: 35,
-                          color: Colors.orange[400],
                         ),
-                ),
+                      )
+                    : Icon(
+                        Icons.fastfood,
+                        size: 35,
+                        color: Colors.orange[400],
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -329,20 +331,6 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    // Tampilkan nama item jika ada
-                    if (firstItem != null && firstItem['title'] != null)
-                      Text(
-                        firstItem['title'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                          fontFamily: 'Poppins',
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     const SizedBox(height: 4),
                     Text(
                       'Rp ${order['totalPrice'].toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')},00',
@@ -360,9 +348,10 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                         return Icon(
                           Icons.star,
                           size: 16,
-                          color: starIndex < rating
-                              ? Colors.orange
-                              : Colors.grey[300],
+                          color:
+                              starIndex < rating
+                                  ? Colors.orange
+                                  : Colors.grey[300],
                         );
                       }),
                     ),
