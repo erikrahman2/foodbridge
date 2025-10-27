@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:food_bridge/firebase_options.dart';
@@ -10,10 +11,26 @@ import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
 import 'package:geolocator/geolocator.dart';
 
-void main() async{
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // (Opsional) Tes koneksi Firestore untuk memastikan setup benar
+  try {
+    await FirebaseFirestore.instance.collection('app_test').add({
+      'status': 'connected',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+    debugPrint('✅ Firestore connection successful');
+  } catch (e) {
+    debugPrint('⚠️ Firestore connection failed: $e');
+  }
+
+  // Request permission lokasi sebelum menjalankan aplikasi
+  await requestLocationPermission();
   runApp(const MyApp());
 }
 
@@ -34,7 +51,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.orange,
-          fontFamily: 'Poppins', // Sesuaikan dengan font Anda
+          fontFamily: 'Poppins',
           useMaterial3: true,
         ),
         initialRoute: AppRoutes.home,
