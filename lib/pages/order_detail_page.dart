@@ -595,7 +595,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
-                        '30% OFF',
+                        'Rp 5.000',
                         style: TextStyle(
                           fontSize: 11,
                           backgroundColor: Colors.orange,
@@ -632,22 +632,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       ),
       child: Column(
         children: [
-          _buildBreakdownRow('Subtotal', 'Rp 109.000,00'),
+          _buildBreakdownRow('Subtotal', 'Rp 116.000,00'),
           const SizedBox(height: 12),
           _buildBreakdownRow('Delivery Fee', 'Rp 5.000,00'),
           const SizedBox(height: 12),
-          _buildBreakdownRow('Tax (10%)', 'Rp 11.400,00'),
+          _buildBreakdownRow('Tax (1%)', 'Rp 1.160,00'),
           const SizedBox(height: 12),
-          _buildBreakdownRow(
-            'Discount (30%)',
-            '- Rp 32.700,00',
-            isDiscount: true,
-          ),
+          _buildBreakdownRow('Discount', '- Rp 5.000,00', isDiscount: true),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(color: Colors.grey[200], thickness: 1, height: 1),
           ),
-          _buildBreakdownRow('Total Amount', 'Rp 92.700,00', isTotal: true),
+          _buildBreakdownRow('Total Amount', 'Rp 117.160,00', isTotal: true),
         ],
       ),
     );
@@ -787,7 +783,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         top: false,
         child: Row(
           children: [
-            if (orderData!['status'] == 'Active') ...[
+            if (orderData!['status'] == 'Prepared' ||
+                orderData!['status'] == 'Completed') ...[
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
@@ -1003,7 +1000,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Active':
+      case 'Prepared':
         return Colors.orange;
       case 'Completed':
         return Colors.green;
@@ -1016,7 +1013,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   IconData _getStatusIcon(String status) {
     switch (status) {
-      case 'Active':
+      case 'Prepared':
         return Icons.local_shipping;
       case 'Completed':
         return Icons.check_circle;
@@ -1029,8 +1026,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   String _getStatusMessage(String status) {
     switch (status) {
-      case 'Active':
-        return 'Your order is being prepared and will be delivered soon';
+      case 'Prepared':
+        return 'Your order is being Prepared and will be delivered soon';
       case 'Completed':
         return 'Order successfully delivered. Thank you for your purchase!';
       case 'Cancelled':
