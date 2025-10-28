@@ -16,18 +16,41 @@ class MenuListPage extends StatefulWidget {
 class _MenuListPageState extends State<MenuListPage> {
   final TextEditingController _searchController = TextEditingController();
   String? selectedCategory;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // Get category from route arguments if provided
+    // Fetch data dulu sebelum filter
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
+  }
+
+  Future<void> _initializeData() async {
+    final foodProvider = context.read<FoodProvider>();
+    
+    // Tunggu sampai data selesai dimuat
+    if (foodProvider.foods.isEmpty && !foodProvider.isLoading) {
+      await foodProvider.fetchFoodsFromFirestore();
+    }
+
+    // Baru apply filter dari arguments
+    if (!_isInitialized && mounted) {
       final args = ModalRoute.of(context)?.settings.arguments as String?;
       if (args != null && args != 'More') {
-        selectedCategory = args;
-        context.read<FoodProvider>().filterByCategory(args);
+        setState(() {
+          selectedCategory = args;
+          _isInitialized = true;
+        });
+        foodProvider.filterByCategory(args);
+      } else {
+        setState(() {
+          selectedCategory = 'All';
+          _isInitialized = true;
+        });
       }
-    });
+    }
   }
 
   @override
@@ -120,6 +143,13 @@ class _MenuListPageState extends State<MenuListPage> {
   Widget _buildFoodGrid() {
     return Consumer<FoodProvider>(
       builder: (context, foodProvider, child) {
+        // Tampilkan loading indicator saat data sedang dimuat
+        if (foodProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.orange),
+          );
+        }
+
         if (foodProvider.foods.isEmpty) {
           return _buildEmptyState();
         }
@@ -136,12 +166,12 @@ class _MenuListPageState extends State<MenuListPage> {
           itemBuilder: (context, index) {
             final food = foodProvider.foods[index];
             return FoodCard(
-              title: food['title'],
-              rating: food['rating'].toDouble(),
-              time: food['time'],
-              price: food['price'],
-              discount: food['discount'],
-              imagePath: food['image'],
+              title: food['title'] ?? 'Unknown',
+              rating: (food['rating'] ?? 0).toDouble(),
+              time: food['time'] ?? '0 min',
+              price: (food['price'] ?? 0).toInt(),
+              discount: food['discount'] ?? 0, // Gunakan 0 jika tidak ada
+              imagePath: food['image'] ?? '',
               onTap: () {
                 Navigator.pushNamed(
                   context,
