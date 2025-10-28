@@ -3,14 +3,12 @@ import 'package:provider/provider.dart';
 import '../providers/order_provider.dart';
 import '../utils/constants.dart';
 
-
 class OrderTrackingPage extends StatefulWidget {
   const OrderTrackingPage({super.key});
 
   @override
   State<OrderTrackingPage> createState() => _OrderTrackingPageState();
 }
-
 
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
   @override
@@ -22,11 +20,12 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/',
-            (route) => false,
-          ),
+          onPressed:
+              () => Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/',
+                (route) => false,
+              ),
         ),
         title: const Text(
           'Order Tracking',
@@ -86,7 +85,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           ),
           const SizedBox(height: 20),
           Text(
-            'No Active Order',
+            'No Order',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -96,7 +95,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'You don\'t have any active orders',
+            'You don\'t have any orders',
             style: TextStyle(
               fontSize: 13,
               fontFamily: 'Poppins',
@@ -133,11 +132,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               color: statusColor.withOpacity(0.15),
               borderRadius: BorderRadius.circular(50),
             ),
-            child: Icon(
-              statusIcon,
-              size: 45,
-              color: statusColor,
-            ),
+            child: Icon(statusIcon, size: 45, color: statusColor),
           ),
           const SizedBox(height: 16),
           Text(
@@ -186,11 +181,13 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       {'title': 'Order Placed', 'completed': true},
       {
         'title': 'Preparing',
-        'completed': order['status'] == 'Active' || order['status'] == 'Completed'
+        'completed':
+            order['status'] == 'Prepared' || order['status'] == 'Completed',
       },
       {
         'title': 'Out for Delivery',
-        'completed': order['status'] == 'Active' || order['status'] == 'Completed'
+        'completed':
+            order['status'] == 'Prepared' || order['status'] == 'Completed',
       },
       {'title': 'Delivered', 'completed': order['status'] == 'Completed'},
     ];
@@ -239,16 +236,21 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: Center(
-                          child: isCompleted
-                              ? const Icon(Icons.check, color: Colors.white, size: 20)
-                              : Container(
-                                  width: 12,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[400],
-                                    borderRadius: BorderRadius.circular(50),
+                          child:
+                              isCompleted
+                                  ? const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 20,
+                                  )
+                                  : Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[400],
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
                                   ),
-                                ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -258,7 +260,8 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Poppins',
-                          color: isCompleted ? Colors.black87 : Colors.grey[500],
+                          color:
+                              isCompleted ? Colors.black87 : Colors.grey[500],
                         ),
                       ),
                     ],
@@ -492,7 +495,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
 
   IconData _getStatusIcon(String status) {
     switch (status) {
-      case 'Active':
+      case 'Prepared':
         return Icons.local_shipping;
       case 'Completed':
         return Icons.check_circle;
@@ -505,7 +508,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
 
   String _getStatusMessage(String status) {
     switch (status) {
-      case 'Active':
+      case 'Prepared':
         return 'Your order is on the way';
       case 'Completed':
         return 'Order successfully delivered';
@@ -518,7 +521,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Active':
+      case 'Prepared':
         return Colors.orange;
       case 'Completed':
         return Colors.green;

@@ -106,7 +106,7 @@ You'll receive order confirmation and tracking updates.''',
         'answer': '''To cancel an order:
 
 1. Go to Orders History
-2. Find the active order
+2. Find the Prepared order
 3. Tap on the order
 4. Select "Cancel Order"
 5. Choose cancellation reason
@@ -119,7 +119,7 @@ Note: Orders can only be cancelled before they are prepared. Once the restaurant
         'answer': '''To track your order:
 
 1. Go to Orders History
-2. Select the active order
+2. Select the Prepared order
 3. View real-time tracking
 4. You'll see order status updates:
    - Order Confirmed
@@ -338,7 +338,7 @@ class HelpDetailPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Help Center _ Detail',
+          'Help Center',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
