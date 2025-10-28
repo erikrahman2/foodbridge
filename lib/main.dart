@@ -11,12 +11,10 @@ import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
 import 'package:geolocator/geolocator.dart';
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // (Opsional) Tes koneksi Firestore untuk memastikan setup benar
   try {

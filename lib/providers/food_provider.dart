@@ -24,30 +24,30 @@ class FoodProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      final QuerySnapshot snapshot =
-          await _firestore.collection('food').get();
+      final QuerySnapshot snapshot = await _firestore.collection('food').get();
 
-    _foods = snapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
+      _foods =
+          snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
 
-      // Pastikan semua field yang mungkin berupa List dikonversi dengan aman
-      data['id'] = doc.id;
-      data['category'] = data['category'] ?? '';
-      data['title'] = data['title'] ?? '';
-      data['description'] = data['description'] ?? '';
-      data['price'] = (data['price'] ?? 0).toDouble();
-      data['image'] = data['image'] ?? '';
-      
-      // Jika ada list seperti ingredients/tags/kategori
-      if (data['ingredients'] != null) {
-        data['ingredients'] = List<String>.from(data['ingredients']);
-      }
-      if (data['tags'] != null) {
-        data['tags'] = List<String>.from(data['tags']);
-      }
+            // Pastikan semua field yang mungkin berupa List dikonversi dengan aman
+            data['id'] = doc.id;
+            data['category'] = data['category'] ?? '';
+            data['title'] = data['title'] ?? '';
+            data['description'] = data['description'] ?? '';
+            data['price'] = (data['price'] ?? 0).toDouble();
+            data['image'] = data['image'] ?? '';
 
-      return data;
-    }).toList();
+            // Jika ada list seperti ingredients/tags/kategori
+            if (data['ingredients'] != null) {
+              data['ingredients'] = List<String>.from(data['ingredients']);
+            }
+            if (data['tags'] != null) {
+              data['tags'] = List<String>.from(data['tags']);
+            }
+
+            return data;
+          }).toList();
 
       _filteredFoods = _foods;
     } catch (e) {
@@ -75,23 +75,25 @@ class FoodProvider extends ChangeNotifier {
   /// Fitur pencarian makanan
   void searchFoods(String query) {
     if (query.isEmpty) {
-      _filteredFoods = _selectedCategory == 'All'
-          ? _foods
-          : _foods
-              .where((food) => food['category'] == _selectedCategory)
-              .toList();
+      _filteredFoods =
+          _selectedCategory == 'All'
+              ? _foods
+              : _foods
+                  .where((food) => food['category'] == _selectedCategory)
+                  .toList();
     } else {
-      _filteredFoods = _foods
-          .where(
-            (food) =>
-                (food['title'] ?? '')
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
-                (food['category'] ?? '')
-                    .toLowerCase()
-                    .contains(query.toLowerCase()),
-          )
-          .toList();
+      _filteredFoods =
+          _foods
+              .where(
+                (food) =>
+                    (food['title'] ?? '').toLowerCase().contains(
+                      query.toLowerCase(),
+                    ) ||
+                    (food['category'] ?? '').toLowerCase().contains(
+                      query.toLowerCase(),
+                    ),
+              )
+              .toList();
     }
     notifyListeners();
   }
