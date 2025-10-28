@@ -17,7 +17,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
   String selectedFilter = 'All';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<String> filters = ['All', 'Active', 'Completed', 'Cancelled'];
+  final List<String> filters = ['All', 'Prepared', 'Completed', 'Cancelled'];
 
   @override
   Widget build(BuildContext context) {
@@ -387,7 +387,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Active':
+      case 'Prepared':
         return Colors.orange;
       case 'Completed':
         return Colors.green;
