@@ -57,7 +57,7 @@ class NotificationProvider extends ChangeNotifier {
   void orderConfirmed(String orderId) {
     addNotification(
       title: 'Order Confirmed',
-      message: 'Your order #$orderId has been confirmed and is being prepared.',
+      message: 'Your order #$orderId has been confirmed and is being Prepared.',
       type: 'order_update',
       orderId: orderId,
       status: 'confirmed',
@@ -67,7 +67,7 @@ class NotificationProvider extends ChangeNotifier {
   void orderPreparing(String orderId) {
     addNotification(
       title: 'Order Preparing',
-      message: 'Your order #$orderId is being prepared by the restaurant.',
+      message: 'Your order #$orderId is being Prepared by the restaurant.',
       type: 'order_update',
       orderId: orderId,
       status: 'preparing',

@@ -188,7 +188,7 @@ class _MealDetailPageState extends State<MealDetailPage> {
         const SizedBox(height: 8),
         Text(
           food!['description'] ??
-              'Delicious food prepared with fresh ingredients.',
+              'Delicious food Prepared with fresh ingredients.',
           style: const TextStyle(
             fontSize: 14,
             color: Colors.grey,
