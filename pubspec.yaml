@@ -85,6 +85,32 @@ flutter:
     - assets/images/gorengan2.jpg
     - assets/images/salad.jpg
     - assets/images/saladb.png
+    # update
+    - assets/images/bluenoodles.jpg
+    - assets/images/bigspa.jpg
+    - assets/images/ramena.jpg
+    - assets/images/katsu1.jpg
+    - assets/images/sushi21.jpg
+    - assets/images/sushi22.jpg
+    - assets/images/ramentpg.jpg
+    - assets/images/sugardonat.jpg
+    - assets/images/kitdonut.jpg
+    - assets/images/rawdonut.jpg
+    - assets/images/cocodonut.jpg
+    - assets/images/rnbwdonut.jpg
+    - assets/images/croisco.jpg
+    - assets/images/sugarbread.jpg
+    - assets/images/bobabread.jpg
+    - assets/images/sugarbread_2.jpg
+    - assets/images/dragonjus.jpg
+    - assets/images/strosmo.jpg
+    - assets/images/yellowrice2.jpg
+    - assets/images/amperaf.jpg
+    - assets/images/amperaf_2.jpg
+    - assets/images/amperaf_3.jpg
+    - assets/images/friedrice.jpg
+    - assets/images/amperaf_4.jpg
+    - assets/images/friedrice_2.jpg
 
     #   - assets/icons/
     - assets/icons/friedcat.png
