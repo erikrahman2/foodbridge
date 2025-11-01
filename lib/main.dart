@@ -7,16 +7,21 @@ import 'providers/cart_provider.dart';
 import 'providers/food_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/order_provider.dart';
+import 'providers/favorite_provider.dart';
 import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:food_bridge/services/midtrans_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  await MidtransService.initMidtrans();
 
-  // (Opsional) Tes koneksi Firestore untuk memastikan setup benar
   try {
     await FirebaseFirestore.instance.collection('app_test').add({
       'status': 'connected',
@@ -27,7 +32,6 @@ Future<void> main() async {
     debugPrint('⚠️ Firestore connection failed: $e');
   }
 
-  // Request permission lokasi sebelum menjalankan aplikasi
   await requestLocationPermission();
   runApp(const MyApp());
 }
@@ -43,6 +47,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FoodProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
       ],
       child: MaterialApp(
         title: 'FoodBridge',
@@ -59,7 +64,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Fungsi untuk request permission
 Future<void> requestLocationPermission() async {
   LocationPermission permission = await Geolocator.checkPermission();
 
@@ -67,19 +71,16 @@ Future<void> requestLocationPermission() async {
     permission = await Geolocator.requestPermission();
 
     if (permission == LocationPermission.denied) {
-      // Permission ditolak
       print('Location permission denied');
       return;
     }
   }
 
   if (permission == LocationPermission.deniedForever) {
-    // Permission ditolak permanent
     print('Location permission denied forever');
     return;
   }
 
-  // Permission granted, ambil lokasi
   Position position = await Geolocator.getCurrentPosition();
   print('Lat: ${position.latitude}, Lng: ${position.longitude}');
 }
