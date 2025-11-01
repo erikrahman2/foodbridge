@@ -520,6 +520,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.16.0"
+  midtrans_sdk:
+    dependency: "direct main"
+    description:
+      name: midtrans_sdk
+      sha256: "7e5a8822b49bbc9ae708082d68e599cc5810f2107d5965c0c48de342976765e5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   nested:
     dependency: transitive
     description:
