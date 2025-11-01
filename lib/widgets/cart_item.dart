@@ -1,3 +1,4 @@
+// lib/widgets/cart_item.dart
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 
@@ -53,7 +54,6 @@ class CartItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Checkbox
             Transform.scale(
               scale: 1.2,
               child: Checkbox(
@@ -106,35 +106,34 @@ class CartItem extends StatelessWidget {
   Future<bool?> _showDeleteConfirmDialog(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: const Text(
+          'Delete Item',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Are you sure you want to remove "${food['title']}" from cart?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
             ),
-            title: const Text(
-              'Delete Item',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: Text(
-              'Are you sure you want to remove "${food['title']}" from cart?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
           ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -148,16 +147,15 @@ class CartItem extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child:
-            food['image'] != null
-                ? Image.asset(
-                  food['image'],
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildImagePlaceholder();
-                  },
-                )
-                : _buildImagePlaceholder(),
+        child: food['image'] != null
+            ? Image.asset(
+                food['image'],
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildImagePlaceholder();
+                },
+              )
+            : _buildImagePlaceholder(),
       ),
     );
   }

@@ -1,45 +1,39 @@
+// lib/providers/cart_provider.dart
 import 'package:flutter/foundation.dart';
 
 class CartProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _cartItems = [];
-  Set<int> _selectedItemIds = {}; // Track selected items
+  Set<String> _selectedItemIds = {}; // Changed from int to String
 
   List<Map<String, dynamic>> get cartItems => _cartItems;
-  Set<int> get selectedItemIds => _selectedItemIds;
+  Set<String> get selectedItemIds => _selectedItemIds;
 
-  // Get only selected items
   List<Map<String, dynamic>> get selectedItems =>
       _cartItems
-          .where((item) => _selectedItemIds.contains(item['id']))
+          .where((item) => _selectedItemIds.contains(item['id'].toString()))
           .toList();
 
-  // Total items in cart
   int get totalItems =>
       _cartItems.fold(0, (total, item) => total + (item['quantity'] as int));
 
-  // Total items selected
   int get selectedItemsCount =>
       selectedItems.fold(0, (total, item) => total + (item['quantity'] as int));
 
-  // Total price of all items
   double get totalPrice => _cartItems.fold(
-    0.0,
-    (total, item) =>
-        total + ((item['price'] as int) * (item['quantity'] as int)),
-  );
+        0.0,
+        (total, item) =>
+            total + ((item['price'] as int) * (item['quantity'] as int)),
+      );
 
-  // Total price of selected items only
   double get selectedTotalPrice => selectedItems.fold(
-    0.0,
-    (total, item) =>
-        total + ((item['price'] as int) * (item['quantity'] as int)),
-  );
+        0.0,
+        (total, item) =>
+            total + ((item['price'] as int) * (item['quantity'] as int)),
+      );
 
-  // Check if item is selected
-  bool isItemSelected(int foodId) => _selectedItemIds.contains(foodId);
+  bool isItemSelected(String foodId) => _selectedItemIds.contains(foodId);
 
-  // Toggle item selection
-  void toggleItemSelection(int foodId, bool isSelected) {
+  void toggleItemSelection(String foodId, bool isSelected) {
     if (isSelected) {
       _selectedItemIds.add(foodId);
     } else {
@@ -48,45 +42,42 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Select all items
   void selectAllItems() {
-    _selectedItemIds = _cartItems.map((item) => item['id'] as int).toSet();
+    _selectedItemIds = _cartItems.map((item) => item['id'].toString()).toSet();
     notifyListeners();
   }
 
-  // Deselect all items
   void deselectAllItems() {
     _selectedItemIds.clear();
     notifyListeners();
   }
 
-  // Check if all items are selected
   bool get areAllItemsSelected =>
       _cartItems.isNotEmpty && _selectedItemIds.length == _cartItems.length;
 
   void addToCart(Map<String, dynamic> food, {int quantity = 1}) {
+    final foodId = food['id'].toString();
     final existingIndex = _cartItems.indexWhere(
-      (item) => item['id'] == food['id'],
+      (item) => item['id'].toString() == foodId,
     );
 
     if (existingIndex >= 0) {
       _cartItems[existingIndex]['quantity'] += quantity;
     } else {
       _cartItems.add({...food, 'quantity': quantity});
-      // Auto-select new item
-      _selectedItemIds.add(food['id']);
+      _selectedItemIds.add(foodId);
     }
     notifyListeners();
   }
 
-  void removeFromCart(int foodId) {
-    _cartItems.removeWhere((item) => item['id'] == foodId);
+  void removeFromCart(String foodId) {
+    _cartItems.removeWhere((item) => item['id'].toString() == foodId);
     _selectedItemIds.remove(foodId);
     notifyListeners();
   }
 
-  void updateQuantity(int foodId, int quantity) {
-    final index = _cartItems.indexWhere((item) => item['id'] == foodId);
+  void updateQuantity(String foodId, int quantity) {
+    final index = _cartItems.indexWhere((item) => item['id'].toString() == foodId);
     if (index >= 0) {
       if (quantity <= 0) {
         _cartItems.removeAt(index);
@@ -104,9 +95,8 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Clear only selected items (for checkout)
   void clearSelectedItems() {
-    _cartItems.removeWhere((item) => _selectedItemIds.contains(item['id']));
+    _cartItems.removeWhere((item) => _selectedItemIds.contains(item['id'].toString()));
     _selectedItemIds.clear();
     notifyListeners();
   }
