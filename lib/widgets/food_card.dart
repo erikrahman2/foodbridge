@@ -1,7 +1,11 @@
+// lib/widgets/food_card.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utils/constants.dart';
+import '../providers/favorite_provider.dart';
 
 class FoodCard extends StatelessWidget {
+  final String id;
   final String title;
   final double rating;
   final String time;
@@ -12,6 +16,7 @@ class FoodCard extends StatelessWidget {
 
   const FoodCard({
     super.key,
+    required this.id,
     required this.title,
     required this.rating,
     required this.time,
@@ -23,29 +28,42 @@ class FoodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppSizes.borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: Offset(0, 2),
+    return Consumer<FavoriteProvider>(
+      builder: (context, favoriteProvider, child) {
+        final isFavorite = favoriteProvider.isFavorite(id);
+
+        return GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppSizes.borderRadius),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildImageSection(), _buildContentSection()],
-        ),
-      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildImageSection(isFavorite, favoriteProvider, context),
+                _buildContentSection(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildImageSection() {
+  Widget _buildImageSection(
+    bool isFavorite,
+    FavoriteProvider favoriteProvider,
+    BuildContext context,
+  ) {
     return Stack(
       children: [
         Container(
@@ -53,53 +71,84 @@ class FoodCard extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.grey[200],
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(AppSizes.borderRadius),
               topRight: Radius.circular(AppSizes.borderRadius),
             ),
           ),
-          child:
-              imagePath != null
-                  ? ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(AppSizes.borderRadius),
-                      topRight: Radius.circular(AppSizes.borderRadius),
-                    ),
-                    child: Image.asset(
-                      imagePath!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _buildPlaceholder();
-                      },
-                    ),
-                  )
-                  : _buildPlaceholder(),
+          child: imagePath != null
+              ? ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(AppSizes.borderRadius),
+                    topRight: Radius.circular(AppSizes.borderRadius),
+                  ),
+                  child: Image.asset(
+                    imagePath!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return _buildPlaceholder();
+                    },
+                  ),
+                )
+              : _buildPlaceholder(),
         ),
         Positioned(
           top: 8,
           right: 8,
-          child: Container(
-            padding: EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+          child: GestureDetector(
+            onTap: () async {
+              await favoriteProvider.toggleFavorite(id);
+              
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isFavorite
+                          ? 'Removed from favorites'
+                          : 'Added to favorites',
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    backgroundColor: isFavorite ? Colors.red : Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin: const EdgeInsets.all(16),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : Colors.grey,
+                size: 16,
+              ),
             ),
-            child: Icon(Icons.favorite_border, color: Colors.grey, size: 16),
           ),
         ),
-        if (discount != null)
+        if (discount != null && discount! > 0)
           Positioned(
             top: 8,
             left: 8,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '$discount% OFF',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -122,7 +171,7 @@ class FoodCard extends StatelessWidget {
 
   Widget _buildContentSection() {
     return Padding(
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -134,22 +183,22 @@ class FoodCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Row(
             children: [
-              Icon(Icons.star, color: Colors.orange, size: 14),
-              SizedBox(width: 4),
+              const Icon(Icons.star, color: Colors.orange, size: 14),
+              const SizedBox(width: 4),
               Text(rating.toString(), style: AppTextStyles.bodySmall),
-              Spacer(),
-              Icon(Icons.access_time, color: Colors.grey, size: 14),
-              SizedBox(width: 4),
+              const Spacer(),
+              const Icon(Icons.access_time, color: Colors.grey, size: 14),
+              const SizedBox(width: 4),
               Text(time, style: AppTextStyles.bodySmall),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             children: [
-              if (discount != null) ...[
+              if (discount != null && discount! > 0) ...[
                 Text(
                   'Rp ${(price * (1 + discount! / 100)).toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -157,7 +206,7 @@ class FoodCard extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
               ],
               Text(
                 'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',

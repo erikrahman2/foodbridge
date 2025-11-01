@@ -1,3 +1,4 @@
+// lib/pages/cart_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
@@ -23,7 +24,6 @@ class CartPage extends StatelessWidget {
             children: [
               _buildSelectAllSection(cartProvider),
               Expanded(child: _buildCartItems(cartProvider, context)),
-              // ✅ Order Summary hanya muncul jika ada item yang diceklis
               if (cartProvider.selectedItemIds.isNotEmpty)
                 _buildOrderSummary(context, cartProvider),
             ],
@@ -57,29 +57,28 @@ class CartPage extends StatelessWidget {
                   _showClearSelectedDialog(context, cartProvider);
                 }
               },
-              itemBuilder:
-                  (context) => [
-                    const PopupMenuItem(
-                      value: 'clear_selected',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete_outline, color: Colors.orange),
-                          SizedBox(width: 8),
-                          Text('Clear Selected'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'clear_all',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete_forever, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Clear All'),
-                        ],
-                      ),
-                    ),
-                  ],
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'clear_selected',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_outline, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Text('Clear Selected'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'clear_all',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_forever, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Clear All'),
+                    ],
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -167,17 +166,19 @@ class CartPage extends StatelessWidget {
       itemCount: cartProvider.cartItems.length,
       itemBuilder: (context, index) {
         final item = cartProvider.cartItems[index];
+        final itemId = item['id'].toString();
+        
         return CartItem(
           food: item,
-          isSelected: cartProvider.isItemSelected(item['id']),
+          isSelected: cartProvider.isItemSelected(itemId),
           onSelectedChanged: (isSelected) {
-            cartProvider.toggleItemSelection(item['id'], isSelected ?? false);
+            cartProvider.toggleItemSelection(itemId, isSelected ?? false);
           },
           onQuantityChanged: (quantity) {
-            cartProvider.updateQuantity(item['id'], quantity);
+            cartProvider.updateQuantity(itemId, quantity);
           },
           onRemoved: () {
-            cartProvider.removeFromCart(item['id']);
+            cartProvider.removeFromCart(itemId);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('${item['title']} removed from cart'),
@@ -193,7 +194,6 @@ class CartPage extends StatelessWidget {
   }
 
   Widget _buildOrderSummary(BuildContext context, CartProvider cartProvider) {
-    // ✅ Hitung hanya dari item yang diceklis
     final subtotal = cartProvider.selectedTotalPrice;
     const deliveryFee = 5000.0;
     final tax = subtotal * 0.01;
@@ -294,12 +294,11 @@ class CartPage extends StatelessWidget {
     bool isTotal = false,
     bool isDiscount = false,
   }) {
-    // Format number dengan pemisah ribuan
     String formatPrice(int price) {
       return price.toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]}.',
-      );
+            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+            (Match m) => '${m[1]}.',
+          );
     }
 
     return Padding(
@@ -309,24 +308,22 @@ class CartPage extends StatelessWidget {
         children: [
           Text(
             label,
-            style:
-                isTotal
-                    ? AppTextStyles.bodyLarge.copyWith(
-                      fontWeight: FontWeight.bold,
-                    )
-                    : AppTextStyles.bodyMedium,
+            style: isTotal
+                ? AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                  )
+                : AppTextStyles.bodyMedium,
           ),
           Text(
             '${isDiscount ? '- ' : ''}Rp ${formatPrice(amount.toInt())}',
-            style:
-                isTotal
-                    ? AppTextStyles.bodyLarge.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryOrange,
-                    )
-                    : AppTextStyles.bodyMedium.copyWith(
-                      color: isDiscount ? Colors.green : Colors.black87,
-                    ),
+            style: isTotal
+                ? AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryOrange,
+                  )
+                : AppTextStyles.bodyMedium.copyWith(
+                    color: isDiscount ? Colors.green : Colors.black87,
+                  ),
           ),
         ],
       ),
@@ -336,49 +333,48 @@ class CartPage extends StatelessWidget {
   void _showClearCartDialog(BuildContext context, CartProvider cartProvider) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: const Text(
+          'Clear Cart',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Are you sure you want to remove all items from your cart?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
             ),
-            title: const Text(
-              'Clear Cart',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: const Text(
-              'Are you sure you want to remove all items from your cart?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  cartProvider.clearCart();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Cart cleared'),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-                child: const Text(
-                  'Clear All',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
           ),
+          TextButton(
+            onPressed: () {
+              cartProvider.clearCart();
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Cart cleared'),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Text(
+              'Clear All',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -399,50 +395,49 @@ class CartPage extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: const Text(
+          'Clear Selected Items',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Remove ${cartProvider.selectedItemIds.length} selected items from cart?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
             ),
-            title: const Text(
-              'Clear Selected Items',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: Text(
-              'Remove ${cartProvider.selectedItemIds.length} selected items from cart?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  final count = cartProvider.selectedItemIds.length;
-                  cartProvider.clearSelectedItems();
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('$count items removed'),
-                      backgroundColor: AppColors.primaryOrange,
-                      behavior: SnackBarBehavior.floating,
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
-                child: const Text(
-                  'Remove',
-                  style: TextStyle(
-                    color: AppColors.primaryOrange,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
           ),
+          TextButton(
+            onPressed: () {
+              final count = cartProvider.selectedItemIds.length;
+              cartProvider.clearSelectedItems();
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('$count items removed'),
+                  backgroundColor: AppColors.primaryOrange,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Text(
+              'Remove',
+              style: TextStyle(
+                color: AppColors.primaryOrange,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
