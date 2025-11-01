@@ -21,7 +21,6 @@ class _MenuListPageState extends State<MenuListPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch data dulu sebelum filter
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
@@ -30,12 +29,10 @@ class _MenuListPageState extends State<MenuListPage> {
   Future<void> _initializeData() async {
     final foodProvider = context.read<FoodProvider>();
     
-    // Tunggu sampai data selesai dimuat
     if (foodProvider.foods.isEmpty && !foodProvider.isLoading) {
       await foodProvider.fetchFoodsFromFirestore();
     }
 
-    // Baru apply filter dari arguments
     if (!_isInitialized && mounted) {
       final args = ModalRoute.of(context)?.settings.arguments as String?;
       if (args != null && args != 'More') {
@@ -143,7 +140,6 @@ class _MenuListPageState extends State<MenuListPage> {
   Widget _buildFoodGrid() {
     return Consumer<FoodProvider>(
       builder: (context, foodProvider, child) {
-        // Tampilkan loading indicator saat data sedang dimuat
         if (foodProvider.isLoading) {
           return const Center(
             child: CircularProgressIndicator(color: Colors.orange),
@@ -166,11 +162,12 @@ class _MenuListPageState extends State<MenuListPage> {
           itemBuilder: (context, index) {
             final food = foodProvider.foods[index];
             return FoodCard(
+              id: food['id'].toString(),
               title: food['title'] ?? 'Unknown',
               rating: (food['rating'] ?? 0).toDouble(),
               time: food['time'] ?? '0 min',
               price: (food['price'] ?? 0).toInt(),
-              discount: food['discount'] ?? 0, // Gunakan 0 jika tidak ada
+              discount: food['discount'] ?? 0,
               imagePath: food['image'] ?? '',
               onTap: () {
                 Navigator.pushNamed(

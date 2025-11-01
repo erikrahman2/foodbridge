@@ -413,18 +413,18 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final offer = displayOffers[index];
                   return FoodCard(
+                    id: offer['id'].toString(), // TAMBAHAN: pass ID
                     title: offer['title'] as String,
                     rating: (offer['rating'] as num).toDouble(),
                     time: offer['time'] as String,
                     price: offer['price'] as int,
                     discount: offer['discount'] as int,
                     imagePath: offer['image'] as String,
-                    onTap:
-                        () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.mealDetail,
-                          arguments: offer,
-                        ),
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.mealDetail,
+                      arguments: offer,
+                    ),
                   );
                 },
               ),
