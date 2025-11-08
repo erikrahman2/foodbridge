@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../providers/order_provider.dart';
 import '../utils/constants.dart';
@@ -20,12 +21,11 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed:
-              () => Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/',
-                (route) => false,
-              ),
+          onPressed: () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/',
+            (route) => false,
+          ),
         ),
         title: const Text(
           'Order Tracking',
@@ -208,9 +208,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Tracking',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               fontFamily: 'Poppins',
@@ -236,21 +236,20 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: Center(
-                          child:
-                              isCompleted
-                                  ? const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 20,
-                                  )
-                                  : Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[400],
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
+                          child: isCompleted
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 20,
+                                )
+                              : Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[400],
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
+                                ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -260,8 +259,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Poppins',
-                          color:
-                              isCompleted ? Colors.black87 : Colors.grey[500],
+                          color: isCompleted
+                              ? Colors.black87
+                              : Colors.grey[500],
                         ),
                       ),
                     ],
@@ -288,6 +288,8 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
   }
 
   Widget _buildOrderDetailsCard(Map<String, dynamic> order) {
+    final total = order['totalPrice'] ?? order['total'] ?? 0;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -316,7 +318,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           const SizedBox(height: 12),
           _buildDetailRow('Order ID', order['id'].toString()),
           const SizedBox(height: 12),
-          _buildDetailRow('Total', 'Rp ${_formatPrice(order['totalPrice'])}'),
+          _buildDetailRow('Total', 'Rp ${_formatPrice(total)}'),
           const SizedBox(height: 12),
           _buildDetailRow('Payment', order['paymentMethod'] ?? 'Cash'),
         ],
@@ -480,17 +482,29 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
     );
   }
 
-  String _formatTime(DateTime dateTime) {
-    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
-
-  String _formatPrice(dynamic price) {
-    final intPrice = (price as num).toInt();
-    final formatter = intPrice.toString().replaceAllMapped(
+  String _formatPrice(dynamic value) {
+    final n = (value is num) ? value.toInt() : 0;
+    return n.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]}.',
     );
-    return formatter;
+  }
+
+  String _formatTime(dynamic time) {
+    if (time == null) return 'Unknown';
+    DateTime dt;
+    try {
+      if (time is DateTime) {
+        dt = time;
+      } else if (time is Timestamp) {
+        dt = time.toDate();
+      } else {
+        return time.toString();
+      }
+    } catch (_) {
+      return 'Unknown';
+    }
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} WIB';
   }
 
   IconData _getStatusIcon(String status) {
