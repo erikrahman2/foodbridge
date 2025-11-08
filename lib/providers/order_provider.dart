@@ -21,12 +21,15 @@ class OrderProvider extends ChangeNotifier {
 
   void startListeningAllOrders() {
     _ordersSub?.cancel();
-    _ordersSub = _service.streamOrders().listen((list) {
-      _orders = list;
-      notifyListeners();
-    }, onError: (e) {
-      if (kDebugMode) print('Orders stream error: $e');
-    });
+    _ordersSub = _service.streamOrders().listen(
+      (list) {
+        _orders = list;
+        notifyListeners();
+      },
+      onError: (e) {
+        if (kDebugMode) print('Orders stream error: $e');
+      },
+    );
 
     _startAutoTransition();
   }
@@ -38,12 +41,17 @@ class OrderProvider extends ChangeNotifier {
       return;
     }
 
-    _ordersSub = _service.streamOrdersByStatus(status).listen((list) {
-      _orders = list;
-      notifyListeners();
-    }, onError: (e) {
-      if (kDebugMode) print('Orders by status stream error: $e');
-    });
+    _ordersSub = _service
+        .streamOrdersByStatus(status)
+        .listen(
+          (list) {
+            _orders = list;
+            notifyListeners();
+          },
+          onError: (e) {
+            if (kDebugMode) print('Orders by status stream error: $e');
+          },
+        );
 
     _startAutoTransition();
   }
@@ -51,7 +59,7 @@ class OrderProvider extends ChangeNotifier {
   /// Create order using payload Map
   Future<String> createOrder(Map<String, dynamic> payload) async {
     final id = await _service.createOrder(payload);
-    
+
     // Fetch the created order back
     Map<String, dynamic>? fetched;
     int tries = 0;
@@ -61,7 +69,7 @@ class OrderProvider extends ChangeNotifier {
       await Future.delayed(const Duration(milliseconds: 300));
       tries++;
     }
-    
+
     // Set current order and add to local list
     _currentOrder = fetched;
     if (_currentOrder != null) {
@@ -110,13 +118,13 @@ class OrderProvider extends ChangeNotifier {
       final now = DateTime.now();
       final ordersCopy = List<Map<String, dynamic>>.from(_orders);
       for (var order in ordersCopy) {
-        final status = (order['status'] ?? 'Active') as String;
+        final status = (order['status'] ?? 'Delivering') as String;
         final createdAt = order['createdAt'];
         if (createdAt is Timestamp) {
           final created = createdAt.toDate();
           final diff = now.difference(created);
 
-          if (status == 'Active' && diff > const Duration(minutes: 1)) {
+          if (status == 'Delivering' && diff > const Duration(minutes: 1)) {
             try {
               await updateOrderStatus(order['id'] as String, 'Completed');
             } catch (e) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../utils/constants.dart';
-import '../routes/app_routes.dart';
 import '../providers/order_provider.dart';
 
 class OrderDetailPage extends StatefulWidget {
@@ -15,6 +15,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   Map<String, dynamic>? orderData;
   int userRating = 0;
   final TextEditingController _reviewController = TextEditingController();
+  bool _hasSubmittedReview = false; // Track if review has been submitted
+  bool _showCompletedPattern = true; // Track if pattern should show
+  Timer? _patternTimer;
 
   @override
   void didChangeDependencies() {
@@ -75,18 +78,19 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildStatusCard(),
+                    // Status card hilang, ganti pattern 3 detik
+                    if ((orderData!['status'] ?? '') == 'Completed' &&
+                        _showCompletedPattern)
+                      _buildCompletedPattern(),
                     const SizedBox(height: 16),
                     _buildOrderItems(),
                     const SizedBox(height: 16),
                     _buildDeliveryInfo(),
                     const SizedBox(height: 16),
-                    _buildPaymentInfo(),
-                    const SizedBox(height: 16),
-                    _buildPromotions(),
-                    const SizedBox(height: 16),
                     _buildPriceBreakdown(),
-                    if ((orderData!['status'] ?? '') == 'Completed') ...[
+                    // Rating section hanya tampil jika Completed dan belum submit
+                    if ((orderData!['status'] ?? '') == 'Completed' &&
+                        !_hasSubmittedReview) ...[
                       const SizedBox(height: 16),
                       _buildRatingSection(),
                     ],
@@ -138,85 +142,65 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           PopupMenuButton(
             icon: const Icon(Icons.more_horiz, color: Colors.black),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: const Text(
-                  'Share Order',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
+            itemBuilder:
+                (context) => [
+                  PopupMenuItem(
+                    child: const Text(
+                      'Share Order',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onTap: () {},
                   ),
-                ),
-                onTap: () {},
-              ),
-              PopupMenuItem(
-                child: const Text(
-                  'Print Receipt',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
+                  PopupMenuItem(
+                    child: const Text(
+                      'Print Receipt',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onTap: () {},
                   ),
-                ),
-                onTap: () {},
-              ),
-            ],
+                ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatusCard() {
-    final statusColor = _getStatusColor(orderData!['status'] ?? '');
-    final statusIcon = _getStatusIcon(orderData!['status'] ?? '');
+  // Pattern 3 detik untuk order completed
+  Widget _buildCompletedPattern() {
+    // Start timer if not already started
+    _patternTimer ??= Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _showCompletedPattern = false;
+        });
+      }
+    });
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [statusColor.withOpacity(0.1), statusColor.withOpacity(0.05)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(color: statusColor.withOpacity(0.3), width: 1.5),
-        borderRadius: BorderRadius.circular(15),
+        color: Colors.green.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(statusIcon, color: statusColor, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Order ${orderData!['status'] ?? '-'}',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Poppins',
-                    color: statusColor,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _getStatusMessage(orderData!['status'] ?? ''),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Poppins',
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+          Icon(Icons.check_circle, color: Colors.green, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'Order Completed',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
+              color: Colors.green,
             ),
           ),
         ],
@@ -226,45 +210,48 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Widget _buildOrderItems() {
     final dynamic itemsSource = orderData?['items'];
-    final List<Map<String, dynamic>> items = (itemsSource is List)
-        ? List<Map<String, dynamic>>.from(itemsSource.map((e) => Map<String, dynamic>.from(e as Map)))
-        : [
-            {
-              'name': 'Chicken Burger',
-              'price': 59000.00,
-              'originalPrice': 59000.00,
-              'isAddOn': false,
-              'quantity': 1,
-            },
-            {
-              'name': 'Add Cheese',
-              'price': 0,
-              'originalPrice': 15000.00,
-              'isAddOn': true,
-              'quantity': 1,
-            },
-            {
-              'name': 'Add Meat (Cow meat)',
-              'price': 0,
-              'originalPrice': 18000.00,
-              'isAddOn': true,
-              'quantity': 1,
-            },
-            {
-              'name': 'Ramen Noodles',
-              'price': 25000.00,
-              'originalPrice': 25000.00,
-              'isAddOn': false,
-              'quantity': 2,
-            },
-            {
-              'name': 'Cherry Tomato Salad',
-              'price': 7000.00,
-              'originalPrice': 7000.00,
-              'isAddOn': false,
-              'quantity': 1,
-            },
-          ];
+    final List<Map<String, dynamic>> items =
+        (itemsSource is List)
+            ? List<Map<String, dynamic>>.from(
+              itemsSource.map((e) => Map<String, dynamic>.from(e as Map)),
+            )
+            : [
+              {
+                'name': 'Chicken Burger',
+                'price': 59000.00,
+                'originalPrice': 59000.00,
+                'isAddOn': false,
+                'quantity': 1,
+              },
+              {
+                'name': 'Add Cheese',
+                'price': 0,
+                'originalPrice': 15000.00,
+                'isAddOn': true,
+                'quantity': 1,
+              },
+              {
+                'name': 'Add Meat (Cow meat)',
+                'price': 0,
+                'originalPrice': 18000.00,
+                'isAddOn': true,
+                'quantity': 1,
+              },
+              {
+                'name': 'Ramen Noodles',
+                'price': 25000.00,
+                'originalPrice': 25000.00,
+                'isAddOn': false,
+                'quantity': 2,
+              },
+              {
+                'name': 'Cherry Tomato Salad',
+                'price': 7000.00,
+                'originalPrice': 7000.00,
+                'isAddOn': false,
+                'quantity': 1,
+              },
+            ];
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -294,30 +281,72 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildOrderItem(Map<String, dynamic> item) {
-    final quantity = (item['quantity'] is int) ? item['quantity'] as int : (item['quantity'] is num ? (item['quantity'] as num).toInt() : 1);
-    final priceNum = (item['price'] is num) ? (item['price'] as num).toDouble() : 0.0;
+    final quantity =
+        (item['quantity'] is int)
+            ? item['quantity'] as int
+            : (item['quantity'] is num ? (item['quantity'] as num).toInt() : 1);
+    final priceNum =
+        (item['price'] is num) ? (item['price'] as num).toDouble() : 0.0;
     final name = item['title'] ?? item['name'] ?? 'Item';
+    final imageUrl = item['imageUrl'] ?? item['image'] ?? '';
 
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
+          // Food Image
           Container(
             width: 55,
             height: 55,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.orange.withOpacity(0.2),
-                  Colors.orange.withOpacity(0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.withOpacity(0.2)),
+              border: Border.all(color: Colors.grey.withOpacity(0.2)),
             ),
-            child: const Icon(Icons.fastfood, color: Colors.orange, size: 28),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child:
+                  imageUrl.isNotEmpty
+                      ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.orange.withOpacity(0.2),
+                                  Colors.orange.withOpacity(0.05),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.fastfood,
+                              color: Colors.orange,
+                              size: 28,
+                            ),
+                          );
+                        },
+                      )
+                      : Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.orange.withOpacity(0.2),
+                              Colors.orange.withOpacity(0.05),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.fastfood,
+                          color: Colors.orange,
+                          size: 28,
+                        ),
+                      ),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -416,8 +445,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildDeliveryInfo() {
-    final deliveryAddress = orderData?['deliveryAddress'] ?? '221B Baker Street, London, UK';
-    final driverId = orderData?['driverId'] ?? '-';
+    final deliveryAddress =
+        orderData?['deliveryAddress'] ?? '221B Baker Street, London, UK';
     final driverLat = orderData?['driverLatitude']?.toString() ?? '-';
     final driverLng = orderData?['driverLongitude']?.toString() ?? '-';
 
@@ -498,176 +527,35 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  Widget _buildPaymentInfo() {
-    final paymentMethod = orderData?['paymentMethod'] ?? 'Cash on Delivery';
-    final paymentSubtitle = (paymentMethod == 'Cash on Delivery') ? 'Pay when it arrives' : paymentMethod;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.credit_card, color: Colors.blue, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Payment Method',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  paymentMethod,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Poppins',
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  paymentSubtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPromotions() {
-    final promoText = orderData?['promotionText'] ?? 'Restaurant Discount';
-    final promoValue = orderData?['promotionValue'] ?? 'Rp 5.000';
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.local_offer,
-              color: Colors.orange,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Active Promotions',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      promoText,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Poppins',
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        promoValue.toString(),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          backgroundColor: Colors.orange,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildPriceBreakdown() {
-    final subtotalVal = (orderData?['subtotal'] is num) ? (orderData?['subtotal'] as num).toDouble() : null;
-    final deliveryFeeVal = (orderData?['deliveryFee'] is num) ? (orderData?['deliveryFee'] as num).toDouble() : null;
-    final taxVal = (orderData?['tax'] is num) ? (orderData?['tax'] as num).toDouble() : null;
-    final discountVal = (orderData?['discount'] is num) ? (orderData?['discount'] as num).toDouble() : null;
-    final totalVal = (orderData?['totalPrice'] is num) ? (orderData?['totalPrice'] as num).toDouble() : null;
+    final subtotalVal =
+        (orderData?['subtotal'] is num)
+            ? (orderData?['subtotal'] as num).toDouble()
+            : null;
+    final deliveryFeeVal =
+        (orderData?['deliveryFee'] is num)
+            ? (orderData?['deliveryFee'] as num).toDouble()
+            : null;
+    final taxVal =
+        (orderData?['tax'] is num)
+            ? (orderData?['tax'] as num).toDouble()
+            : null;
+    final discountVal =
+        (orderData?['discount'] is num)
+            ? (orderData?['discount'] as num).toDouble()
+            : null;
+    final totalVal =
+        (orderData?['totalPrice'] is num)
+            ? (orderData?['totalPrice'] as num).toDouble()
+            : null;
 
     final subtotal = subtotalVal ?? 116000.0;
     final deliveryFee = deliveryFeeVal ?? 5000.0;
     final tax = taxVal ?? 1160.0;
     final discount = discountVal ?? 5000.0;
     final total = totalVal ?? 117160.0;
+
+    final paymentMethod = orderData?['paymentMethod'] ?? 'Cash on Delivery';
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -691,12 +579,22 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           const SizedBox(height: 12),
           _buildBreakdownRow('Tax (1%)', 'Rp ${_formatPrice(tax)}'),
           const SizedBox(height: 12),
-          _buildBreakdownRow('Discount', '- Rp ${_formatPrice(discount)}', isDiscount: true),
+          _buildBreakdownRow(
+            'Discount',
+            '- Rp ${_formatPrice(discount)}',
+            isDiscount: true,
+          ),
+          const SizedBox(height: 12),
+          _buildBreakdownRow('Payment Method', paymentMethod),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(color: Colors.grey[200], thickness: 1, height: 1),
           ),
-          _buildBreakdownRow('Total Amount', 'Rp ${_formatPrice(total)}', isTotal: true),
+          _buildBreakdownRow(
+            'Total Amount',
+            'Rp ${_formatPrice(total)}',
+            isTotal: true,
+          ),
         ],
       ),
     );
@@ -726,7 +624,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             fontSize: isTotal ? 16 : 13,
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w600,
             fontFamily: 'Poppins',
-            color: isDiscount ? Colors.green : (isTotal ? Colors.orange : Colors.black87),
+            color:
+                isDiscount
+                    ? Colors.green
+                    : (isTotal ? Colors.orange : Colors.black87),
           ),
         ),
       ],
@@ -814,6 +715,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Widget _buildBottomActions() {
     final status = orderData?['status'] ?? '';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -834,25 +736,41 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         top: false,
         child: Row(
           children: [
-            if (status == 'Prepared' || status == 'Completed') ...[
+            // Status: Delivering (belum dikonfirmasi) - Gambar 1
+            if (status == 'Delivering' || status == 'Prepared') ...[
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () {
-                    _showCancelDialog();
+                  onPressed: () async {
+                    // Update status to Cancelled
+                    final orderId = orderData?['id'] ?? orderData?['orderId'];
+                    if (orderId != null) {
+                      final orderProvider = Provider.of<OrderProvider>(
+                        context,
+                        listen: false,
+                      );
+                      await orderProvider.updateOrderStatus(
+                        orderId,
+                        'Cancelled',
+                      );
+
+                      if (mounted) {
+                        Navigator.pop(context); // Kembali ke order history
+                      }
+                    }
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    side: const BorderSide(color: Colors.red, width: 1.5),
+                    side: BorderSide(color: Colors.grey[300]!, width: 1.5),
+                    foregroundColor: Colors.black87,
                   ),
                   child: const Text(
                     'Cancel Order',
                     style: TextStyle(
-                      color: Colors.red,
                       fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
                   ),
@@ -861,12 +779,35 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.orderTracking);
+                  onPressed: () async {
+                    // Update status to Completed langsung tanpa loading
+                    final orderId = orderData?['id'] ?? orderData?['orderId'];
+                    if (orderId != null) {
+                      final orderProvider = Provider.of<OrderProvider>(
+                        context,
+                        listen: false,
+                      );
+                      await orderProvider.updateOrderStatus(
+                        orderId,
+                        'Completed',
+                      );
+                    }
+
+                    if (mounted) {
+                      setState(() {
+                        orderData?['status'] = 'Completed';
+                        _showCompletedPattern =
+                            true; // Reset pattern untuk ditampilkan lagi
+                      });
+
+                      // Restart timer untuk pattern
+                      _patternTimer?.cancel();
+                      _patternTimer = null;
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: AppColors.primaryOrange,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -883,11 +824,16 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ),
                 ),
               ),
-            ] else if (status == 'Completed') ...[
+            ],
+            // Status: Completed & belum submit review - Gambar 2
+            if (status == 'Completed' && !_hasSubmittedReview) ...[
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
                     if (userRating > 0) {
+                      setState(() {
+                        _hasSubmittedReview = true;
+                      });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
@@ -920,33 +866,112 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: AppColors.primaryOrange,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Submit Review',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.send, size: 18),
+                      SizedBox(width: 8),
+                      Text(
+                        'Submit Review',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ] else if (status == 'Cancelled') ...[
+            ],
+            // Status: Completed & sudah submit review - Gambar 3
+            if (status == 'Completed' && _hasSubmittedReview) ...[
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    _showReorderDialog();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: AppColors.primaryOrange,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.refresh, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Reorder',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            // Status: Cancelled
+            if (status == 'Cancelled') ...[
+              Expanded(
+                flex: 2,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    children: const [
+                      Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
+                      SizedBox(height: 4),
+                      Text(
+                        'Reason for Cancellation',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                          color: Colors.red,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Duplicate order',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 10,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    _showReorderDialog();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryOrange,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -970,7 +995,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  void _showCancelDialog() {
+  void _showReorderDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -979,7 +1004,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             borderRadius: BorderRadius.circular(15),
           ),
           title: const Text(
-            'Cancel Order?',
+            'Reorder Items?',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w700,
@@ -987,7 +1012,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             ),
           ),
           content: const Text(
-            'Are you sure you want to cancel this order? You will receive a refund to your original payment method.',
+            'Do you want to add these items to your cart?',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w500,
@@ -998,41 +1023,42 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text(
-                'Keep Order',
+                'Cancel',
                 style: TextStyle(
-                  color: Colors.orange,
+                  color: Colors.grey,
                   fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
               ),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                // update status via provider if available
-                final id = orderData?['id'];
-                if (id != null) {
-                  context.read<OrderProvider>().updateOrderStatus(id.toString(), 'Cancelled');
-                }
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
-                      'Order cancelled successfully',
+                      'Items added to cart!',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.green,
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryOrange,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               child: const Text(
-                'Cancel Order',
+                'Add to Cart',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: Colors.white,
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
@@ -1053,54 +1079,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Prepared':
-        return Colors.orange;
-      case 'Completed':
-        return Colors.green;
-      case 'Cancelled':
-        return Colors.red;
-      case 'Active':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _getStatusIcon(String status) {
-    switch (status) {
-      case 'Prepared':
-        return Icons.local_shipping;
-      case 'Completed':
-        return Icons.check_circle;
-      case 'Cancelled':
-        return Icons.cancel;
-      case 'Active':
-        return Icons.delivery_dining;
-      default:
-        return Icons.info;
-    }
-  }
-
-  String _getStatusMessage(String status) {
-    switch (status) {
-      case 'Prepared':
-        return 'Your order is being Prepared and will be delivered soon';
-      case 'Completed':
-        return 'Order successfully delivered. Thank you for your purchase!';
-      case 'Cancelled':
-        return 'This order has been cancelled';
-      case 'Active':
-        return 'Order accepted and being prepared';
-      default:
-        return 'Order status unknown';
-    }
-  }
-
   @override
   void dispose() {
     _reviewController.dispose();
+    _patternTimer?.cancel();
     super.dispose();
   }
 }
