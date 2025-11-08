@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utils/constants.dart';
 import '../routes/app_routes.dart';
+import '../providers/order_provider.dart';
 
 class OrderDetailPage extends StatefulWidget {
   const OrderDetailPage({super.key});
@@ -17,12 +19,36 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    orderData ??=
+    final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (orderData == null) {
+      // If full order map provided in arguments, use it as initial data.
+      if (args != null && args.containsKey('id') && args.containsKey('items')) {
+        orderData = Map<String, dynamic>.from(args);
+      } else if (args != null && args.containsKey('orderId')) {
+        // If only orderId passed, fetch from provider
+        final orderId = args['orderId'] as String?;
+        if (orderId != null) {
+          context.read<OrderProvider>().refreshOrder(orderId);
+        }
+      } else if (args != null && args.containsKey('id')) {
+        // fallback if just id exists
+        final orderId = args['id'] as String?;
+        if (orderId != null) {
+          context.read<OrderProvider>().refreshOrder(orderId);
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final providerOrder = context.watch<OrderProvider>().currentOrder;
+    // Prefer provider's realtime data when available
+    if (providerOrder != null) {
+      orderData = providerOrder;
+    }
+
     if (orderData == null) {
       return Scaffold(
         backgroundColor: AppColors.backgroundLight,
@@ -60,7 +86,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     _buildPromotions(),
                     const SizedBox(height: 16),
                     _buildPriceBreakdown(),
-                    if (orderData!['status'] == 'Completed') ...[
+                    if ((orderData!['status'] ?? '') == 'Completed') ...[
                       const SizedBox(height: 16),
                       _buildRatingSection(),
                     ],
@@ -90,7 +116,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Order ${orderData!['id']}',
+                  'Order ${orderData!['id'] ?? '-'}',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -112,29 +138,28 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           PopupMenuButton(
             icon: const Icon(Icons.more_horiz, color: Colors.black),
-            itemBuilder:
-                (context) => [
-                  PopupMenuItem(
-                    child: const Text(
-                      'Share Order',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onTap: () {},
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: const Text(
+                  'Share Order',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
                   ),
-                  PopupMenuItem(
-                    child: const Text(
-                      'Print Receipt',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onTap: () {},
+                ),
+                onTap: () {},
+              ),
+              PopupMenuItem(
+                child: const Text(
+                  'Print Receipt',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
+                ),
+                onTap: () {},
+              ),
+            ],
           ),
         ],
       ),
@@ -142,8 +167,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildStatusCard() {
-    final statusColor = _getStatusColor(orderData!['status']);
-    final statusIcon = _getStatusIcon(orderData!['status']);
+    final statusColor = _getStatusColor(orderData!['status'] ?? '');
+    final statusIcon = _getStatusIcon(orderData!['status'] ?? '');
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -173,7 +198,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Order ${orderData!['status']}',
+                  'Order ${orderData!['status'] ?? '-'}',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -183,7 +208,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _getStatusMessage(orderData!['status']),
+                  _getStatusMessage(orderData!['status'] ?? ''),
                   style: TextStyle(
                     fontSize: 12,
                     fontFamily: 'Poppins',
@@ -200,43 +225,46 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildOrderItems() {
-    final items = [
-      {
-        'name': 'Chicken Burger',
-        'price': 59000.00,
-        'originalPrice': 59000.00,
-        'isAddOn': false,
-        'quantity': 1,
-      },
-      {
-        'name': 'Add Cheese',
-        'price': 0,
-        'originalPrice': 15000.00,
-        'isAddOn': true,
-        'quantity': 1,
-      },
-      {
-        'name': 'Add Meat (Cow meat)',
-        'price': 0,
-        'originalPrice': 18000.00,
-        'isAddOn': true,
-        'quantity': 1,
-      },
-      {
-        'name': 'Ramen Noodles',
-        'price': 25000.00,
-        'originalPrice': 25000.00,
-        'isAddOn': false,
-        'quantity': 2,
-      },
-      {
-        'name': 'Cherry Tomato Salad',
-        'price': 7000.00,
-        'originalPrice': 7000.00,
-        'isAddOn': false,
-        'quantity': 1,
-      },
-    ];
+    final dynamic itemsSource = orderData?['items'];
+    final List<Map<String, dynamic>> items = (itemsSource is List)
+        ? List<Map<String, dynamic>>.from(itemsSource.map((e) => Map<String, dynamic>.from(e as Map)))
+        : [
+            {
+              'name': 'Chicken Burger',
+              'price': 59000.00,
+              'originalPrice': 59000.00,
+              'isAddOn': false,
+              'quantity': 1,
+            },
+            {
+              'name': 'Add Cheese',
+              'price': 0,
+              'originalPrice': 15000.00,
+              'isAddOn': true,
+              'quantity': 1,
+            },
+            {
+              'name': 'Add Meat (Cow meat)',
+              'price': 0,
+              'originalPrice': 18000.00,
+              'isAddOn': true,
+              'quantity': 1,
+            },
+            {
+              'name': 'Ramen Noodles',
+              'price': 25000.00,
+              'originalPrice': 25000.00,
+              'isAddOn': false,
+              'quantity': 2,
+            },
+            {
+              'name': 'Cherry Tomato Salad',
+              'price': 7000.00,
+              'originalPrice': 7000.00,
+              'isAddOn': false,
+              'quantity': 1,
+            },
+          ];
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -266,7 +294,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildOrderItem(Map<String, dynamic> item) {
-    final quantity = item['quantity'] as int;
+    final quantity = (item['quantity'] is int) ? item['quantity'] as int : (item['quantity'] is num ? (item['quantity'] as num).toInt() : 1);
+    final priceNum = (item['price'] is num) ? (item['price'] as num).toDouble() : 0.0;
+    final name = item['title'] ?? item['name'] ?? 'Item';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -295,7 +325,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item['name'],
+                  name,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -304,11 +334,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                if (item['isAddOn'] && item['price'] == 0) ...[
+                if ((item['isAddOn'] ?? false) && priceNum == 0) ...[
                   Row(
                     children: [
                       Text(
-                        'Rp ${_formatPrice(item['originalPrice'])}',
+                        'Rp ${_formatPrice(item['originalPrice'] ?? 0)}',
                         style: const TextStyle(
                           fontSize: 11,
                           decoration: TextDecoration.lineThrough,
@@ -341,7 +371,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ),
                 ] else ...[
                   Text(
-                    'Rp ${_formatPrice(item['price'])} x $quantity',
+                    'Rp ${_formatPrice(priceNum)} x $quantity',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -353,7 +383,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               ],
             ),
           ),
-          if (item['isAddOn'])
+          if (item['isAddOn'] ?? false)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -386,6 +416,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildDeliveryInfo() {
+    final deliveryAddress = orderData?['deliveryAddress'] ?? '221B Baker Street, London, UK';
+    final driverId = orderData?['driverId'] ?? '-';
+    final driverLat = orderData?['driverLatitude']?.toString() ?? '-';
+    final driverLng = orderData?['driverLongitude']?.toString() ?? '-';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
@@ -411,11 +446,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             child: const Icon(Icons.location_on, color: Colors.red, size: 22),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Delivery Address',
                   style: TextStyle(
                     fontSize: 11,
@@ -424,20 +459,20 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Home',
-                  style: TextStyle(
+                  deliveryAddress,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'Poppins',
                     color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  '221B Baker Street, London, UK',
-                  style: TextStyle(
+                  'Lat: $driverLat, Lng: $driverLng',
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
                     fontFamily: 'Poppins',
@@ -464,6 +499,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildPaymentInfo() {
+    final paymentMethod = orderData?['paymentMethod'] ?? 'Cash on Delivery';
+    final paymentSubtitle = (paymentMethod == 'Cash on Delivery') ? 'Pay when it arrives' : paymentMethod;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
@@ -489,11 +527,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             child: const Icon(Icons.credit_card, color: Colors.blue, size: 22),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Payment Method',
                   style: TextStyle(
                     fontSize: 11,
@@ -502,20 +540,20 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Cash on Delivery',
-                  style: TextStyle(
+                  paymentMethod,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'Poppins',
                     color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Pay when it arrives',
-                  style: TextStyle(
+                  paymentSubtitle,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
                     fontFamily: 'Poppins',
@@ -530,6 +568,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildPromotions() {
+    final promoText = orderData?['promotionText'] ?? 'Restaurant Discount';
+    final promoValue = orderData?['promotionValue'] ?? 'Rp 5.000';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
@@ -575,9 +616,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Text(
-                      'Restaurant Discount',
-                      style: TextStyle(
+                    Text(
+                      promoText,
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Poppins',
@@ -594,9 +635,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         color: Colors.orange,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        'Rp 5.000',
-                        style: TextStyle(
+                      child: Text(
+                        promoValue.toString(),
+                        style: const TextStyle(
                           fontSize: 11,
                           backgroundColor: Colors.orange,
                           color: Colors.white,
@@ -616,6 +657,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildPriceBreakdown() {
+    final subtotalVal = (orderData?['subtotal'] is num) ? (orderData?['subtotal'] as num).toDouble() : null;
+    final deliveryFeeVal = (orderData?['deliveryFee'] is num) ? (orderData?['deliveryFee'] as num).toDouble() : null;
+    final taxVal = (orderData?['tax'] is num) ? (orderData?['tax'] as num).toDouble() : null;
+    final discountVal = (orderData?['discount'] is num) ? (orderData?['discount'] as num).toDouble() : null;
+    final totalVal = (orderData?['totalPrice'] is num) ? (orderData?['totalPrice'] as num).toDouble() : null;
+
+    final subtotal = subtotalVal ?? 116000.0;
+    final deliveryFee = deliveryFeeVal ?? 5000.0;
+    final tax = taxVal ?? 1160.0;
+    final discount = discountVal ?? 5000.0;
+    final total = totalVal ?? 117160.0;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
@@ -632,18 +685,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       ),
       child: Column(
         children: [
-          _buildBreakdownRow('Subtotal', 'Rp 116.000,00'),
+          _buildBreakdownRow('Subtotal', 'Rp ${_formatPrice(subtotal)}'),
           const SizedBox(height: 12),
-          _buildBreakdownRow('Delivery Fee', 'Rp 5.000,00'),
+          _buildBreakdownRow('Delivery Fee', 'Rp ${_formatPrice(deliveryFee)}'),
           const SizedBox(height: 12),
-          _buildBreakdownRow('Tax (1%)', 'Rp 1.160,00'),
+          _buildBreakdownRow('Tax (1%)', 'Rp ${_formatPrice(tax)}'),
           const SizedBox(height: 12),
-          _buildBreakdownRow('Discount', '- Rp 5.000,00', isDiscount: true),
+          _buildBreakdownRow('Discount', '- Rp ${_formatPrice(discount)}', isDiscount: true),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(color: Colors.grey[200], thickness: 1, height: 1),
           ),
-          _buildBreakdownRow('Total Amount', 'Rp 117.160,00', isTotal: true),
+          _buildBreakdownRow('Total Amount', 'Rp ${_formatPrice(total)}', isTotal: true),
         ],
       ),
     );
@@ -673,10 +726,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             fontSize: isTotal ? 16 : 13,
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w600,
             fontFamily: 'Poppins',
-            color:
-                isDiscount
-                    ? Colors.green
-                    : (isTotal ? Colors.orange : Colors.black87),
+            color: isDiscount ? Colors.green : (isTotal ? Colors.orange : Colors.black87),
           ),
         ),
       ],
@@ -763,6 +813,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildBottomActions() {
+    final status = orderData?['status'] ?? '';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -783,8 +834,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         top: false,
         child: Row(
           children: [
-            if (orderData!['status'] == 'Prepared' ||
-                orderData!['status'] == 'Completed') ...[
+            if (status == 'Prepared' || status == 'Completed') ...[
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
@@ -833,7 +883,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ),
                 ),
               ),
-            ] else if (orderData!['status'] == 'Completed') ...[
+            ] else if (status == 'Completed') ...[
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
@@ -888,7 +938,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ),
                 ),
               ),
-            ] else if (orderData!['status'] == 'Cancelled') ...[
+            ] else if (status == 'Cancelled') ...[
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
@@ -960,6 +1010,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
+                // update status via provider if available
+                final id = orderData?['id'];
+                if (id != null) {
+                  context.read<OrderProvider>().updateOrderStatus(id.toString(), 'Cancelled');
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
@@ -1006,6 +1061,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         return Colors.green;
       case 'Cancelled':
         return Colors.red;
+      case 'Active':
+        return Colors.orange;
       default:
         return Colors.grey;
     }
@@ -1019,6 +1076,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         return Icons.check_circle;
       case 'Cancelled':
         return Icons.cancel;
+      case 'Active':
+        return Icons.delivery_dining;
       default:
         return Icons.info;
     }
@@ -1032,6 +1091,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         return 'Order successfully delivered. Thank you for your purchase!';
       case 'Cancelled':
         return 'This order has been cancelled';
+      case 'Active':
+        return 'Order accepted and being prepared';
       default:
         return 'Order status unknown';
     }
