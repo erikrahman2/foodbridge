@@ -29,26 +29,130 @@ class _HomePageState extends State<HomePage> {
   String streetName = "";
   String city = "";
 
+  // Controllers
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  String _searchQuery = "";
+  bool _isScrolled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    // Deteksi scroll untuk mengubah layout
+    if (_scrollController.offset > 50 && !_isScrolled) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else if (_scrollController.offset <= 50 && _isScrolled) {
+      setState(() {
+        _isScrolled = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              _buildPromoBanner(),
-              _buildSearchBar(),
-              _buildCategoryGrid(),
-              _buildSpecialOffers(),
-            ],
-          ),
+        child: Stack(
+          children: [
+            CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader()),
+                SliverToBoxAdapter(child: _buildPromoBanner()),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _StickySearchDelegate(
+                    minHeight: 80,
+                    maxHeight: 80,
+                    child: Container(
+                      color: AppColors.backgroundLight,
+                      child: _buildSearchBar(),
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(child: _buildCategoryGrid()),
+                SliverToBoxAdapter(child: _buildSpecialOffers()),
+              ],
+            ),
+            // Cart button - pojok kanan atas saat tidak scroll
+            if (!_isScrolled)
+              Positioned(top: 20, right: 20, child: _buildFloatingCart()),
+          ],
         ),
       ),
       bottomNavigationBar: _buildBottomNavBar(),
+    );
+  }
+
+  Widget _buildFloatingCart() {
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.cart);
+          },
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.18),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.shopping_bag_outlined,
+                  color: Colors.black,
+                  size: 24,
+                ),
+              ),
+              if (cartProvider.totalItems > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryOrange,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Text(
+                      cartProvider.totalItems > 99
+                          ? '99+'
+                          : cartProvider.totalItems.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -243,6 +347,76 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.all(20),
       child: Row(
         children: [
+          // Cart di kiri saat scroll
+          if (_isScrolled)
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Consumer<CartProvider>(
+                builder: (context, cartProvider, child) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.cart);
+                    },
+                    child: Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.18),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.shopping_bag_outlined,
+                            color: Colors.black,
+                            size: 24,
+                          ),
+                        ),
+                        if (cartProvider.totalItems > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryOrange,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 20,
+                                minHeight: 20,
+                              ),
+                              child: Text(
+                                cartProvider.totalItems > 99
+                                    ? '99+'
+                                    : cartProvider.totalItems.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          // Search bar - memanjang saat tidak scroll
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
@@ -259,25 +433,45 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               child: Row(
-                children: const [
-                  Icon(Icons.search, color: Colors.grey),
-                  SizedBox(width: 10),
-                  Text(
-                    'Search',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                children: [
+                  const Icon(Icons.search, color: Colors.grey),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: const InputDecoration(
+                        hintText: 'Search',
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                        context.read<FoodProvider>().searchFoods(value);
+                      },
+                    ),
                   ),
+                  if (_searchController.text.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _searchController.clear();
+                          _searchQuery = "";
+                        });
+                        context.read<FoodProvider>().searchFoods('');
+                      },
+                      child: const Icon(
+                        Icons.clear,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                    ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Icon(Icons.tune, color: Colors.black),
           ),
         ],
       ),
@@ -360,19 +554,55 @@ class _HomePageState extends State<HomePage> {
   Widget _buildSpecialOffers() {
     return Consumer<FoodProvider>(
       builder: (context, foodProvider, child) {
-        final specialOffers =
-            foodProvider.foods
-                .where(
-                  (food) =>
-                      food['discount'] != null && (food['discount'] as num) > 0,
-                )
-                .toList();
+        // Filter berdasarkan search query jika ada
+        var foods = foodProvider.foods;
 
-        if (specialOffers.isEmpty) {
+        if (_searchQuery.isNotEmpty) {
+          // Jika ada search query, tampilkan hasil search
+          foods = foodProvider.foods;
+        } else {
+          // Jika tidak ada search, tampilkan special offers
+          foods =
+              foodProvider.foods
+                  .where(
+                    (food) =>
+                        food['discount'] != null &&
+                        (food['discount'] as num) > 0,
+                  )
+                  .toList();
+        }
+
+        if (foods.isEmpty) {
+          if (_searchQuery.isNotEmpty) {
+            return Container(
+              padding: const EdgeInsets.all(40),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No food found',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Try searching with different keywords',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
           return const SizedBox.shrink();
         }
 
-        final displayOffers = specialOffers.take(15).toList();
+        final displayOffers = foods.take(15).toList();
 
         return Container(
           padding: const EdgeInsets.all(20),
@@ -381,22 +611,29 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Special Offers',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  GestureDetector(
-                    onTap:
-                        () => Navigator.pushNamed(context, AppRoutes.menuList),
-                    child: const Text(
-                      'View All',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  Text(
+                    _searchQuery.isNotEmpty
+                        ? 'Search Results'
+                        : 'Special Offers',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                  if (_searchQuery.isEmpty)
+                    GestureDetector(
+                      onTap:
+                          () =>
+                              Navigator.pushNamed(context, AppRoutes.menuList),
+                      child: const Text(
+                        'View All',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 15),
@@ -420,11 +657,12 @@ class _HomePageState extends State<HomePage> {
                     price: offer['price'] as int,
                     discount: offer['discount'] as int,
                     imagePath: offer['image'] as String,
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      AppRoutes.mealDetail,
-                      arguments: offer,
-                    ),
+                    onTap:
+                        () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.mealDetail,
+                          arguments: offer,
+                        ),
                   );
                 },
               ),
@@ -444,6 +682,48 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+}
+
+// Custom SliverPersistentHeaderDelegate untuk sticky search bar
+class _StickySearchDelegate extends SliverPersistentHeaderDelegate {
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  _StickySearchDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_StickySearchDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }
 

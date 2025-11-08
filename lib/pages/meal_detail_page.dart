@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/favorite_provider.dart';
-import '../utils/constants.dart';
+
 import '../routes/app_routes.dart';
 
 class MealDetailPage extends StatefulWidget {
@@ -20,7 +20,8 @@ class _MealDetailPageState extends State<MealDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    food ??= ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    food ??=
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
   }
 
   @override
@@ -48,40 +49,47 @@ class _MealDetailPageState extends State<MealDetailPage> {
           ),
         ),
         actions: [
-          Consumer<FavoriteProvider>(
-            builder: (context, favoriteProvider, child) {
-              final foodId = food!['id'].toString();
-              final isFavorite = favoriteProvider.isFavorite(foodId);
+          Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              final cartItemCount = cartProvider.cartItems.length;
 
-              return IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : Colors.black,
-                ),
-                onPressed: () async {
-                  await favoriteProvider.toggleFavorite(foodId);
-
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          isFavorite ? 'Removed from favorites' : 'Added to favorites',
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        backgroundColor: isFavorite ? Colors.red : Colors.green,
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 2),
-                        shape: RoundedRectangleBorder(
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.cart);
+                    },
+                  ),
+                  if (cartItemCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        margin: const EdgeInsets.all(16),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          cartItemCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    );
-                  }
-                },
+                    ),
+                ],
               );
             },
           ),
@@ -122,27 +130,28 @@ class _MealDetailPageState extends State<MealDetailPage> {
           ),
         ],
       ),
-      child: food!['image'] != null
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image.asset(
-                food!['image'],
-                fit: BoxFit.cover,
-                height: 250,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[200],
-                    child: const Icon(
-                      Icons.fastfood,
-                      size: 80,
-                      color: Colors.grey,
-                    ),
-                  );
-                },
-              ),
-            )
-          : const Icon(Icons.fastfood, size: 80, color: Colors.grey),
+      child:
+          food!['image'] != null
+              ? ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.asset(
+                  food!['image'],
+                  fit: BoxFit.cover,
+                  height: 250,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        Icons.fastfood,
+                        size: 80,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              )
+              : const Icon(Icons.fastfood, size: 80, color: Colors.grey),
     );
   }
 
@@ -184,14 +193,62 @@ class _MealDetailPageState extends State<MealDetailPage> {
           ],
         ),
         const SizedBox(height: 8),
-        Text(
-          'Rp ${_formatPrice(food!['price'])}',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: Colors.orange,
-            fontFamily: 'Poppins',
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Rp ${_formatPrice(food!['price'])}',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.orange,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            Consumer<FavoriteProvider>(
+              builder: (context, favoriteProvider, child) {
+                final foodId = food!['id'].toString();
+                final isFavorite = favoriteProvider.isFavorite(foodId);
+
+                return IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.black,
+                    size: 28,
+                  ),
+                  onPressed: () async {
+                    await favoriteProvider.toggleFavorite(foodId);
+
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isFavorite
+                                ? 'Removed from favorites'
+                                : 'Added to favorites',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          backgroundColor:
+                              isFavorite ? Colors.red : Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                          duration: const Duration(seconds: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: const EdgeInsets.all(16),
+                        ),
+                      );
+                    }
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                );
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -212,7 +269,8 @@ class _MealDetailPageState extends State<MealDetailPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          food!['description'] ?? 'Delicious food Prepared with fresh ingredients.',
+          food!['description'] ??
+              'Delicious food Prepared with fresh ingredients.',
           style: const TextStyle(
             fontSize: 14,
             color: Colors.grey,
@@ -243,27 +301,28 @@ class _MealDetailPageState extends State<MealDetailPage> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: ingredients.map((ingredient) {
-            return Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                ingredient,
-                style: const TextStyle(
-                  color: Colors.orange,
-                  fontSize: 12,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            );
-          }).toList(),
+          children:
+              ingredients.map((ingredient) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    ingredient,
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontSize: 12,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              }).toList(),
         ),
       ],
     );
@@ -383,13 +442,14 @@ class _MealDetailPageState extends State<MealDetailPage> {
                         child: Row(
                           children: [
                             IconButton(
-                              onPressed: tempQuantity > 1
-                                  ? () {
-                                      setDialogState(() {
-                                        tempQuantity--;
-                                      });
-                                    }
-                                  : null,
+                              onPressed:
+                                  tempQuantity > 1
+                                      ? () {
+                                        setDialogState(() {
+                                          tempQuantity--;
+                                        });
+                                      }
+                                      : null,
                               icon: const Icon(Icons.remove, size: 20),
                             ),
                             Container(
@@ -463,6 +523,12 @@ class _MealDetailPageState extends State<MealDetailPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    // Get CartProvider reference before closing dialog
+                    final cartProvider = Provider.of<CartProvider>(
+                      this.context,
+                      listen: false,
+                    );
+
                     // Close dialog first
                     Navigator.of(dialogContext).pop();
 
@@ -471,15 +537,12 @@ class _MealDetailPageState extends State<MealDetailPage> {
                       quantity = tempQuantity;
                     });
 
-                    // Add to cart
-                    context.read<CartProvider>().addToCart(
-                          food!,
-                          quantity: tempQuantity,
-                        );
+                    // Add to cart using the saved provider reference
+                    cartProvider.addToCart(food!, quantity: tempQuantity);
 
                     // Navigate or show snackbar
                     if (isAddToCart) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      ScaffoldMessenger.of(this.context).showSnackBar(
                         const SnackBar(
                           content: Text(
                             'Added to cart!',
@@ -495,17 +558,24 @@ class _MealDetailPageState extends State<MealDetailPage> {
                     } else {
                       // Navigate to payment for Buy Now
                       Navigator.pushNamed(
-                        context,
+                        this.context,
                         AppRoutes.payment,
                         arguments: {
                           'items': [
-                            {...food!, 'quantity': tempQuantity}
+                            {...food!, 'quantity': tempQuantity},
                           ],
-                          'subtotal': (food!['price'] * tempQuantity).toDouble(),
+                          'subtotal':
+                              (food!['price'] * tempQuantity).toDouble(),
                           'deliveryFee': 5000.0,
-                          'tax': (food!['price'] * tempQuantity * 0.01).toDouble(),
-                          'discount': (food!['price'] * tempQuantity * 0.1).toDouble(),
-                          'total': (food!['price'] * tempQuantity * 1.01 - food!['price'] * tempQuantity * 0.1 + 5000).toDouble(),
+                          'tax':
+                              (food!['price'] * tempQuantity * 0.01).toDouble(),
+                          'discount':
+                              (food!['price'] * tempQuantity * 0.1).toDouble(),
+                          'total':
+                              (food!['price'] * tempQuantity * 1.01 -
+                                      food!['price'] * tempQuantity * 0.1 +
+                                      5000)
+                                  .toDouble(),
                         },
                       );
                     }
@@ -533,8 +603,8 @@ class _MealDetailPageState extends State<MealDetailPage> {
   String _formatPrice(dynamic price) {
     final intPrice = (price as num).toInt();
     return intPrice.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 }

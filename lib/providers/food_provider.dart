@@ -127,6 +127,11 @@ class FoodProvider extends ChangeNotifier {
     if (value is String) {
       return int.tryParse(value) ?? 0;
     }
+    if (kDebugMode) {
+      print(
+        '⚠️ Unexpected type for int conversion: ${value.runtimeType} with value $value',
+      );
+    }
     return 0;
   }
 

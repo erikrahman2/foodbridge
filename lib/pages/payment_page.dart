@@ -462,7 +462,10 @@ class _PaymentPageState extends State<PaymentPage> {
             fontSize: isTotal ? 16 : 13,
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w600,
             fontFamily: 'Poppins',
-            color: isDiscount ? Colors.green : (isTotal ? Colors.orange : Colors.black87),
+            color:
+                isDiscount
+                    ? Colors.green
+                    : (isTotal ? Colors.orange : Colors.black87),
           ),
         ),
       ],
@@ -773,12 +776,19 @@ class _PaymentPageState extends State<PaymentPage> {
 
     // Calculate values exactly as shown in UI
     final subtotal = sanitizedItems.fold<int>(
-      0, 
-      (acc, it) => acc + (it['price'] as int) * (it['quantity'] as int)
+      0,
+      (acc, it) => acc + (it['price'] as int) * (it['quantity'] as int),
     );
-    final deliveryFee = paymentData != null ? _toInt(paymentData!['deliveryFee']) : 5000;
-    final discount = paymentData != null ? _toInt(paymentData!['discount']) : ((subtotal * 0.1).toInt());
-    final tax = paymentData != null ? _toInt(paymentData!['tax']) : (((subtotal - discount) * 0.01).toInt());
+    final deliveryFee =
+        paymentData != null ? _toInt(paymentData!['deliveryFee']) : 5000;
+    final discount =
+        paymentData != null
+            ? _toInt(paymentData!['discount'])
+            : ((subtotal * 0.1).toInt());
+    final tax =
+        paymentData != null
+            ? _toInt(paymentData!['tax'])
+            : (((subtotal - discount) * 0.01).toInt());
     final totalCalculated = subtotal + deliveryFee + tax - discount;
 
     final payload = <String, dynamic>{
@@ -795,7 +805,7 @@ class _PaymentPageState extends State<PaymentPage> {
       'driverId': '',
       'eta': '30 minutes',
       'estimatedDelivery': DateTime.now().add(const Duration(minutes: 30)),
-      'status': 'Active',
+      'status': 'Delivering',
       'rating': 5.0,
     };
 
