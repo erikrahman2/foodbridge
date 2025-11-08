@@ -19,7 +19,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
 
-  final List<String> filters = ['All', 'Active', 'Completed', 'Cancelled'];
+  final List<String> filters = ['All', 'Delivering', 'Completed', 'Cancelled'];
 
   @override
   void initState() {
@@ -121,7 +121,9 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                         hintText: 'Search',
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
                         hintStyle: TextStyle(
                           color: Colors.grey[500],
                           fontFamily: 'Poppins',
@@ -142,7 +144,11 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                           searchQuery = '';
                         });
                       },
-                      child: Icon(Icons.clear, color: Colors.grey[600], size: 18),
+                      child: Icon(
+                        Icons.clear,
+                        color: Colors.grey[600],
+                        size: 18,
+                      ),
                     ),
                 ],
               ),
@@ -179,10 +185,10 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
         itemBuilder: (context, index) {
           final filter = filters[index];
           final isSelected = selectedFilter == filter;
-          
+
           final orderProvider = context.watch<OrderProvider>();
           final count = _getOrderCountForFilter(orderProvider.orders, filter);
-          
+
           return GestureDetector(
             onTap: () {
               setState(() {
@@ -195,37 +201,35 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
               decoration: BoxDecoration(
                 color: isSelected ? Colors.orange : Colors.white,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: Colors.orange.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                boxShadow:
+                    isSelected
+                        ? [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                        : [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (isSelected)
-                    const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 16,
-                    ),
+                    const Icon(Icons.check, color: Colors.white, size: 16),
                   if (isSelected) const SizedBox(width: 4),
                   Text(
                     filter,
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
                       fontSize: 13,
                       fontFamily: 'Poppins',
                     ),
@@ -233,9 +237,15 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                   if (filter != 'All' && count > 0) ...[
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.white.withOpacity(0.3) : Colors.grey[200],
+                        color:
+                            isSelected
+                                ? Colors.white.withOpacity(0.3)
+                                : Colors.grey[200],
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -258,10 +268,19 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
     );
   }
 
-  int _getOrderCountForFilter(List<Map<String, dynamic>> orders, String filter) {
+  int _getOrderCountForFilter(
+    List<Map<String, dynamic>> orders,
+    String filter,
+  ) {
     if (filter == 'All') return orders.length;
-    if (filter == 'Active') {
-      return orders.where((order) => order['status'] == 'Prepared' || order['status'] == 'Active').length;
+    if (filter == 'Delivering') {
+      return orders
+          .where(
+            (order) =>
+                order['status'] == 'Prepared' ||
+                order['status'] == 'Delivering',
+          )
+          .length;
     }
     return orders.where((order) => order['status'] == filter).length;
   }
@@ -272,23 +291,26 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
         var filteredOrders = _getFilteredOrders(orderProvider.orders);
 
         if (searchQuery.isNotEmpty) {
-          filteredOrders = filteredOrders.where((order) {
-            final orderId = order['id'].toString().toLowerCase();
-            final status = order['status'].toString().toLowerCase();
-            
-            // Search in items titles
-            final items = order['items'] as List?;
-            if (items != null) {
-              for (var item in items) {
-                if (item is Map) {
-                  final title = (item['title'] ?? '').toString().toLowerCase();
-                  if (title.contains(searchQuery)) return true;
+          filteredOrders =
+              filteredOrders.where((order) {
+                final orderId = order['id'].toString().toLowerCase();
+                final status = order['status'].toString().toLowerCase();
+
+                // Search in items titles
+                final items = order['items'] as List?;
+                if (items != null) {
+                  for (var item in items) {
+                    if (item is Map) {
+                      final title =
+                          (item['title'] ?? '').toString().toLowerCase();
+                      if (title.contains(searchQuery)) return true;
+                    }
+                  }
                 }
-              }
-            }
-            
-            return orderId.contains(searchQuery) || status.contains(searchQuery);
-          }).toList();
+
+                return orderId.contains(searchQuery) ||
+                    status.contains(searchQuery);
+              }).toList();
         }
 
         if (filteredOrders.isEmpty) {
@@ -307,13 +329,19 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
     );
   }
 
-  List<Map<String, dynamic>> _getFilteredOrders(List<Map<String, dynamic>> orders) {
+  List<Map<String, dynamic>> _getFilteredOrders(
+    List<Map<String, dynamic>> orders,
+  ) {
     if (selectedFilter == 'All') {
       return orders;
-    } else if (selectedFilter == 'Active') {
-      return orders.where((order) => 
-        order['status'] == 'Prepared' || order['status'] == 'Active'
-      ).toList();
+    } else if (selectedFilter == 'Delivering') {
+      return orders
+          .where(
+            (order) =>
+                order['status'] == 'Prepared' ||
+                order['status'] == 'Delivering',
+          )
+          .toList();
     }
     return orders.where((order) => order['status'] == selectedFilter).toList();
   }
@@ -321,12 +349,13 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
   Widget _buildEmptyState() {
     String emptyMessage = 'No orders found';
     String emptySubtitle = 'Your orders will appear here';
-    
+
     if (selectedFilter != 'All') {
       emptyMessage = 'No ${selectedFilter.toLowerCase()} orders';
-      emptySubtitle = 'You don\'t have any ${selectedFilter.toLowerCase()} orders yet';
+      emptySubtitle =
+          'You don\'t have any ${selectedFilter.toLowerCase()} orders yet';
     }
-    
+
     if (searchQuery.isNotEmpty) {
       emptyMessage = 'No results found';
       emptySubtitle = 'Try searching with different keywords';
@@ -376,7 +405,10 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -398,40 +430,39 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final orderImage = order['image'] as String?;
-    final status = order['status'] as String? ?? 'Active';
-    
+    final status = order['status'] as String? ?? 'Delivering';
+
     // Parse items dengan aman
     List<Map<String, dynamic>> items = [];
     if (order['items'] != null) {
       try {
         final itemsRaw = order['items'];
         if (itemsRaw is List) {
-          items = itemsRaw.map((e) {
-            if (e is Map) {
-              return Map<String, dynamic>.from(e as Map);
-            }
-            return <String, dynamic>{};
-          }).toList();
+          items =
+              itemsRaw.map((e) {
+                if (e is Map) {
+                  return Map<String, dynamic>.from(e as Map);
+                }
+                return <String, dynamic>{};
+              }).toList();
         }
       } catch (e) {
         print('Error parsing items: $e');
       }
     }
-    
+
     final itemCount = items.length;
-    final totalPrice = (order['totalPrice'] is num) 
-        ? (order['totalPrice'] as num).toInt() 
-        : 0;
-    final rating = (order['rating'] is num)
-        ? (order['rating'] as num).toDouble()
-        : 5.0;
+    final totalPrice =
+        (order['totalPrice'] is num) ? (order['totalPrice'] as num).toInt() : 0;
+    final rating =
+        (order['rating'] is num) ? (order['rating'] as num).toDouble() : 5.0;
 
     // Get first item title untuk display
     String firstItemTitle = 'Order';
     if (items.isNotEmpty) {
       firstItemTitle = items.first['title']?.toString() ?? 'Order';
     }
-    
+
     // Jika ada lebih dari 1 item, tambahkan info
     String orderTitle = firstItemTitle;
     if (itemCount > 1) {
@@ -543,7 +574,10 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                             return Icon(
                               Icons.star,
                               size: 14,
-                              color: starIndex < rating ? Colors.orange : Colors.grey[300],
+                              color:
+                                  starIndex < rating
+                                      ? Colors.orange
+                                      : Colors.grey[300],
                             );
                           }),
                           const SizedBox(width: 8),
@@ -570,7 +604,10 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
     );
   }
 
-  Widget _buildOrderImages(String? mainImage, List<Map<String, dynamic>> items) {
+  Widget _buildOrderImages(
+    String? mainImage,
+    List<Map<String, dynamic>> items,
+  ) {
     if (items.length > 1) {
       return SizedBox(
         width: 70,
@@ -636,7 +673,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Active':
+      case 'Delivering':
       case 'Prepared':
         return Colors.orange;
       case 'Completed':
