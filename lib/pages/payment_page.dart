@@ -1,3 +1,4 @@
+// lib/pages/payment_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
@@ -21,17 +22,34 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Ambil data yang dikirim dari halaman sebelumnya
     if (paymentData == null) {
       paymentData =
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     }
   }
 
+  int _toInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is double) return v.toInt();
+    if (v is num) return v.toInt();
+    if (v is String) {
+      final cleaned = v.replaceAll('.', '').replaceAll(',', '.');
+      final parsed = double.tryParse(cleaned);
+      return parsed == null ? 0 : parsed.toInt();
+    }
+    return 0;
+  }
+
+  String _formatPrice(int price) {
+    return price.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Jika ada data dari arguments (Buy Now atau Cart Checkout), gunakan itu
-    // Jika tidak, fallback ke cart provider
     final hasArguments = paymentData != null;
 
     return Scaffold(
@@ -58,14 +76,13 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  // Build ketika menggunakan data dari arguments (Buy Now atau selected items)
   Widget _buildWithArguments() {
-    final items = paymentData!['items'] as List<Map<String, dynamic>>;
-    final subtotal = paymentData!['subtotal'] as double;
-    final deliveryFee = paymentData!['deliveryFee'] as double;
-    final tax = paymentData!['tax'] as double;
-    final discount = paymentData!['discount'] as double;
-    final total = paymentData!['total'] as double;
+    final items = List<Map<String, dynamic>>.from(paymentData!['items'] ?? []);
+    final subtotal = _toInt(paymentData!['subtotal']);
+    final deliveryFee = _toInt(paymentData!['deliveryFee']);
+    final tax = _toInt(paymentData!['tax']);
+    final discount = _toInt(paymentData!['discount']);
+    final total = _toInt(paymentData!['total']);
 
     return Column(
       children: [
@@ -99,14 +116,13 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  // Build ketika menggunakan cart provider (fallback)
   Widget _buildWithCartProvider() {
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
-        final subtotal = cartProvider.totalPrice;
-        final deliveryFee = 5000.0;
-        final tax = subtotal * 0.01;
-        final discount = subtotal * 0.1;
+        final subtotal = cartProvider.totalPrice.toInt();
+        const deliveryFee = 5000;
+        final discount = (subtotal * 0.1).toInt(); // 10%
+        final tax = ((subtotal - discount) * 0.01).toInt(); // 1%
         final total = subtotal + deliveryFee + tax - discount;
 
         return Column(
@@ -287,8 +303,8 @@ class _PaymentPageState extends State<PaymentPage> {
                     Divider(color: Colors.grey[100], height: 1, thickness: 1),
             itemBuilder: (context, index) {
               final item = items[index];
-              final quantity = item['quantity'] ?? 1;
-              final price = item['price'] ?? 0.0;
+              final quantity = _toInt(item['quantity'] ?? 1);
+              final price = _toInt(item['price']);
               final title = item['title'] ?? item['name'] ?? 'Unknown Item';
 
               return Padding(
@@ -334,7 +350,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Rp ${_formatPrice(price.toDouble())} x $quantity',
+                            'Rp ${_formatPrice(price)} x $quantity',
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey[600],
@@ -346,7 +362,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       ),
                     ),
                     Text(
-                      'Rp ${_formatPrice((price * quantity).toDouble())}',
+                      'Rp ${_formatPrice(price * quantity)}',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -365,11 +381,11 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Widget _buildOrderSummarySection(
-    double subtotal,
-    double deliveryFee,
-    double tax,
-    double discount,
-    double total,
+    int subtotal,
+    int deliveryFee,
+    int tax,
+    int discount,
+    int total,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,17 +415,13 @@ class _PaymentPageState extends State<PaymentPage> {
           ),
           child: Column(
             children: [
-              _buildSummaryRow('Subtotal', _formatPrice(subtotal)),
+              _buildSummaryRow('Subtotal', subtotal),
               const SizedBox(height: 12),
-              _buildSummaryRow('Delivery Fee', _formatPrice(deliveryFee)),
+              _buildSummaryRow('Delivery Fee', deliveryFee),
               const SizedBox(height: 12),
-              _buildSummaryRow('Tax (1%)', _formatPrice(tax)),
+              _buildSummaryRow('Tax (1%)', tax),
               const SizedBox(height: 12),
-              _buildSummaryRow(
-                'Discount (10%)',
-                '- ${_formatPrice(discount)}',
-                color: Colors.green,
-              ),
+              _buildSummaryRow('Discount (10%)', discount, isDiscount: true),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Divider(
@@ -418,11 +430,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   height: 1,
                 ),
               ),
-              _buildSummaryRow(
-                'Total Amount',
-                _formatPrice(total),
-                isTotal: true,
-              ),
+              _buildSummaryRow('Total Amount', total, isTotal: true),
             ],
           ),
         ),
@@ -432,9 +440,9 @@ class _PaymentPageState extends State<PaymentPage> {
 
   Widget _buildSummaryRow(
     String label,
-    String amount, {
+    int amount, {
     bool isTotal = false,
-    Color? color,
+    bool isDiscount = false,
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -449,12 +457,12 @@ class _PaymentPageState extends State<PaymentPage> {
           ),
         ),
         Text(
-          'Rp $amount',
+          '${isDiscount ? '- ' : ''}Rp ${_formatPrice(amount)}',
           style: TextStyle(
             fontSize: isTotal ? 16 : 13,
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w600,
             fontFamily: 'Poppins',
-            color: color ?? (isTotal ? Colors.orange : Colors.black87),
+            color: isDiscount ? Colors.green : (isTotal ? Colors.orange : Colors.black87),
           ),
         ),
       ],
@@ -678,7 +686,7 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Widget _buildCheckoutButton(double total, List<Map<String, dynamic>> items) {
+  Widget _buildCheckoutButton(int total, List<Map<String, dynamic>> items) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -735,34 +743,71 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  void _processPayment(double total, List<Map<String, dynamic>> items) {
+  void _processPayment(int total, List<Map<String, dynamic>> items) async {
     setState(() {
       isProcessing = true;
     });
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
+    await Future.delayed(const Duration(seconds: 1));
 
-      final notificationProvider = context.read<NotificationProvider>();
-      final orderProvider = context.read<OrderProvider>();
-      final cartProvider = context.read<CartProvider>();
+    final notificationProvider = context.read<NotificationProvider>();
+    final orderProvider = context.read<OrderProvider>();
+    final cartProvider = context.read<CartProvider>();
 
-      // Ambil payment method name
-      final paymentMethodName = _getPaymentMethodName(selectedPayment);
+    final paymentMethodName = _getPaymentMethodName(selectedPayment);
 
-      // Create order dengan payment method
-      orderProvider.createOrder(items, total, paymentMethodName, (orderId) {
-        notificationProvider.orderConfirmed(orderId);
-      });
+    // Build sanitized items
+    final sanitizedItems = <Map<String, dynamic>>[];
+    String merchantId = '';
+    for (var it in items) {
+      final price = _toInt(it['price']);
+      final qty = _toInt(it['quantity']);
+      final newItem = Map<String, dynamic>.from(it);
+      newItem['price'] = price;
+      newItem['quantity'] = qty > 0 ? qty : 1;
+      sanitizedItems.add(newItem);
+      if (merchantId.isEmpty && (it['merchantId'] ?? '') != '') {
+        merchantId = it['merchantId'];
+      }
+    }
 
-      // Jika dari cart (ada selected items), hapus hanya yang dipilih
+    // Calculate values exactly as shown in UI
+    final subtotal = sanitizedItems.fold<int>(
+      0, 
+      (acc, it) => acc + (it['price'] as int) * (it['quantity'] as int)
+    );
+    final deliveryFee = paymentData != null ? _toInt(paymentData!['deliveryFee']) : 5000;
+    final discount = paymentData != null ? _toInt(paymentData!['discount']) : ((subtotal * 0.1).toInt());
+    final tax = paymentData != null ? _toInt(paymentData!['tax']) : (((subtotal - discount) * 0.01).toInt());
+    final totalCalculated = subtotal + deliveryFee + tax - discount;
+
+    final payload = <String, dynamic>{
+      'items': sanitizedItems,
+      'subtotal': subtotal,
+      'deliveryFee': deliveryFee,
+      'discount': discount,
+      'tax': tax,
+      'totalPrice': totalCalculated,
+      'paymentMethod': paymentMethodName,
+      'deliveryAddress': 'No. 1 Bungo Pasang, Padang, West Sumatra',
+      'customerId': 'user_123',
+      'merchantId': merchantId,
+      'driverId': '',
+      'eta': '30 minutes',
+      'estimatedDelivery': DateTime.now().add(const Duration(minutes: 30)),
+      'status': 'Active',
+      'rating': 5.0,
+    };
+
+    try {
+      final orderId = await orderProvider.createOrder(payload);
+      notificationProvider.orderConfirmed(orderId);
+
       if (paymentData != null) {
-        // Dari Buy Now atau Cart Checkout - hapus item dari cart
-        for (var item in items) {
+        for (var item in sanitizedItems) {
           cartProvider.removeFromCart(item['id']);
         }
       } else {
-        // Fallback - clear semua cart
         cartProvider.clearCart();
       }
 
@@ -791,15 +836,17 @@ class _PaymentPageState extends State<PaymentPage> {
           margin: const EdgeInsets.all(16),
         ),
       );
-    });
-  }
-
-  String _formatPrice(double price) {
-    final intPrice = price.toInt();
-    return intPrice.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
+    } catch (e) {
+      setState(() {
+        isProcessing = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to create order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   String _getPaymentMethodName(String paymentCode) {
