@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../widgets/custom_bottom_navigation.dart';
 import '../providers/notification_provider.dart';
-import '../utils/constants.dart';
 import '../routes/app_routes.dart';
+import 'location_picker_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -22,6 +23,11 @@ class _ProfilePageState extends State<ProfilePage> {
   bool darkModeEnabled = false;
   bool soundEnabled = true;
   bool autoUpdateEnabled = false;
+
+  // Data lokasi
+  String userLocation = 'Pilih lokasi Anda';
+  double? userLatitude;
+  double? userLongitude;
 
   @override
   Widget build(BuildContext context) {
@@ -227,12 +233,8 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildMenuItem(
             icon: Icons.location_on_outlined,
             title: 'Lokasi Saya',
-            onTap:
-                () => _showEditDialog(
-                  'Lokasi Saya',
-                  'Padang, Indonesia',
-                  (value) {},
-                ),
+            subtitle: userLocation,
+            onTap: () => _openLocationPicker(),
           ),
           _buildDivider(),
           _buildMenuItem(
@@ -391,6 +393,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
+    String? subtitle,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -402,14 +405,33 @@ class _ProfilePageState extends State<ProfilePage> {
             Icon(icon, color: Colors.black87, size: 22),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  if (subtitle != null && subtitle.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
               ),
             ),
             Icon(Icons.chevron_right, color: Colors.grey[400], size: 22),
@@ -520,6 +542,40 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
     );
+  }
+
+  void _openLocationPicker() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => LocationPickerPage(
+              initialPosition:
+                  userLatitude != null && userLongitude != null
+                      ? LatLng(userLatitude!, userLongitude!)
+                      : null,
+              currentAddress:
+                  userLocation != 'Pilih lokasi Anda' ? userLocation : null,
+            ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        userLocation = result['address'] ?? 'Lokasi terpilih';
+        userLatitude = result['latitude'];
+        userLongitude = result['longitude'];
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Lokasi berhasil diperbarui',
+            style: TextStyle(fontFamily: 'Poppins'),
+          ),
+        ),
+      );
+    }
   }
 
   void _showLanguageDialog() {

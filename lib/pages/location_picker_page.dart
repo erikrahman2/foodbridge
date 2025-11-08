@@ -126,6 +126,8 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
         print('SubLocality: ${place.subLocality}');
         print('Locality (Kota): ${place.locality}');
         print('SubAdministrativeArea: ${place.subAdministrativeArea}');
+        print('AdministrativeArea: ${place.administrativeArea}');
+        print('Name: ${place.name}');
         print('=======================');
 
         setState(() {
@@ -136,12 +138,16 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
           _selectedAddress = _formatAddress(place);
         });
         _addMarker(position); // Update marker with new address
+      } else {
+        // Jika placemarks kosong
+        setState(() {
+          _selectedAddress = 'Unable to get address';
+        });
       }
     } catch (e) {
+      print('Error getting address: $e');
       setState(() {
-        _selectedAddress =
-            'Lat: ${position.latitude.toStringAsFixed(6)}, '
-            'Lng: ${position.longitude.toStringAsFixed(6)}';
+        _selectedAddress = 'Unable to get address';
       });
     }
   }
@@ -149,23 +155,51 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   String _formatAddress(Placemark place) {
     List<String> addressParts = [];
 
-    // Format: Nomor Jalan, Nama Jalan, Kelurahan, Kota
-    if (place.subThoroughfare != null && place.subThoroughfare!.isNotEmpty) {
-      addressParts.add(place.subThoroughfare!);
-    }
+    // Format: Jalan dengan nomor (jika ada), Kelurahan, Kota
+    // Gabungkan nama jalan dengan nomor jika ada
+    String streetPart = '';
+
     if (place.street != null && place.street!.isNotEmpty) {
-      addressParts.add(place.street!);
+      streetPart = place.street!;
     } else if (place.thoroughfare != null && place.thoroughfare!.isNotEmpty) {
-      addressParts.add(place.thoroughfare!);
+      streetPart = place.thoroughfare!;
     }
+
+    // Tambahkan nomor rumah jika ada dan belum termasuk dalam street
+    if (place.subThoroughfare != null &&
+        place.subThoroughfare!.isNotEmpty &&
+        !streetPart.contains(place.subThoroughfare!)) {
+      streetPart = place.subThoroughfare! + ' ' + streetPart;
+    }
+
+    if (streetPart.isNotEmpty) {
+      addressParts.add(streetPart.trim());
+    }
+
+    // Tambahkan kelurahan/sub locality
     if (place.subLocality != null && place.subLocality!.isNotEmpty) {
       addressParts.add(place.subLocality!);
     }
+
+    // Tambahkan kota
     if (place.locality != null && place.locality!.isNotEmpty) {
       addressParts.add(place.locality!);
     } else if (place.subAdministrativeArea != null &&
         place.subAdministrativeArea!.isNotEmpty) {
       addressParts.add(place.subAdministrativeArea!);
+    }
+
+    // Jika masih kosong, coba gunakan name atau administrativeArea
+    if (addressParts.isEmpty) {
+      if (place.name != null &&
+          place.name!.isNotEmpty &&
+          !place.name!.contains('+')) {
+        addressParts.add(place.name!);
+      }
+      if (place.administrativeArea != null &&
+          place.administrativeArea!.isNotEmpty) {
+        addressParts.add(place.administrativeArea!);
+      }
     }
 
     return addressParts.isEmpty ? 'Selected Location' : addressParts.join(', ');

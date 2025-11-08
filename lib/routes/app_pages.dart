@@ -7,6 +7,7 @@ import '../pages/payment_page.dart';
 import '../pages/order_tracking_page.dart';
 import '../pages/delivery_success_page.dart';
 import '../pages/orders_history_page.dart';
+import '../pages/order_detail_page.dart';
 import '../pages/notifications_page.dart';
 import '../pages/favorite_page.dart';
 import '../pages/profile_page.dart';
@@ -28,6 +29,8 @@ class AppPages {
         (context) => DeliverySuccessPage(), // PERBAIKAN: Tanpa const
     AppRoutes.ordersHistory:
         (context) => OrdersHistoryPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.orderDetail:
+        (context) => OrderDetailPage(), // PERBAIKAN: Tanpa const
     AppRoutes.notifications:
         (context) => NotificationsPage(), // PERBAIKAN: Tanpa const
     AppRoutes.favorite: (context) => FavoritePage(),

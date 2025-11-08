@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/food_provider.dart';
+import '../providers/cart_provider.dart';
 import '../widgets/food_card.dart';
 import '../widgets/category_filter.dart';
 import '../utils/constants.dart';
@@ -15,6 +16,7 @@ class MenuListPage extends StatefulWidget {
 
 class _MenuListPageState extends State<MenuListPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String? selectedCategory;
   bool _isInitialized = false;
 
@@ -28,7 +30,7 @@ class _MenuListPageState extends State<MenuListPage> {
 
   Future<void> _initializeData() async {
     final foodProvider = context.read<FoodProvider>();
-    
+
     if (foodProvider.foods.isEmpty && !foodProvider.isLoading) {
       await foodProvider.fetchFoodsFromFirestore();
     }
@@ -54,29 +56,23 @@ class _MenuListPageState extends State<MenuListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          _buildSearchBar(),
-          CategoryFilter(
-            onCategorySelected: (category) {
-              setState(() {
-                selectedCategory = category;
-              });
-              context.read<FoodProvider>().filterByCategory(category);
-            },
-            selectedCategory: selectedCategory ?? 'All',
-          ),
-          Expanded(child: _buildFoodGrid()),
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          _buildSliverAppBar(),
+          _buildStickySearchAndFilter(),
+          _buildSliverFoodGrid(),
         ],
       ),
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
+  SliverAppBar _buildSliverAppBar() {
+    return SliverAppBar(
       backgroundColor: Colors.white,
       elevation: 0,
+      pinned: false,
+      floating: true,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.pop(context),
@@ -84,12 +80,79 @@ class _MenuListPageState extends State<MenuListPage> {
       title: Text(selectedCategory ?? 'Menu', style: AppTextStyles.heading3),
       centerTitle: true,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.shopping_cart, color: Colors.black),
-          onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
+        Consumer<CartProvider>(
+          builder: (context, cartProvider, child) {
+            return Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.shopping_cart, color: Colors.black),
+                  onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
+                ),
+                if (cartProvider.totalItems > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryOrange,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: Text(
+                        cartProvider.totalItems > 99
+                            ? '99+'
+                            : cartProvider.totalItems.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
       ],
     );
+  }
+
+  SliverPersistentHeader _buildStickySearchAndFilter() {
+    return SliverPersistentHeader(
+      pinned: true,
+      delegate: _StickyHeaderDelegate(
+        minHeight: 180,
+        maxHeight: 180,
+        child: Container(
+          color: AppColors.backgroundLight,
+          child: Column(
+            children: [
+              _buildSearchBar(),
+              CategoryFilter(
+                onCategorySelected: (category) {
+                  setState(() {
+                    selectedCategory = category;
+                  });
+                  context.read<FoodProvider>().filterByCategory(category);
+                },
+                selectedCategory: selectedCategory ?? 'All',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _buildSliverFoodGrid() {
+    return SliverToBoxAdapter(child: _buildFoodGrid());
   }
 
   Widget _buildSearchBar() {
@@ -118,6 +181,8 @@ class _MenuListPageState extends State<MenuListPage> {
                 hintText: 'Search food...',
                 border: InputBorder.none,
                 hintStyle: TextStyle(color: Colors.grey),
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
               ),
               onChanged: (value) {
                 context.read<FoodProvider>().searchFoods(value);
@@ -130,8 +195,17 @@ class _MenuListPageState extends State<MenuListPage> {
                 _searchController.clear();
                 context.read<FoodProvider>().searchFoods('');
               },
-              child: const Icon(Icons.clear, color: Colors.grey),
+              child: const Icon(Icons.clear, color: Colors.grey, size: 20),
             ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.tune, color: Colors.black87, size: 20),
+          ),
         ],
       ),
     );
@@ -207,6 +281,42 @@ class _MenuListPageState extends State<MenuListPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+}
+
+// Custom SliverPersistentHeaderDelegate untuk sticky header
+class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  _StickyHeaderDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_StickyHeaderDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }

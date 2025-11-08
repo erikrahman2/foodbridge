@@ -19,8 +19,12 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
-  await MidtransService.initMidtrans();
+
+  try {
+    await MidtransService.initMidtrans();
+  } catch (e) {
+    debugPrint('⚠️ Midtrans initialization failed, continuing without payment features: $e');
+  }
 
   try {
     await FirebaseFirestore.instance.collection('app_test').add({
