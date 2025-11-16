@@ -22,4 +22,13 @@ class AppRoutes {
 
   // New page for location picker
   static const String locationPicker = '/location-picker';
+
+  // Seller pages
+  static const String sellerRegistration = '/seller-registration';
+  static const String sellerDashboard = '/seller-dashboard';
+  static const String sellerFoodForm = '/seller-food-form';
+
+  // Driver pages
+  static const String driverRegistration = '/driver-registration';
+  static const String driverDashboard = '/driver-dashboard';
 }

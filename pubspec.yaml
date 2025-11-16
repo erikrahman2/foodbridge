@@ -34,6 +34,8 @@ dependencies:
 
   # Image handling
   cached_network_image: ^3.3.0
+  image_picker: ^1.0.4
+  firebase_storage: ^13.0.3
 
   # Utils
   intl: ^0.18.1

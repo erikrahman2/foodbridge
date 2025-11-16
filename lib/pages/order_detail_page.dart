@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/constants.dart';
 import '../providers/order_provider.dart';
 
@@ -18,6 +19,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   bool _hasSubmittedReview = false; // Track if review has been submitted
   bool _showCompletedPattern = true; // Track if pattern should show
   Timer? _patternTimer;
+  StreamSubscription<DocumentSnapshot>? _orderListener;
+  String? _currentOrderId;
 
   @override
   void didChangeDependencies() {
@@ -28,20 +31,73 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       // If full order map provided in arguments, use it as initial data.
       if (args != null && args.containsKey('id') && args.containsKey('items')) {
         orderData = Map<String, dynamic>.from(args);
+        _setupRealtimeListener(args['id'] as String);
       } else if (args != null && args.containsKey('orderId')) {
         // If only orderId passed, fetch from provider
         final orderId = args['orderId'] as String?;
         if (orderId != null) {
           context.read<OrderProvider>().refreshOrder(orderId);
+          _setupRealtimeListener(orderId);
         }
       } else if (args != null && args.containsKey('id')) {
         // fallback if just id exists
         final orderId = args['id'] as String?;
         if (orderId != null) {
           context.read<OrderProvider>().refreshOrder(orderId);
+          _setupRealtimeListener(orderId);
         }
       }
     }
+  }
+
+  void _setupRealtimeListener(String orderId) {
+    if (_currentOrderId == orderId && _orderListener != null) {
+      return; // Already listening to this order
+    }
+
+    // Cancel previous listener
+    _orderListener?.cancel();
+    _currentOrderId = orderId;
+
+    print('🔔 [ORDER DETAIL] Setting up realtime listener for order: $orderId');
+
+    // Setup Firestore realtime listener
+    _orderListener = FirebaseFirestore.instance
+        .collection('orders')
+        .doc(orderId)
+        .snapshots()
+        .listen((snapshot) {
+          if (!snapshot.exists || !mounted) return;
+
+          final data = snapshot.data() as Map<String, dynamic>;
+          data['id'] = snapshot.id;
+
+          final wasDeliveredByDriver = orderData?['deliveredByDriver'] == true;
+          final isNowDeliveredByDriver = data['deliveredByDriver'] == true;
+
+          print('📡 [ORDER DETAIL] Realtime update received:');
+          print('   Order ID: $orderId');
+          print('   Status: ${data['status']}');
+          print('   deliveredByDriver: $isNowDeliveredByDriver');
+
+          setState(() {
+            orderData = data;
+          });
+
+          // Show notification if driver just marked as delivered
+          if (!wasDeliveredByDriver && isNowDeliveredByDriver) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  '✅ Driver telah menandai pesanan selesai! Track Order sekarang aktif.',
+                  style: TextStyle(fontFamily: 'Poppins'),
+                ),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+        });
   }
 
   @override
@@ -82,6 +138,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     if ((orderData!['status'] ?? '') == 'Completed' &&
                         _showCompletedPattern)
                       _buildCompletedPattern(),
+                    // Banner when driver has marked delivered
+                    if ((orderData!['status'] ?? '') == 'Delivering' &&
+                        orderData?['deliveredByDriver'] == true)
+                      _buildDeliveredByDriverBanner(),
                     const SizedBox(height: 16),
                     _buildOrderItems(),
                     const SizedBox(height: 16),
@@ -107,6 +167,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   Widget _buildHeader() {
+    final isDelivering = orderData!['status'] == 'Delivering';
+    final isDeliveredByDriver = orderData?['deliveredByDriver'] == true;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -128,17 +191,78 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     color: Colors.black87,
                   ),
                 ),
-                Text(
-                  'Order Details',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Order Details',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[600],
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    // Show indicator if delivered by driver
+                    if (isDelivering && isDeliveredByDriver) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Colors.white,
+                              size: 10,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'Siap Dikonfirmasi',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
+          ),
+          // Refresh button
+          IconButton(
+            onPressed: () async {
+              final orderId = orderData?['id'] ?? orderData?['orderId'];
+              if (orderId != null) {
+                await context.read<OrderProvider>().refreshOrder(orderId);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        '🔄 Data pesanan diperbarui',
+                        style: TextStyle(fontFamily: 'Poppins'),
+                      ),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.refresh, color: Colors.black54),
+            tooltip: 'Refresh Order',
           ),
           PopupMenuButton(
             icon: const Icon(Icons.more_horiz, color: Colors.black),
@@ -165,6 +289,72 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     onTap: () {},
                   ),
                 ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Banner notification when driver has marked delivered
+  Widget _buildDeliveredByDriverBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green.shade400, Colors.green.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.delivery_dining,
+              color: Colors.white,
+              size: 32,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🎉 Pesanan Telah Terkirim!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Driver telah menyelesaikan pengiriman.\nKlik tombol Track Order di bawah untuk konfirmasi.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'Poppins',
+                    color: Colors.white.withOpacity(0.9),
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -779,48 +969,125 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () async {
-                    // Update status to Completed langsung tanpa loading
-                    final orderId = orderData?['id'] ?? orderData?['orderId'];
-                    if (orderId != null) {
-                      final orderProvider = Provider.of<OrderProvider>(
-                        context,
-                        listen: false,
-                      );
-                      await orderProvider.updateOrderStatus(
-                        orderId,
-                        'Completed',
-                      );
-                    }
+                  onPressed:
+                      (orderData?['deliveredByDriver'] == true)
+                          ? () async {
+                            // Update status to Completed hanya jika driver sudah menandai selesai
+                            final orderId =
+                                orderData?['id'] ?? orderData?['orderId'];
 
-                    if (mounted) {
-                      setState(() {
-                        orderData?['status'] = 'Completed';
-                        _showCompletedPattern =
-                            true; // Reset pattern untuk ditampilkan lagi
-                      });
+                            // STRENGTHENED VALIDATION
+                            if (orderId == null || orderId.isEmpty) {
+                              print(
+                                '❌ [USER COMPLETE] Order ID is null or empty',
+                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      '❌ Order ID tidak valid',
+                                      style: TextStyle(fontFamily: 'Poppins'),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                              return;
+                            }
 
-                      // Restart timer untuk pattern
-                      _patternTimer?.cancel();
-                      _patternTimer = null;
-                    }
-                  },
+                            // Validate deliveredByDriver flag
+                            if (orderData?['deliveredByDriver'] != true) {
+                              print(
+                                '❌ [USER COMPLETE] Order $orderId: deliveredByDriver is false',
+                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      '❌ Driver belum menandai selesai',
+                                      style: TextStyle(fontFamily: 'Poppins'),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                              return;
+                            }
+
+                            print('🎯 [USER COMPLETE] Order: $orderId');
+                            print('User ID: ${orderData?['userId']}');
+                            print('Driver ID: ${orderData?['driverId']}');
+
+                            final orderProvider = Provider.of<OrderProvider>(
+                              context,
+                              listen: false,
+                            );
+                            await orderProvider.updateOrderStatus(
+                              orderId,
+                              'Completed',
+                            );
+
+                            if (mounted) {
+                              setState(() {
+                                orderData?['status'] = 'Completed';
+                                _showCompletedPattern =
+                                    true; // Reset pattern untuk ditampilkan lagi
+                              });
+
+                              // Restart timer untuk pattern
+                              _patternTimer?.cancel();
+                              _patternTimer = null;
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '✅ Pesanan #${orderId.substring(0, 8)} berhasil diselesaikan!',
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
+                          : null, // Disabled jika driver belum menandai selesai
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryOrange,
+                    backgroundColor:
+                        (orderData?['deliveredByDriver'] == true)
+                            ? AppColors.primaryOrange
+                            : Colors.grey,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    elevation: 0,
+                    elevation:
+                        (orderData?['deliveredByDriver'] == true) ? 3 : 0,
                   ),
-                  child: const Text(
-                    'Track Order',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (orderData?['deliveredByDriver'] == true)
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      if (orderData?['deliveredByDriver'] == true)
+                        const SizedBox(width: 8),
+                      Text(
+                        (orderData?['deliveredByDriver'] == true)
+                            ? 'Track Order - Konfirmasi Selesai'
+                            : 'Menunggu Driver',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -1083,6 +1350,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   void dispose() {
     _reviewController.dispose();
     _patternTimer?.cancel();
+    _orderListener?.cancel();
     super.dispose();
   }
 }

@@ -12,7 +12,20 @@
           "package_name": "com.example.food_bridge"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "399218897382-4nh79hd6ijmecs0vrjup0qtl0g3vchbf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.food_bridge",
+            "certificate_hash": "3a506b009484428ad213a99c7d93bd56dd816c20"
+          }
+        },
+        {
+          "client_id": "399218897382-7vftnpp5v85svuok92nbudi0jp91d5ro.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBeSjq9ppwI0lliYLjco0yOePnw4U2iIOQ"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399218897382-7vftnpp5v85svuok92nbudi0jp91d5ro.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "399218897382-pssr4fi41o6afm2ouh3ff99dhcu08em3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.foodBridge"
+              }
+            }
+          ]
         }
       }
     }
