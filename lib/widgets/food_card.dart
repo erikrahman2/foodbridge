@@ -1,6 +1,7 @@
 // lib/widgets/food_card.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../utils/constants.dart';
 import '../providers/favorite_provider.dart';
 
@@ -76,21 +77,34 @@ class FoodCard extends StatelessWidget {
               topRight: Radius.circular(AppSizes.borderRadius),
             ),
           ),
-          child: imagePath != null
-              ? ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(AppSizes.borderRadius),
-                    topRight: Radius.circular(AppSizes.borderRadius),
-                  ),
-                  child: Image.asset(
-                    imagePath!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildPlaceholder();
-                    },
-                  ),
-                )
-              : _buildPlaceholder(),
+          child:
+              imagePath != null && imagePath!.isNotEmpty
+                  ? ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(AppSizes.borderRadius),
+                      topRight: Radius.circular(AppSizes.borderRadius),
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: imagePath!,
+                      fit: BoxFit.cover,
+                      placeholder:
+                          (context, url) => Container(
+                            color: Colors.grey[200],
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primaryOrange,
+                              ),
+                            ),
+                          ),
+                      errorWidget: (context, url, error) => _buildPlaceholder(),
+                      httpHeaders: const {
+                        'User-Agent':
+                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                      },
+                    ),
+                  )
+                  : _buildPlaceholder(),
         ),
         Positioned(
           top: 8,
@@ -98,7 +112,7 @@ class FoodCard extends StatelessWidget {
           child: GestureDetector(
             onTap: () async {
               await favoriteProvider.toggleFavorite(id);
-              
+
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

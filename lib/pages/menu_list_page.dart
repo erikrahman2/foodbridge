@@ -225,6 +225,8 @@ class _MenuListPageState extends State<MenuListPage> {
         }
 
         return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(AppSizes.paddingMedium),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -236,7 +238,7 @@ class _MenuListPageState extends State<MenuListPage> {
           itemBuilder: (context, index) {
             final food = foodProvider.foods[index];
             return FoodCard(
-              id: food['id'].toString(),
+              id: food['id']?.toString() ?? '',
               title: food['title'] ?? 'Unknown',
               rating: (food['rating'] ?? 0).toDouble(),
               time: food['time'] ?? '0 min',

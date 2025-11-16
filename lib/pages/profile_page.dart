@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../widgets/custom_bottom_navigation.dart';
 import '../providers/notification_provider.dart';
+import '../providers/seller_provider.dart';
+import '../providers/driver_provider.dart';
 import '../routes/app_routes.dart';
 import 'location_picker_page.dart';
 
@@ -24,10 +26,48 @@ class _ProfilePageState extends State<ProfilePage> {
   bool soundEnabled = true;
   bool autoUpdateEnabled = false;
 
+  // Status seller dan driver
+  bool _isSellerRegistered = false;
+  bool _isDriverRegistered = false;
+  bool _isCheckingStatus = false;
+
   // Data lokasi
   String userLocation = 'Pilih lokasi Anda';
   double? userLatitude;
   double? userLongitude;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkRegistrationStatus();
+  }
+
+  Future<void> _checkRegistrationStatus() async {
+    setState(() => _isCheckingStatus = true);
+
+    try {
+      // Check seller status
+      final sellerProvider = context.read<SellerProvider>();
+      await sellerProvider.checkSellerStatus(userEmail);
+
+      // Check driver status
+      final driverProvider = context.read<DriverProvider>();
+      await driverProvider.checkDriverStatus(userEmail);
+
+      if (mounted) {
+        setState(() {
+          _isSellerRegistered = sellerProvider.isSeller;
+          _isDriverRegistered = driverProvider.currentDriver != null;
+          _isCheckingStatus = false;
+        });
+      }
+    } catch (e) {
+      print('Error checking registration status: $e');
+      if (mounted) {
+        setState(() => _isCheckingStatus = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,6 +278,35 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           _buildDivider(),
           _buildMenuItem(
+            icon: _isSellerRegistered ? Icons.store : Icons.store_outlined,
+            title:
+                _isSellerRegistered
+                    ? 'Cek Toko Saya'
+                    : 'Daftar Sebagai Penjual',
+            trailing:
+                _isSellerRegistered
+                    ? const Icon(Icons.verified, color: Colors.green, size: 20)
+                    : null,
+            onTap: () => _checkAndNavigateToSeller(),
+          ),
+          _buildDivider(),
+          _buildMenuItem(
+            icon:
+                _isDriverRegistered
+                    ? Icons.delivery_dining
+                    : Icons.delivery_dining_outlined,
+            title:
+                _isDriverRegistered
+                    ? 'Cek Pesanan Driver'
+                    : 'Daftar Sebagai Driver',
+            trailing:
+                _isDriverRegistered
+                    ? const Icon(Icons.verified, color: Colors.green, size: 20)
+                    : null,
+            onTap: () => _checkAndNavigateToDriver(),
+          ),
+          _buildDivider(),
+          _buildMenuItem(
             icon: Icons.local_offer_outlined,
             title: 'Promo Saya',
             onTap: () {
@@ -394,6 +463,7 @@ class _ProfilePageState extends State<ProfilePage> {
     required IconData icon,
     required String title,
     String? subtitle,
+    Widget? trailing,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -434,7 +504,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey[400], size: 22),
+            if (trailing != null)
+              trailing
+            else
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 22),
           ],
         ),
       ),
@@ -778,6 +851,104 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
     );
+  }
+
+  void _checkAndNavigateToSeller() async {
+    try {
+      print('🔍 Checking seller status...');
+      final sellerProvider = context.read<SellerProvider>();
+
+      // Cek status seller dengan userId dummy (nanti bisa diganti dengan auth yang sebenarnya)
+      // Untuk sementara kita pakai email user sebagai userId
+      print('📧 Using userId: $userEmail');
+      await sellerProvider.checkSellerStatus(userEmail);
+
+      print('✅ Is seller: ${sellerProvider.isSeller}');
+
+      if (sellerProvider.isSeller && mounted) {
+        // Jika sudah terdaftar sebagai seller, langsung ke dashboard
+        print('🏪 Navigating to seller dashboard...');
+        final result = await Navigator.pushNamed(
+          context,
+          AppRoutes.sellerDashboard,
+        );
+        // Refresh status setelah kembali dari dashboard
+        if (result != null || mounted) {
+          _checkRegistrationStatus();
+        }
+      } else if (mounted) {
+        // Jika belum terdaftar, ke halaman registrasi
+        print('📝 Navigating to seller registration...');
+        final result = await Navigator.pushNamed(
+          context,
+          AppRoutes.sellerRegistration,
+          arguments: userEmail, // kirim userId
+        );
+        // Refresh status setelah registrasi
+        if (result != null || mounted) {
+          _checkRegistrationStatus();
+        }
+      }
+    } catch (e) {
+      print('❌ Error checking seller status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _checkAndNavigateToDriver() async {
+    try {
+      print('🔍 Checking driver status...');
+      final driverProvider = context.read<DriverProvider>();
+
+      // Cek status driver dengan userId (email)
+      print('📧 Using userId: $userEmail');
+      await driverProvider.checkDriverStatus(userEmail);
+
+      print('✅ Is driver: ${driverProvider.currentDriver != null}');
+
+      if (driverProvider.currentDriver != null && mounted) {
+        // Jika sudah terdaftar sebagai driver, langsung ke dashboard
+        print('🚗 Navigating to driver dashboard...');
+        final result = await Navigator.pushNamed(
+          context,
+          AppRoutes.driverDashboard,
+          arguments: userEmail, // kirim userId untuk reload jika diperlukan
+        );
+        // Refresh status setelah kembali dari dashboard
+        if (result != null || mounted) {
+          _checkRegistrationStatus();
+        }
+      } else if (mounted) {
+        // Jika belum terdaftar, ke halaman registrasi
+        print('📝 Navigating to driver registration...');
+        final result = await Navigator.pushNamed(
+          context,
+          AppRoutes.driverRegistration,
+          arguments: userEmail, // kirim userId
+        );
+        // Refresh status setelah registrasi
+        if (result != null || mounted) {
+          _checkRegistrationStatus();
+        }
+      }
+    } catch (e) {
+      print('❌ Error checking driver status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _showLogoutDialog() {

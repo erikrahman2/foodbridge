@@ -7,16 +7,47 @@ class OrderProvider extends ChangeNotifier {
   final OrdersService _service = OrdersService();
 
   List<Map<String, dynamic>> _orders = [];
+  List<Map<String, dynamic>> _allOrders = [];
   Map<String, dynamic>? _currentOrder;
+  bool _isLoading = false;
 
   StreamSubscription<List<Map<String, dynamic>>>? _ordersSub;
   Timer? _autoTimer;
 
   List<Map<String, dynamic>> get orders => _orders;
+  List<Map<String, dynamic>> get allOrders => _allOrders;
   Map<String, dynamic>? get currentOrder => _currentOrder;
+  bool get isLoading => _isLoading;
 
   Stream<List<Map<String, dynamic>>> streamOrdersSafe() {
     return _service.streamOrders();
+  }
+
+  /// Load all orders from Firestore once (for driver dashboard)
+  Future<void> loadAllOrders() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('orders')
+              .orderBy('createdAt', descending: true)
+              .get();
+
+      _allOrders =
+          snapshot.docs.map((doc) {
+            return {'id': doc.id, ...doc.data()};
+          }).toList();
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) print('Error loading all orders: $e');
+      _allOrders = [];
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   void startListeningAllOrders() {
@@ -81,14 +112,31 @@ class OrderProvider extends ChangeNotifier {
   }
 
   Future<void> updateOrderStatus(String orderId, String status) async {
+    // STRENGTHENED VALIDATION
+    if (orderId.isEmpty) {
+      print('❌ [UPDATE STATUS] Order ID is empty');
+      throw Exception('Order ID tidak boleh kosong');
+    }
+
+    print('🔄 [UPDATE STATUS] Updating order $orderId to $status');
+
+    // Update di Firestore dengan explicit doc reference
     await _service.updateOrder(orderId, {'status': status});
+
+    // Update di local state
     final idx = _orders.indexWhere((o) => o['id'] == orderId);
     if (idx >= 0) {
       _orders[idx]['status'] = status;
+      print('✅ [UPDATE STATUS] Updated order at index $idx');
+    } else {
+      print('⚠️ [UPDATE STATUS] Order $orderId not found in local orders list');
     }
+
     if (_currentOrder?['id'] == orderId) {
       _currentOrder!['status'] = status;
+      print('✅ [UPDATE STATUS] Updated current order');
     }
+
     notifyListeners();
   }
 
@@ -124,14 +172,17 @@ class OrderProvider extends ChangeNotifier {
           final created = createdAt.toDate();
           final diff = now.difference(created);
 
-          if (status == 'Delivering' && diff > const Duration(minutes: 1)) {
-            try {
-              await updateOrderStatus(order['id'] as String, 'Completed');
-            } catch (e) {
-              if (kDebugMode) print('Auto update to Completed failed: $e');
-            }
-          }
+          // DINONAKTIFKAN: Auto transition ke Completed
+          // Status hanya berubah ke Completed saat pembeli klik "Track Order"
+          // if (status == 'Delivering' && diff > const Duration(minutes: 1)) {
+          //   try {
+          //     await updateOrderStatus(order['id'] as String, 'Completed');
+          //   } catch (e) {
+          //     if (kDebugMode) print('Auto update to Completed failed: $e');
+          //   }
+          // }
 
+          // Auto cancel pesanan yang sudah Completed lebih dari 1 hari
           if (status == 'Completed' && diff > const Duration(days: 1)) {
             try {
               await updateOrderStatus(order['id'] as String, 'Cancelled');
