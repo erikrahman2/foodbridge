@@ -446,7 +446,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Driver Name',
+                      'Ferrari Jumawa',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
