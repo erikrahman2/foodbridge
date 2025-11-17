@@ -131,14 +131,30 @@ class _MealDetailPageState extends State<MealDetailPage> {
         ],
       ),
       child:
-          food!['image'] != null
+          food!['image'] != null && food!['image'].toString().isNotEmpty
               ? ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Image.asset(
+                child: Image.network(
                   food!['image'],
                   fit: BoxFit.cover,
                   height: 250,
                   width: double.infinity,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      color: Colors.grey[200],
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value:
+                              loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    );
+                  },
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Colors.grey[200],
@@ -283,7 +299,21 @@ class _MealDetailPageState extends State<MealDetailPage> {
   }
 
   Widget _buildIngredients() {
-    final ingredients = food!['ingredients'] as List<String>? ?? [];
+    // Safely handle both List<dynamic> and List<String>
+    final ingredientsData = food!['ingredients'];
+    List<String> ingredients = [];
+
+    if (ingredientsData != null) {
+      if (ingredientsData is List) {
+        ingredients = ingredientsData.map((e) => e.toString()).toList();
+      } else if (ingredientsData is String) {
+        ingredients = [ingredientsData];
+      }
+    }
+
+    if (ingredients.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

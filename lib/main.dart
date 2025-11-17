@@ -8,6 +8,10 @@ import 'providers/food_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/favorite_provider.dart';
+import 'providers/seller_provider.dart';
+import 'providers/driver_provider.dart';
+import 'pages/driver_registration_page.dart';
+import 'pages/seller_registration_page.dart';
 import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,14 +20,14 @@ import 'package:food_bridge/services/midtrans_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   try {
     await MidtransService.initMidtrans();
   } catch (e) {
-    debugPrint('⚠️ Midtrans initialization failed, continuing without payment features: $e');
+    debugPrint(
+      '⚠️ Midtrans initialization failed, continuing without payment features: $e',
+    );
   }
 
   try {
@@ -52,6 +56,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => SellerProvider()),
+        ChangeNotifierProvider(create: (_) => DriverProvider()),
       ],
       child: MaterialApp(
         title: 'FoodBridge',
@@ -63,6 +69,23 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: AppRoutes.home,
         routes: AppPages.routes,
+        onGenerateRoute: (settings) {
+          // Handle routes that need arguments
+          if (settings.name == AppRoutes.driverRegistration ||
+              settings.name == AppRoutes.sellerRegistration) {
+            return MaterialPageRoute(
+              builder: (context) {
+                if (settings.name == AppRoutes.driverRegistration) {
+                  return const DriverRegistrationPage();
+                } else {
+                  return const SellerRegistrationPage();
+                }
+              },
+              settings: settings,
+            );
+          }
+          return null;
+        },
       ),
     );
   }
