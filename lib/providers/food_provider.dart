@@ -367,4 +367,56 @@ class FoodProvider extends ChangeNotifier {
   Future<void> refresh() async {
     await fetchFoodsFromFirestore();
   }
+
+  /// Fetch foods by seller ID
+  Future<void> fetchFoodsBySeller(String sellerId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      if (kDebugMode) {
+        print('🔄 Fetching foods for seller: $sellerId');
+      }
+
+      final QuerySnapshot snapshot =
+          await _firestore
+              .collection('food')
+              .where('sellerId', isEqualTo: sellerId)
+              .get();
+
+      if (kDebugMode) {
+        print('📦 Total seller foods fetched: ${snapshot.docs.length}');
+      }
+
+      _foods =
+          snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            data['id'] = doc.id;
+
+            // Normalize data
+            data['category'] = (data['category'] ?? '').toString().trim();
+            data['title'] = (data['title'] ?? 'Unknown Food').toString();
+            data['description'] =
+                (data['description'] ?? 'No description available').toString();
+            data['time'] = (data['time'] ?? '0 min').toString();
+            data['image'] = (data['image'] ?? '').toString();
+            data['price'] = _toDouble(data['price']);
+            data['rating'] = _toDouble(data['rating']);
+            data['discount'] = _toInt(data['discount']);
+
+            return data;
+          }).toList();
+
+      _filteredFoods = _foods;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error fetching seller foods: $e');
+      }
+      _foods = [];
+      _filteredFoods = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

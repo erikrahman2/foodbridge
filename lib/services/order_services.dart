@@ -117,8 +117,21 @@ class OrdersService {
   }
 
   Future<void> updateOrder(String orderId, Map<String, dynamic> updates) async {
+    // STRENGTHENED VALIDATION at service layer
+    if (orderId.isEmpty) {
+      print('❌ [ORDER SERVICE] updateOrder called with empty orderId');
+      throw ArgumentError('Order ID tidak boleh kosong');
+    }
+
+    print('💾 [ORDER SERVICE] Updating Firestore doc: $orderId');
+    print('Updates: ${updates.keys.join(", ")}');
+
     updates['updatedAt'] = FieldValue.serverTimestamp();
+
+    // Explicit doc reference to ensure correct order is updated
     await _orders.doc(orderId).update(updates);
+
+    print('✅ [ORDER SERVICE] Firestore update successful for $orderId');
   }
 
   Future<void> deleteOrder(String orderId) async {
