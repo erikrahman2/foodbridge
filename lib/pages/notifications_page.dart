@@ -4,6 +4,9 @@ import '../widgets/custom_bottom_navigation.dart';
 import '../providers/notification_provider.dart';
 import '../utils/constants.dart';
 import '../routes/app_routes.dart';
+import 'package:food_bridge/services/notification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -13,74 +16,22 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  final List<Map<String, dynamic>> notifications = [
-    {
-      'id': '1',
-      'type': 'order_update',
-      'title': 'Pesanan Diterima',
-      'message': 'Pesanan #SP_0023900 telah berhasil dikirim.',
-      'time': '10:15',
-      'date': '10/05/2024',
-      'isRead': false,
-      'orderId': 'SP_0023900',
-      'status': 'confirmed',
-    },
-    {
-      'id': '2',
-      'type': 'promotion',
-      'title': 'Dapatkan 10% Kode Diskon',
-      'message': 'Kode diskon liburan.',
-      'time': '11:10',
-      'date': '10/05/2024',
-      'isRead': false,
-      'status': 'promotion',
-    },
-    {
-      'id': '3',
-      'type': 'order_update',
-      'title': 'Pesanan Diterima',
-      'message': 'Pesanan #SP_0044200 telah berhasil dikirim.',
-      'time': '10:15',
-      'date': '10/05/2024',
-      'isRead': false,
-      'orderId': 'SP_0044200',
-      'status': 'confirmed',
-    },
-    {
-      'id': '4',
-      'type': 'order_tracking',
-      'title': 'Pesanan Sedang Dalam Perjalanan',
-      'message':
-          'Driver pengiriman Anda sedang dalam perjalanan dengan pesanan Anda.',
-      'time': '10:10',
-      'date': '10/05/2024',
-      'isRead': false,
-      'orderId': 'SP_0023900',
-      'status': 'pickup',
-    },
-    {
-      'id': '5',
-      'type': 'order_update',
-      'title': 'Pesanan Anda Telah Dikonfirmasi',
-      'message': 'Your order #SP_0023900 has been confirmed.',
-      'time': '09:59',
-      'date': '10/05/2024',
-      'isRead': false,
-      'orderId': 'SP_0023900',
-      'status': 'confirmed',
-    },
-    {
-      'id': '6',
-      'type': 'order_update',
-      'title': 'Pesanan Berhasil',
-      'message': 'Pesanan #SP_0023900 telah berhasil dilakukan.',
-      'time': '09:56',
-      'date': '10/05/2024',
-      'isRead': false,
-      'orderId': 'SP_0023900',
-      'status': 'delivered',
-    },
-  ];
+  String? _userId;
+  bool _loadingUserId = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+      _loadingUserId = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +43,40 @@ class _NotificationsPageState extends State<NotificationsPage> {
             _buildHeader(),
             _buildSearchBar(),
             Expanded(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: notifications.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return _buildTodayLabel();
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                  .collection('notifications')
+                  .orderBy('createdAt', descending: true)
+                  .limit(30)
+                  .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
                   }
-                  return _buildNotificationItem(notifications[index - 1]);
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text('Belum ada notifikasi.'));
+                  }
+                  final notifDocs = snapshot.data!.docs;
+                  return ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: notifDocs.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return _buildTodayLabel();
+                      }
+                      final data = notifDocs[index - 1].data() as Map<String, dynamic>;
+                      return _buildNotificationItem({
+                        'title': data['title'] ?? '',
+                        'message': data['message'] ?? '',
+                        'isRead': data['isRead'] ?? data['read'] ?? false,
+                        'createdAt': data['createdAt'],
+                        'type': data['type'] ?? '',
+                        'orderId': data['metadata']?['orderId'] ?? data['orderId'] ?? '',
+                        'status': data['metadata']?['status'] ?? data['status'] ?? '',
+                      });
+                    },
+                  );
                 },
               ),
             ),
@@ -197,6 +173,26 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildNotificationItem(Map<String, dynamic> notification) {
+    // Format waktu
+    String timeStr = '';
+    if (notification['createdAt'] != null) {
+      try {
+        final ts = notification['createdAt'];
+        DateTime dt;
+        if (ts is Timestamp) {
+          dt = ts.toDate();
+        } else if (ts is DateTime) {
+          dt = ts;
+        } else if (ts is String) {
+          dt = DateTime.tryParse(ts) ?? DateTime.now();
+        } else {
+          dt = DateTime.now();
+        }
+        timeStr = '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} ${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+      } catch (_) {
+        timeStr = '';
+      }
+    }
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -226,11 +222,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    notification['title'],
+                    notification['title'] ?? '',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight:
-                          notification['isRead']
+                          notification['isRead'] == true
                               ? FontWeight.w500
                               : FontWeight.bold,
                       color: Colors.black,
@@ -238,7 +234,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    notification['message'],
+                    notification['message'] ?? '',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -249,7 +245,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${notification['time']} ${notification['date']}',
+                    timeStr,
                     style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                   ),
                 ],
@@ -326,11 +322,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   void _markAllAsRead() {
-    setState(() {
-      for (var notification in notifications) {
-        notification['isRead'] = true;
-      }
-    });
+    // Fungsi ini dinonaktifkan karena list notifications sudah diganti dengan data Firestore
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('All notifications marked as read'),

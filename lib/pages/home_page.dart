@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:food_bridge/services/notification_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../pages/location_picker_page.dart';
 import '../widgets/food_card.dart';
 import '../widgets/custom_bottom_navigation.dart';
@@ -35,10 +38,15 @@ class _HomePageState extends State<HomePage> {
   bool _isScrolled = false;
   bool _isLoading = true;
 
+  NotificationService? _notificationService;
+  StreamSubscription<List<Map<String, dynamic>>>? _notifSub;
+  String? _userId;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+<<<<<<< HEAD
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() {
@@ -46,6 +54,48 @@ class _HomePageState extends State<HomePage> {
         });
       }
     });
+=======
+    _notificationService = NotificationService();
+    _loadUserIdAndListenNotif();
+  }
+
+  Future<void> _loadUserIdAndListenNotif() async {
+    final prefs = await SharedPreferences.getInstance();
+    _userId = prefs.getString('userId');
+    if (_userId != null) {
+      _notifSub = _notificationService!
+          .getUserNotificationsStream(_userId!)
+          .listen((notifications) {
+        for (var data in notifications) {
+          final isRead = data['isRead'] ?? data['read'] ?? false;
+          final title = data['title'] ?? 'Notifikasi';
+          final message = data['message'] ?? '';
+          final orderId = data['metadata']?['orderId'] ?? data['orderId'] ?? '';
+          final status = data['metadata']?['status'] ?? data['status'] ?? '';
+          if (!isRead) {
+            // Tampilkan snackbar dengan detail
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(message),
+                      ...orderId != '' ? [Text('Order: $orderId', style: const TextStyle(fontSize: 11))] : [],
+                      ...status != '' ? [Text('Status: $status', style: const TextStyle(fontSize: 11))] : [],
+                    ],
+                  ),
+                ),
+              );
+            }
+            _notificationService!.markAsRead(data['id']);
+          }
+        }
+      });
+    }
+>>>>>>> 78e4cc2 (notifikation)
   }
 
   void _onScroll() {
@@ -684,6 +734,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
+    _notifSub?.cancel();
     super.dispose();
   }
 }

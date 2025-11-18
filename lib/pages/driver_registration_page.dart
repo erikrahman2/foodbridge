@@ -15,7 +15,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _vehicleNumberController = TextEditingController();
-
+  
   String _selectedVehicleType = 'Motor';
   bool _isLoading = false;
 
@@ -32,7 +32,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
 
     // Ambil userId dari argument yang dikirim
     final userId = ModalRoute.of(context)?.settings.arguments as String? ?? '';
-
+    
     if (userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -46,7 +46,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
     setState(() => _isLoading = true);
 
     final driverProvider = Provider.of<DriverProvider>(context, listen: false);
-
+    
     try {
       await driverProvider.registerAsDriver(
         userId: userId,
@@ -68,7 +68,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
       Navigator.pushReplacementNamed(context, AppRoutes.driverDashboard);
     } catch (e) {
       if (!mounted) return;
-
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal mendaftar: $e'),
@@ -108,10 +108,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.orange.shade400,
-                      Colors.deepOrange.shade500,
-                    ],
+                    colors: [Colors.orange.shade400, Colors.deepOrange.shade500],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -161,17 +158,14 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                 ),
               ),
               const SizedBox(height: 32),
-
+              
               // Name Field
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Nama Lengkap',
                   hintText: 'Masukkan nama lengkap',
-                  prefixIcon: const Icon(
-                    Icons.person_outline,
-                    color: Colors.orange,
-                  ),
+                  prefixIcon: const Icon(Icons.person_outline, color: Colors.orange),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -182,10 +176,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.orange,
-                      width: 2,
-                    ),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -198,17 +189,14 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                 },
               ),
               const SizedBox(height: 20),
-
+              
               // Phone Field
               TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(
                   labelText: 'Nomor Telepon',
                   hintText: '08123456789',
-                  prefixIcon: const Icon(
-                    Icons.phone_outlined,
-                    color: Colors.orange,
-                  ),
+                  prefixIcon: const Icon(Icons.phone_outlined, color: Colors.orange),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -219,10 +207,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.orange,
-                      width: 2,
-                    ),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -239,16 +224,13 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                 },
               ),
               const SizedBox(height: 20),
-
+              
               // Vehicle Type Dropdown
               DropdownButtonFormField<String>(
                 value: _selectedVehicleType,
                 decoration: InputDecoration(
                   labelText: 'Jenis Kendaraan',
-                  prefixIcon: const Icon(
-                    Icons.two_wheeler_outlined,
-                    color: Colors.orange,
-                  ),
+                  prefixIcon: const Icon(Icons.two_wheeler_outlined, color: Colors.orange),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -259,10 +241,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.orange,
-                      width: 2,
-                    ),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -282,11 +261,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                     value: 'Mobil',
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.directions_car,
-                          size: 20,
-                          color: Colors.orange,
-                        ),
+                        Icon(Icons.directions_car, size: 20, color: Colors.orange),
                         SizedBox(width: 8),
                         Text('Mobil'),
                       ],
@@ -310,7 +285,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                 },
               ),
               const SizedBox(height: 20),
-
+              
               // Vehicle Number Field
               TextFormField(
                 controller: _vehicleNumberController,
@@ -328,10 +303,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Colors.orange,
-                      width: 2,
-                    ),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -345,27 +317,22 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                 },
               ),
               const SizedBox(height: 32),
-
+              
               // Submit Button
               Container(
                 height: 56,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors:
-                        _isLoading
-                            ? [Colors.grey.shade400, Colors.grey.shade500]
-                            : [
-                              Colors.orange.shade400,
-                              Colors.deepOrange.shade500,
-                            ],
+                    colors: _isLoading
+                        ? [Colors.grey.shade400, Colors.grey.shade500]
+                        : [Colors.orange.shade400, Colors.deepOrange.shade500],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          _isLoading
-                              ? Colors.grey.withOpacity(0.3)
-                              : Colors.orange.withOpacity(0.4),
+                      color: _isLoading
+                          ? Colors.grey.withOpacity(0.3)
+                          : Colors.orange.withOpacity(0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -380,35 +347,34 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child:
-                      _isLoading
-                          ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
-                            ),
-                          )
-                          : const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.check_circle_outline, size: 22),
-                              SizedBox(width: 8),
-                              Text(
-                                'Daftar Sekarang',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
                           ),
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle_outline, size: 22),
+                            SizedBox(width: 8),
+                            Text(
+                              'Daftar Sekarang',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
               const SizedBox(height: 24),
-
+              
               // Info Card with Modern Design
               Container(
                 padding: const EdgeInsets.all(20),
@@ -454,9 +420,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                     const SizedBox(height: 16),
                     _buildRequirementItem('Memiliki kendaraan pribadi'),
                     _buildRequirementItem('Memiliki SIM yang masih berlaku'),
-                    _buildRequirementItem(
-                      'Bersedia mengantarkan pesanan tepat waktu',
-                    ),
+                    _buildRequirementItem('Bersedia mengantarkan pesanan tepat waktu'),
                     _buildRequirementItem('Berperilaku ramah kepada pelanggan'),
                   ],
                 ),

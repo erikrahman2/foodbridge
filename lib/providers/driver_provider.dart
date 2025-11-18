@@ -35,7 +35,7 @@ class DriverProvider extends ChangeNotifier {
       };
 
       final docRef = await _firestore.collection('drivers').add(driverData);
-
+      
       driverData['id'] = docRef.id;
       _currentDriver = DriverModel.fromMap(driverData);
 
@@ -56,12 +56,11 @@ class DriverProvider extends ChangeNotifier {
   /// Cek status driver berdasarkan userId
   Future<bool> checkDriverStatus(String userId) async {
     try {
-      final snapshot =
-          await _firestore
-              .collection('drivers')
-              .where('userId', isEqualTo: userId)
-              .limit(1)
-              .get();
+      final snapshot = await _firestore
+          .collection('drivers')
+          .where('userId', isEqualTo: userId)
+          .limit(1)
+          .get();
 
       if (snapshot.docs.isNotEmpty) {
         final data = snapshot.docs.first.data();
@@ -83,12 +82,11 @@ class DriverProvider extends ChangeNotifier {
   /// Get driver by userId
   Future<DriverModel?> getDriverByUserId(String userId) async {
     try {
-      final snapshot =
-          await _firestore
-              .collection('drivers')
-              .where('userId', isEqualTo: userId)
-              .limit(1)
-              .get();
+      final snapshot = await _firestore
+          .collection('drivers')
+          .where('userId', isEqualTo: userId)
+          .limit(1)
+          .get();
 
       if (snapshot.docs.isNotEmpty) {
         final data = snapshot.docs.first.data();

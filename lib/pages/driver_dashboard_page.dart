@@ -680,6 +680,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
 
       print('✅ Order $orderId updated successfully');
 
+      // Kirim notifikasi ke Firestore
+      await _sendOrderNotificationToFirestore(
+        userId: driver.id,
+        title: 'Pesanan sedang diantar',
+        message: 'pesanan #${order['id']} sedang dalam perjalanan.',
+      );
+
       // Update driver status ke busy
       await context.read<DriverProvider>().updateDriverStatus(
         driver.id,
@@ -693,12 +700,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '✅ Pesanan #${orderId.substring(0, 8)} berhasil diambil',
+              'Pesanan sedang dalam proses pengantaran. Pastikan Anda berada di lokasi tujuan.',
+              style: TextStyle(fontFamily: 'Poppins'),
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 3),
           ),
         );
-
         // Pindah ke tab in_progress
         setState(() {
           _selectedTab = 'in_progress';
@@ -765,6 +773,24 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
 
       print('✅ Order $orderId marked as delivered');
 
+      // Kirim notifikasi ke Firestore
+      await _sendOrderNotificationToFirestore(
+        userId: driver.id,
+        title: 'konfirmasi pesanan anda',
+        message:
+            'pesanan #${order['id']} telah selesai diantar. Silakan konfirmasi pesanan Anda.',
+      );
+
+      // Kirim notifikasi ke Firestore untuk user (pembeli)
+      if (order['userId'] != null) {
+        await _sendOrderNotificationToFirestore(
+          userId: order['userId'],
+          title: 'Pesanan telah selesai diantar',
+          message:
+              'Pesanan telah selesai diantar. Silakan konfirmasi pesanan Anda.',
+        );
+      }
+
       // Update driver status ke available
       await context.read<DriverProvider>().updateDriverStatus(
         driver.id,
@@ -778,13 +804,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '✅ Pesanan #${orderId.substring(0, 8)} ditandai selesai. Pembeli dapat melacak pesanan.',
+              'Pesanan telah selesai diantar. Silakan konfirmasi pesanan Anda.',
+              style: TextStyle(fontFamily: 'Poppins'),
             ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
           ),
         );
-
         // Pindah ke tab completed
         setState(() {
           _selectedTab = 'completed';
@@ -801,5 +827,19 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         );
       }
     }
+  }
+
+  Future<void> _sendOrderNotificationToFirestore({
+    required String userId,
+    required String title,
+    required String message,
+  }) async {
+    await FirebaseFirestore.instance.collection('notifications').add({
+      'userId': userId,
+      'title': title,
+      'message': message,
+      'createdAt': FieldValue.serverTimestamp(),
+      'isRead': false,
+    });
   }
 }

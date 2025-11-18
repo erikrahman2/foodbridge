@@ -28,18 +28,19 @@ class OrderProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection('orders')
-              .orderBy('createdAt', descending: true)
-              .get();
-
-      _allOrders =
-          snapshot.docs.map((doc) {
-            return {'id': doc.id, ...doc.data()};
-          }).toList();
-
+      
+      final snapshot = await FirebaseFirestore.instance
+          .collection('orders')
+          .orderBy('createdAt', descending: true)
+          .get();
+      
+      _allOrders = snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          ...doc.data(),
+        };
+      }).toList();
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -117,12 +118,12 @@ class OrderProvider extends ChangeNotifier {
       print('❌ [UPDATE STATUS] Order ID is empty');
       throw Exception('Order ID tidak boleh kosong');
     }
-
+    
     print('🔄 [UPDATE STATUS] Updating order $orderId to $status');
-
+    
     // Update di Firestore dengan explicit doc reference
     await _service.updateOrder(orderId, {'status': status});
-
+    
     // Update di local state
     final idx = _orders.indexWhere((o) => o['id'] == orderId);
     if (idx >= 0) {
@@ -131,12 +132,12 @@ class OrderProvider extends ChangeNotifier {
     } else {
       print('⚠️ [UPDATE STATUS] Order $orderId not found in local orders list');
     }
-
+    
     if (_currentOrder?['id'] == orderId) {
       _currentOrder!['status'] = status;
       print('✅ [UPDATE STATUS] Updated current order');
     }
-
+    
     notifyListeners();
   }
 
