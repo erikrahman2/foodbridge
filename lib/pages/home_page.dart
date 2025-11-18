@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-<<<<<<< HEAD
+
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() {
@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
         });
       }
     });
-=======
+
     _notificationService = NotificationService();
     _loadUserIdAndListenNotif();
   }
@@ -114,7 +114,6 @@ class _HomePageState extends State<HomePage> {
             }
           });
     }
->>>>>>> 78e4cc2 (notifikation)
   }
 
   void _onScroll() {
