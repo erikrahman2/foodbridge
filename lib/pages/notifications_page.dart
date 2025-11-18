@@ -96,6 +96,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           IconButton(
@@ -106,11 +116,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
           const Expanded(
             child: Text(
-              'Notification',
+              'Notifications',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
+                fontFamily: 'Poppins',
               ),
               textAlign: TextAlign.center,
             ),
@@ -128,36 +139,55 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Widget _buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
         children: [
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
-                children: const [
-                  Icon(Icons.search, color: Colors.grey, size: 20),
-                  SizedBox(width: 10),
+                children: [
+                  Icon(Icons.search, color: Colors.grey[500], size: 20),
+                  const SizedBox(width: 12),
                   Text(
-                    'Search',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    'Search notifications...',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: const Icon(Icons.tune, color: Colors.black, size: 20),
+            child: Icon(Icons.tune, color: Colors.grey[600], size: 20),
           ),
         ],
       ),
@@ -171,8 +201,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
         'Today',
         style: TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
           color: Colors.black87,
+          fontFamily: 'Poppins',
         ),
       ),
     );
@@ -208,9 +239,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -223,7 +254,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               notification['type'],
               notification['status'],
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,26 +265,34 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       fontSize: 14,
                       fontWeight:
                           notification['isRead'] == true
-                              ? FontWeight.w500
-                              : FontWeight.bold,
-                      color: Colors.black,
+                              ? FontWeight.w600
+                              : FontWeight.w700,
+                      color: Colors.black87,
+                      fontFamily: 'Poppins',
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     notification['message'] ?? '',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: Colors.grey[600],
-                      height: 1.3,
+                      height: 1.4,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     timeStr,
-                    style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[500],
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ],
               ),
@@ -305,7 +344,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: iconColor.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: iconColor.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Icon(iconData, color: iconColor, size: 22),
     );

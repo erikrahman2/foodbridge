@@ -7,6 +7,7 @@ import '../providers/seller_provider.dart';
 import '../providers/driver_provider.dart';
 import '../providers/order_provider.dart';
 import '../routes/app_routes.dart';
+import '../utils/constants.dart';
 import 'location_picker_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -161,6 +162,16 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           IconButton(
@@ -174,8 +185,8 @@ class _ProfilePageState extends State<ProfilePage> {
               'Profile',
               style: TextStyle(
                 fontFamily: 'Poppins',
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
@@ -195,10 +206,17 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfileHeader() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -211,12 +229,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey[100],
+                    color: Colors.grey[200],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.person,
                     size: 40,
-                    color: Colors.white,
+                    color: Colors.grey[600],
                   ),
                 ),
               ),
@@ -230,11 +248,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: AppColors.primaryOrange,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: const Icon(
                       Icons.edit,
@@ -246,68 +271,71 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
             userName,
             style: const TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.phone, size: 14, color: Colors.grey),
-              const SizedBox(width: 4),
+              Icon(Icons.phone, size: 14, color: Colors.grey[600]),
+              const SizedBox(width: 6),
               Text(
                 userPhone,
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 13,
                   color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.email, size: 14, color: Colors.grey),
-              const SizedBox(width: 4),
+              Icon(Icons.email, size: 14, color: Colors.grey[600]),
+              const SizedBox(width: 6),
               Text(
                 userEmail,
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 13,
                   color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1.5),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.orange.withOpacity(0.1),
+              border: Border.all(color: AppColors.primaryOrange, width: 1.5),
+              borderRadius: BorderRadius.circular(25),
             ),
             child: InkWell(
               onTap: () => _showLogoutDialog(),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.logout, color: Colors.black, size: 18),
-                  SizedBox(width: 8),
+                children: [
+                  Icon(Icons.logout, color: AppColors.primaryOrange, size: 18),
+                  const SizedBox(width: 8),
                   Text(
                     'Logout',
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryOrange,
+                      fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
                   ),
@@ -326,6 +354,13 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -429,6 +464,13 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -531,8 +573,8 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
-            Icon(icon, color: Colors.black87, size: 22),
-            const SizedBox(width: 16),
+            Icon(icon, color: AppColors.primaryOrange, size: 24),
+            const SizedBox(width: 18),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -542,19 +584,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w700,
                       color: Colors.black87,
                     ),
                   ),
                   if (subtitle != null && subtitle.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         subtitle,
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.grey[600],
+                          fontWeight: FontWeight.w400,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -566,7 +609,7 @@ class _ProfilePageState extends State<ProfilePage> {
             if (trailing != null)
               trailing
             else
-              Icon(Icons.chevron_right, color: Colors.grey[400], size: 22),
+              Icon(Icons.chevron_right, color: Colors.grey[400], size: 24),
           ],
         ),
       ),
@@ -579,7 +622,7 @@ class _ProfilePageState extends State<ProfilePage> {
     required Function(bool) onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -588,14 +631,14 @@ class _ProfilePageState extends State<ProfilePage> {
             style: const TextStyle(
               fontFamily: 'Poppins',
               fontSize: 15,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
               color: Colors.black87,
             ),
           ),
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: Colors.grey[800],
+            activeColor: AppColors.primaryOrange,
             inactiveThumbColor: Colors.grey[400],
             inactiveTrackColor: Colors.grey[200],
           ),

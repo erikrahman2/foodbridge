@@ -38,12 +38,12 @@ class FoodCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -68,28 +68,23 @@ class FoodCard extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 140,
+          margin: const EdgeInsets.all(14),
+          height: 160,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
+            color: const Color(0xFFC9A89C),
+            borderRadius: BorderRadius.circular(18),
           ),
           child:
               imagePath != null && imagePath!.isNotEmpty
                   ? ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
+                    borderRadius: BorderRadius.circular(18),
                     child: CachedNetworkImage(
                       imageUrl: imagePath!,
                       fit: BoxFit.cover,
                       placeholder:
                           (context, url) => Container(
-                            color: Colors.grey[200],
+                            color: const Color(0xFFC9A89C),
                             child: Center(
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
@@ -107,8 +102,8 @@ class FoodCard extends StatelessWidget {
                   : _buildPlaceholder(),
         ),
         Positioned(
-          top: 10,
-          right: 10,
+          top: 16,
+          right: 16,
           child: GestureDetector(
             onTap: () async {
               await favoriteProvider.toggleFavorite(id);
@@ -143,24 +138,24 @@ class FoodCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 4,
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red : Colors.red.shade300,
-                size: 18,
+                color: isFavorite ? Colors.red : AppColors.primaryOrange,
+                size: 20,
               ),
             ),
           ),
         ),
         if (discount != null && discount! > 0)
           Positioned(
-            top: 10,
-            left: 10,
+            top: 24,
+            left: 24,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -192,47 +187,62 @@ class FoodCard extends StatelessWidget {
 
   Widget _buildContentSection() {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
               height: 1.2,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.star, color: Colors.amber, size: 16),
+              const Icon(Icons.star, color: Colors.amber, size: 18),
               const SizedBox(width: 4),
               Text(
-                rating.toString(),
+                rating.toStringAsFixed(1),
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
               ),
+              const SizedBox(width: 12),
+              Icon(Icons.schedule, color: Colors.grey[600], size: 16),
+              const SizedBox(width: 4),
+              Text(
+                time,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[600],
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               if (discount != null && discount! > 0) ...[
                 Text(
                   'Rp ${(price * (1 + discount! / 100)).toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                   style: const TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 12,
                     decoration: TextDecoration.lineThrough,
                     color: Colors.grey,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -241,9 +251,10 @@ class FoodCard extends StatelessWidget {
                 child: Text(
                   'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontFamily: 'Poppins',
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: Colors.red,
+                    color: AppColors.primaryOrange,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

@@ -277,6 +277,7 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.black54,
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
+                          fontFamily: 'Poppins',
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -291,6 +292,7 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.black,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
                         ),
                       ),
                     ],
@@ -304,7 +306,8 @@ class _HomePageState extends State<HomePage> {
                           style: const TextStyle(
                             color: Colors.black87,
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Poppins',
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -445,9 +448,9 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
@@ -483,6 +486,7 @@ class _HomePageState extends State<HomePage> {
                                   color: Colors.white,
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
+                                  fontFamily: 'Poppins',
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -502,30 +506,33 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, color: Colors.grey, size: 20),
+                  Icon(Icons.search, color: Colors.grey[500], size: 20),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                        color: Colors.black87,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Search for food...',
                         border: InputBorder.none,
                         hintStyle: TextStyle(
-                          color: Colors.grey,
+                          color: Colors.grey[500],
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
+                          fontFamily: 'Poppins',
                         ),
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -547,9 +554,9 @@ class _HomePageState extends State<HomePage> {
                         });
                         context.read<FoodProvider>().searchFoods('');
                       },
-                      child: const Icon(
+                      child: Icon(
                         Icons.clear,
-                        color: Colors.grey,
+                        color: Colors.grey[500],
                         size: 18,
                       ),
                     ),
@@ -591,12 +598,12 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -616,14 +623,15 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     categoryName,
                     style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black87,
                       height: 1.2,
+                      fontFamily: 'Poppins',
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
@@ -700,9 +708,10 @@ class _HomePageState extends State<HomePage> {
                         ? 'Search Results'
                         : 'Special Offers',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                   if (_searchQuery.isEmpty)
@@ -716,6 +725,7 @@ class _HomePageState extends State<HomePage> {
                           color: AppColors.primaryOrange,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
                         ),
                       ),
                     ),
@@ -727,9 +737,9 @@ class _HomePageState extends State<HomePage> {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.72,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
                 ),
                 itemCount: displayOffers.length,
                 itemBuilder: (context, index) {
@@ -1005,8 +1015,9 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 11,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               letterSpacing: 1,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -1014,9 +1025,10 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                             title,
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
                               height: 1.2,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -1024,8 +1036,9 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                             subtitle,
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                         ],
@@ -1102,6 +1115,7 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.2,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -1110,8 +1124,9 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                       style: TextStyle(
                         color: Colors.orange[400],
                         fontSize: 28,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         height: 1.0,
+                        fontFamily: 'Poppins',
                         shadows: const [
                           Shadow(
                             color: Colors.black54,
@@ -1126,8 +1141,9 @@ class _PromoBannerWidgetState extends State<_PromoBannerWidget> {
                       subtitle,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Poppins',
                       ),
                     ),
                   ],
