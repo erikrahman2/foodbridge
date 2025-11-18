@@ -49,16 +49,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _checkRegistrationStatus() async {
     setState(() => _isCheckingStatus = true);
-    
+
     try {
       // Check seller status
       final sellerProvider = context.read<SellerProvider>();
       await sellerProvider.checkSellerStatus(userEmail);
-      
+
       // Check driver status
       final driverProvider = context.read<DriverProvider>();
       await driverProvider.checkDriverStatus(userEmail);
-      
+
       if (mounted) {
         setState(() {
           _isSellerRegistered = sellerProvider.isSeller;
@@ -80,7 +80,10 @@ class _ProfilePageState extends State<ProfilePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(message, style: const TextStyle(fontFamily: 'Poppins')),
+            content: Text(
+              message,
+              style: const TextStyle(fontFamily: 'Poppins'),
+            ),
             backgroundColor: color,
             duration: const Duration(seconds: 3),
           ),
@@ -96,13 +99,20 @@ class _ProfilePageState extends State<ProfilePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (latestOrder != null) {
         if (latestOrder['status'] == 'confirmed' && !_notifiedConfirmed) {
-          _showOrderNotification('Pesanan anda telah dikonfirmasi!', color: Colors.blue);
+          _showOrderNotification(
+            'Pesanan anda telah dikonfirmasi!',
+            color: Colors.blue,
+          );
           setState(() {
             _notifiedConfirmed = true;
             _notifiedDelivering = false;
           });
-        } else if (latestOrder['status'] == 'Delivering' && !_notifiedDelivering) {
-          _showOrderNotification('Pesanan anda sedang diantar!', color: Colors.orange);
+        } else if (latestOrder['status'] == 'Delivering' &&
+            !_notifiedDelivering) {
+          _showOrderNotification(
+            'Pesanan anda sedang diantar!',
+            color: Colors.orange,
+          );
           setState(() {
             _notifiedDelivering = true;
             _notifiedConfirmed = false;
@@ -328,19 +338,30 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildDivider(),
           _buildMenuItem(
             icon: _isSellerRegistered ? Icons.store : Icons.store_outlined,
-            title: _isSellerRegistered ? 'Cek Toko Saya' : 'Daftar Sebagai Penjual',
-            trailing: _isSellerRegistered 
-                ? const Icon(Icons.verified, color: Colors.green, size: 20)
-                : null,
+            title:
+                _isSellerRegistered
+                    ? 'Cek Toko Saya'
+                    : 'Daftar Sebagai Penjual',
+            trailing:
+                _isSellerRegistered
+                    ? const Icon(Icons.verified, color: Colors.green, size: 20)
+                    : null,
             onTap: () => _checkAndNavigateToSeller(),
           ),
           _buildDivider(),
           _buildMenuItem(
-            icon: _isDriverRegistered ? Icons.delivery_dining : Icons.delivery_dining_outlined,
-            title: _isDriverRegistered ? 'Cek Pesanan Driver' : 'Daftar Sebagai Driver',
-            trailing: _isDriverRegistered
-                ? const Icon(Icons.verified, color: Colors.green, size: 20)
-                : null,
+            icon:
+                _isDriverRegistered
+                    ? Icons.delivery_dining
+                    : Icons.delivery_dining_outlined,
+            title:
+                _isDriverRegistered
+                    ? 'Cek Pesanan Driver'
+                    : 'Daftar Sebagai Driver',
+            trailing:
+                _isDriverRegistered
+                    ? const Icon(Icons.verified, color: Colors.green, size: 20)
+                    : null,
             onTap: () => _checkAndNavigateToDriver(),
           ),
           _buildDivider(),
@@ -895,18 +916,21 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       print('🔍 Checking seller status...');
       final sellerProvider = context.read<SellerProvider>();
-      
+
       // Cek status seller dengan userId dummy (nanti bisa diganti dengan auth yang sebenarnya)
       // Untuk sementara kita pakai email user sebagai userId
       print('📧 Using userId: $userEmail');
       await sellerProvider.checkSellerStatus(userEmail);
-      
+
       print('✅ Is seller: ${sellerProvider.isSeller}');
-      
+
       if (sellerProvider.isSeller && mounted) {
         // Jika sudah terdaftar sebagai seller, langsung ke dashboard
         print('🏪 Navigating to seller dashboard...');
-        final result = await Navigator.pushNamed(context, AppRoutes.sellerDashboard);
+        final result = await Navigator.pushNamed(
+          context,
+          AppRoutes.sellerDashboard,
+        );
         // Refresh status setelah kembali dari dashboard
         if (result != null || mounted) {
           _checkRegistrationStatus();
@@ -915,7 +939,7 @@ class _ProfilePageState extends State<ProfilePage> {
         // Jika belum terdaftar, ke halaman registrasi
         print('📝 Navigating to seller registration...');
         final result = await Navigator.pushNamed(
-          context, 
+          context,
           AppRoutes.sellerRegistration,
           arguments: userEmail, // kirim userId
         );
@@ -941,18 +965,18 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       print('🔍 Checking driver status...');
       final driverProvider = context.read<DriverProvider>();
-      
+
       // Cek status driver dengan userId (email)
       print('📧 Using userId: $userEmail');
       await driverProvider.checkDriverStatus(userEmail);
-      
+
       print('✅ Is driver: ${driverProvider.currentDriver != null}');
-      
+
       if (driverProvider.currentDriver != null && mounted) {
         // Jika sudah terdaftar sebagai driver, langsung ke dashboard
         print('🚗 Navigating to driver dashboard...');
         final result = await Navigator.pushNamed(
-          context, 
+          context,
           AppRoutes.driverDashboard,
           arguments: userEmail, // kirim userId untuk reload jika diperlukan
         );
@@ -964,7 +988,7 @@ class _ProfilePageState extends State<ProfilePage> {
         // Jika belum terdaftar, ke halaman registrasi
         print('📝 Navigating to driver registration...');
         final result = await Navigator.pushNamed(
-          context, 
+          context,
           AppRoutes.driverRegistration,
           arguments: userEmail, // kirim userId
         );

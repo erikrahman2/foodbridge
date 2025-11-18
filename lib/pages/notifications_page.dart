@@ -44,11 +44,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
             _buildSearchBar(),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                  .collection('notifications')
-                  .orderBy('createdAt', descending: true)
-                  .limit(30)
-                  .snapshots(),
+                stream:
+                    FirebaseFirestore.instance
+                        .collection('notifications')
+                        .orderBy('createdAt', descending: true)
+                        .limit(30)
+                        .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -65,15 +66,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       if (index == 0) {
                         return _buildTodayLabel();
                       }
-                      final data = notifDocs[index - 1].data() as Map<String, dynamic>;
+                      final data =
+                          notifDocs[index - 1].data() as Map<String, dynamic>;
                       return _buildNotificationItem({
                         'title': data['title'] ?? '',
                         'message': data['message'] ?? '',
                         'isRead': data['isRead'] ?? data['read'] ?? false,
                         'createdAt': data['createdAt'],
                         'type': data['type'] ?? '',
-                        'orderId': data['metadata']?['orderId'] ?? data['orderId'] ?? '',
-                        'status': data['metadata']?['status'] ?? data['status'] ?? '',
+                        'orderId':
+                            data['metadata']?['orderId'] ??
+                            data['orderId'] ??
+                            '',
+                        'status':
+                            data['metadata']?['status'] ?? data['status'] ?? '',
                       });
                     },
                   );
@@ -188,7 +194,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         } else {
           dt = DateTime.now();
         }
-        timeStr = '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} ${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+        timeStr =
+            '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} ${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
       } catch (_) {
         timeStr = '';
       }

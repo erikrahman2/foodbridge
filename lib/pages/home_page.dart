@@ -66,34 +66,53 @@ class _HomePageState extends State<HomePage> {
       _notifSub = _notificationService!
           .getUserNotificationsStream(_userId!)
           .listen((notifications) {
-        for (var data in notifications) {
-          final isRead = data['isRead'] ?? data['read'] ?? false;
-          final title = data['title'] ?? 'Notifikasi';
-          final message = data['message'] ?? '';
-          final orderId = data['metadata']?['orderId'] ?? data['orderId'] ?? '';
-          final status = data['metadata']?['status'] ?? data['status'] ?? '';
-          if (!isRead) {
-            // Tampilkan snackbar dengan detail
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      Text(message),
-                      ...orderId != '' ? [Text('Order: $orderId', style: const TextStyle(fontSize: 11))] : [],
-                      ...status != '' ? [Text('Status: $status', style: const TextStyle(fontSize: 11))] : [],
-                    ],
-                  ),
-                ),
-              );
+            for (var data in notifications) {
+              final isRead = data['isRead'] ?? data['read'] ?? false;
+              final title = data['title'] ?? 'Notifikasi';
+              final message = data['message'] ?? '';
+              final orderId =
+                  data['metadata']?['orderId'] ?? data['orderId'] ?? '';
+              final status =
+                  data['metadata']?['status'] ?? data['status'] ?? '';
+              if (!isRead) {
+                // Tampilkan snackbar dengan detail
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(message),
+                          ...orderId != ''
+                              ? [
+                                Text(
+                                  'Order: $orderId',
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                              ]
+                              : [],
+                          ...status != ''
+                              ? [
+                                Text(
+                                  'Status: $status',
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                              ]
+                              : [],
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                _notificationService!.markAsRead(data['id']);
+              }
             }
-            _notificationService!.markAsRead(data['id']);
-          }
-        }
-      });
+          });
     }
 >>>>>>> 78e4cc2 (notifikation)
   }
