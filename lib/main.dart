@@ -14,6 +14,7 @@ import 'pages/driver_registration_page.dart';
 import 'pages/seller_registration_page.dart';
 import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
+import 'widgets/page_transition_wrapper.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:food_bridge/services/midtrans_service.dart';
 
@@ -67,23 +68,27 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Poppins',
           useMaterial3: true,
         ),
-        initialRoute: AppRoutes.home,
+        initialRoute: AppRoutes.splash,
         routes: AppPages.routes,
         onGenerateRoute: (settings) {
-          // Handle routes that need arguments
           if (settings.name == AppRoutes.driverRegistration ||
               settings.name == AppRoutes.sellerRegistration) {
-            return MaterialPageRoute(
-              builder: (context) {
-                if (settings.name == AppRoutes.driverRegistration) {
-                  return const DriverRegistrationPage();
-                } else {
-                  return const SellerRegistrationPage();
-                }
-              },
-              settings: settings,
+            Widget page;
+            if (settings.name == AppRoutes.driverRegistration) {
+              page = const DriverRegistrationPage();
+            } else {
+              page = const SellerRegistrationPage();
+            }
+            return SmoothPageRoute(page: page);
+          }
+ 
+          final routeBuilder = AppPages.routes[settings.name];
+          if (routeBuilder != null) {
+            return SmoothPageRoute(
+              page: routeBuilder(settings.arguments as BuildContext),
             );
           }
+ 
           return null;
         },
       ),

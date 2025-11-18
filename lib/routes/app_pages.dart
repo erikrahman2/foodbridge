@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../pages/intro_screens_page.dart';
+import '../pages/splash_screen_page.dart';
+import '../pages/onboarding_page.dart';
 import '../pages/home_page.dart';
 import '../pages/menu_list_page.dart';
 import '../pages/meal_detail_page.dart';
@@ -20,22 +23,19 @@ import 'app_routes.dart';
 
 class AppPages {
   static Map<String, WidgetBuilder> routes = {
-    AppRoutes.home: (context) => HomePage(), // PERBAIKAN: Tanpa const
-    AppRoutes.menuList: (context) => MenuListPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.mealDetail:
-        (context) => MealDetailPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.cart: (context) => CartPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.payment: (context) => PaymentPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.orderTracking:
-        (context) => OrderTrackingPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.deliverySuccess:
-        (context) => DeliverySuccessPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.ordersHistory:
-        (context) => OrdersHistoryPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.orderDetail:
-        (context) => OrderDetailPage(), // PERBAIKAN: Tanpa const
-    AppRoutes.notifications:
-        (context) => NotificationsPage(), // PERBAIKAN: Tanpa const
+    AppRoutes.splash: (context) => const IntroScreensPage(),
+    AppRoutes.welcomeSplash: (context) => const SplashScreenPage(),
+    AppRoutes.onboarding: (context) => const OnboardingPage(),
+    AppRoutes.home: (context) => HomePage(),
+    AppRoutes.menuList: (context) => MenuListPage(),
+    AppRoutes.mealDetail: (context) => MealDetailPage(),
+    AppRoutes.cart: (context) => CartPage(),
+    AppRoutes.payment: (context) => PaymentPage(),
+    AppRoutes.orderTracking: (context) => OrderTrackingPage(),
+    AppRoutes.deliverySuccess: (context) => DeliverySuccessPage(),
+    AppRoutes.ordersHistory: (context) => OrdersHistoryPage(),
+    AppRoutes.orderDetail: (context) => OrderDetailPage(),
+    AppRoutes.notifications: (context) => NotificationsPage(),
     AppRoutes.favorite: (context) => FavoritePage(),
     AppRoutes.helpCenter: (context) => const HelpCenterPage(),
     AppRoutes.profile: (context) => ProfilePage(),
@@ -43,6 +43,5 @@ class AppPages {
     AppRoutes.sellerDashboard: (context) => const SellerDashboardPage(),
     AppRoutes.sellerFoodForm: (context) => const SellerFoodFormPage(),
     AppRoutes.driverDashboard: (context) => const DriverDashboardPage(),
-    // Note: sellerRegistration and driverRegistration handled by onGenerateRoute
   };
 }

@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../pages/location_picker_page.dart';
 import '../widgets/food_card.dart';
 import '../widgets/custom_bottom_navigation.dart';
+import '../widgets/page_transition_wrapper.dart';
 import '../providers/notification_provider.dart';
 import '../providers/food_provider.dart';
 import '../providers/cart_provider.dart';
@@ -24,25 +25,30 @@ class _HomePageState extends State<HomePage> {
   double? latitude;
   double? longitude;
 
-  // Variable detail alamat
   String streetNumber = "";
   String streetName = "";
   String city = "";
 
-  // Controllers
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   String _searchQuery = "";
   bool _isScrolled = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
   }
 
   void _onScroll() {
-    // Deteksi scroll untuk mengubah layout
     if (_scrollController.offset > 50 && !_isScrolled) {
       setState(() {
         _isScrolled = true;
@@ -58,34 +64,35 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            CustomScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(child: _buildHeader()),
-                SliverToBoxAdapter(child: _buildPromoBanner()),
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _StickySearchDelegate(
-                    minHeight: 80,
-                    maxHeight: 80,
-                    child: Container(
-                      color: AppColors.backgroundLight,
-                      child: _buildSearchBar(),
+      body: PageTransitionWrapper(
+        child: SafeArea(
+          child: Stack(
+            children: [
+              CustomScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(child: _buildHeader()),
+                  SliverToBoxAdapter(child: _buildPromoBanner()),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _StickySearchDelegate(
+                      minHeight: 80,
+                      maxHeight: 80,
+                      child: Container(
+                        color: AppColors.backgroundLight,
+                        child: _buildSearchBar(),
+                      ),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(child: _buildCategoryGrid()),
-                SliverToBoxAdapter(child: _buildSpecialOffers()),
-              ],
-            ),
-            // Cart button - pojok kanan atas saat tidak scroll
-            if (!_isScrolled)
-              Positioned(top: 20, right: 20, child: _buildFloatingCart()),
-          ],
+                  SliverToBoxAdapter(child: _buildCategoryGrid()),
+                  SliverToBoxAdapter(child: _buildSpecialOffers()),
+                ],
+              ),
+              if (!_isScrolled)
+                Positioned(top: 20, right: 20, child: _buildFloatingCart()),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: _buildBottomNavBar(),
@@ -164,7 +171,6 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: GestureDetector(
               onTap: () async {
-                // Navigate ke location picker
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -182,7 +188,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
 
-                // Update alamat jika user memilih lokasi
                 if (result != null) {
                   setState(() {
                     deliveryAddress = result['address'] ?? 'Selected Location';
@@ -246,7 +251,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // Shopping bag dengan badge dan navigasi ke cart
           Consumer<CartProvider>(
             builder: (context, cartProvider, child) {
               return GestureDetector(
@@ -305,20 +309,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Method untuk format alamat singkat
   String _getShortAddress() {
     if (deliveryAddress == "Select your address") {
       return "Select your address";
     }
 
-    // Format: "No. X Jl. Nama, Kota"
     List<String> parts = [];
 
     if (streetNumber.isNotEmpty) {
       parts.add('No. $streetNumber');
     }
     if (streetName.isNotEmpty) {
-      // Hapus prefix "Jalan" atau "Jl." jika sudah ada
       String cleanStreetName = streetName
           .replaceFirst(RegExp(r'^Jalan\s+', caseSensitive: false), '')
           .replaceFirst(RegExp(r'^Jl\.?\s+', caseSensitive: false), '');
@@ -347,7 +348,6 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.all(20),
       child: Row(
         children: [
-          // Cart di kiri saat scroll
           if (_isScrolled)
             Padding(
               padding: const EdgeInsets.only(right: 10),
@@ -416,7 +416,6 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-          // Search bar - memanjang saat tidak scroll
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
@@ -554,14 +553,11 @@ class _HomePageState extends State<HomePage> {
   Widget _buildSpecialOffers() {
     return Consumer<FoodProvider>(
       builder: (context, foodProvider, child) {
-        // Filter berdasarkan search query jika ada
         var foods = foodProvider.foods;
 
         if (_searchQuery.isNotEmpty) {
-          // Jika ada search query, tampilkan hasil search
           foods = foodProvider.foods;
         } else {
-          // Jika tidak ada search, tampilkan special offers
           foods =
               foodProvider.foods
                   .where(
@@ -650,7 +646,7 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final offer = displayOffers[index];
                   return FoodCard(
-                    id: offer['id'].toString(), // TAMBAHAN: pass ID
+                    id: offer['id'].toString(),
                     title: offer['title'] as String,
                     rating: (offer['rating'] as num).toDouble(),
                     time: offer['time'] as String,
@@ -692,7 +688,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Custom SliverPersistentHeaderDelegate untuk sticky search bar
 class _StickySearchDelegate extends SliverPersistentHeaderDelegate {
   final double minHeight;
   final double maxHeight;
@@ -727,7 +722,6 @@ class _StickySearchDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-// Custom Painter untuk background diagonal split
 class _DiagonalSplitPainter extends CustomPainter {
   final Color color;
 
@@ -757,7 +751,6 @@ class _DiagonalSplitPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// Custom Clipper untuk gambar diagonal
 class _DiagonalClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -774,7 +767,6 @@ class _DiagonalClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
-// Promo Banner Widget dengan Auto-Scroll
 class _PromoBannerWidget extends StatefulWidget {
   const _PromoBannerWidget();
 
