@@ -145,8 +145,8 @@ class _HomePageState extends State<HomePage> {
                   SliverPersistentHeader(
                     pinned: true,
                     delegate: _StickySearchDelegate(
-                      minHeight: 80,
-                      maxHeight: 80,
+                      minHeight: 70,
+                      maxHeight: 70,
                       child: Container(
                         color: AppColors.backgroundLight,
                         child: _buildSearchBar(),
@@ -177,39 +177,38 @@ class _HomePageState extends State<HomePage> {
           child: Stack(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.18),
+                      color: Colors.black.withOpacity(0.08),
                       blurRadius: 8,
-                      offset: const Offset(0, 4),
-                      spreadRadius: 0,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: const Icon(
                   Icons.shopping_bag_outlined,
-                  color: Colors.black,
-                  size: 24,
+                  color: Colors.black87,
+                  size: 22,
                 ),
               ),
               if (cartProvider.totalItems > 0)
                 Positioned(
-                  right: 0,
-                  top: 0,
+                  right: -2,
+                  top: -2,
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: AppColors.primaryOrange,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: Colors.white, width: 1.5),
                     ),
                     constraints: const BoxConstraints(
-                      minWidth: 20,
-                      minHeight: 20,
+                      minWidth: 18,
+                      minHeight: 18,
                     ),
                     child: Text(
                       cartProvider.totalItems > 99
@@ -217,8 +216,8 @@ class _HomePageState extends State<HomePage> {
                           : cartProvider.totalItems.toString(),
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -233,7 +232,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: Row(
         children: [
           Expanded(
@@ -274,34 +273,38 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const Text(
                         'Deliver to',
-                        style: TextStyle(color: Colors.black54, fontSize: 14),
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       const Icon(
                         Icons.keyboard_arrow_right,
                         color: Colors.black54,
-                        size: 18,
+                        size: 16,
                       ),
                       Text(
                         deliveryLabel,
                         style: const TextStyle(
                           color: Colors.black,
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Row(
                     children: [
                       Flexible(
                         child: Text(
                           _getShortAddress(),
                           style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -311,7 +314,7 @@ class _HomePageState extends State<HomePage> {
                       const Icon(
                         Icons.keyboard_arrow_down,
                         color: AppColors.primaryOrange,
-                        size: 20,
+                        size: 18,
                       ),
                     ],
                   ),
@@ -319,6 +322,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          const SizedBox(width: 12),
           Consumer<CartProvider>(
             builder: (context, cartProvider, child) {
               return GestureDetector(
@@ -328,31 +332,38 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.shopping_bag_outlined,
-                        color: Colors.black,
-                        size: 24,
+                        color: Colors.black87,
+                        size: 22,
                       ),
                     ),
                     if (cartProvider.totalItems > 0)
                       Positioned(
-                        right: 0,
-                        top: 0,
+                        right: -2,
+                        top: -2,
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             color: AppColors.primaryOrange,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                            border: Border.all(color: Colors.white, width: 1.5),
                           ),
                           constraints: const BoxConstraints(
-                            minWidth: 20,
-                            minHeight: 20,
+                            minWidth: 18,
+                            minHeight: 18,
                           ),
                           child: Text(
                             cartProvider.totalItems > 99
@@ -360,8 +371,8 @@ class _HomePageState extends State<HomePage> {
                                 : cartProvider.totalItems.toString(),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -413,7 +424,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           if (_isScrolled)
@@ -428,29 +439,28 @@ class _HomePageState extends State<HomePage> {
                     child: Stack(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.18),
+                                color: Colors.black.withOpacity(0.08),
                                 blurRadius: 8,
-                                offset: const Offset(0, 4),
-                                spreadRadius: 0,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
                           child: const Icon(
                             Icons.shopping_bag_outlined,
-                            color: Colors.black,
-                            size: 24,
+                            color: Colors.black87,
+                            size: 22,
                           ),
                         ),
                         if (cartProvider.totalItems > 0)
                           Positioned(
-                            right: 0,
-                            top: 0,
+                            right: -2,
+                            top: -2,
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
@@ -458,12 +468,12 @@ class _HomePageState extends State<HomePage> {
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: Colors.white,
-                                  width: 2,
+                                  width: 1.5,
                                 ),
                               ),
                               constraints: const BoxConstraints(
-                                minWidth: 20,
-                                minHeight: 20,
+                                minWidth: 18,
+                                minHeight: 18,
                               ),
                               child: Text(
                                 cartProvider.totalItems > 99
@@ -471,8 +481,8 @@ class _HomePageState extends State<HomePage> {
                                     : cartProvider.totalItems.toString(),
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -486,30 +496,37 @@ class _HomePageState extends State<HomePage> {
             ),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
+                    color: Colors.black.withOpacity(0.08),
                     blurRadius: 8,
-                    offset: const Offset(0, 4),
-                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, color: Colors.grey),
-                  const SizedBox(width: 10),
+                  const Icon(Icons.search, color: Colors.grey, size: 20),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
                       decoration: const InputDecoration(
-                        hintText: 'Search',
+                        hintText: 'Search for food...',
                         border: InputBorder.none,
-                        hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -533,7 +550,7 @@ class _HomePageState extends State<HomePage> {
                       child: const Icon(
                         Icons.clear,
                         color: Colors.grey,
-                        size: 20,
+                        size: 18,
                       ),
                     ),
                 ],
@@ -547,15 +564,15 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategoryGrid() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          childAspectRatio: 0.75,
-          crossAxisSpacing: 15,
-          mainAxisSpacing: 15,
+          childAspectRatio: 0.8,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
         ),
         itemCount: AppCategories.categories.length,
         itemBuilder: (context, index) {
@@ -574,13 +591,12 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                    spreadRadius: 0,
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -589,21 +605,25 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Image.asset(
-                      iconPath,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.fastfood, size: 32);
-                      },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Image.asset(
+                        iconPath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.fastfood, size: 28);
+                        },
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
                     categoryName,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
+                      height: 1.2,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
@@ -669,7 +689,7 @@ class _HomePageState extends State<HomePage> {
         final displayOffers = foods.take(15).toList();
 
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
           child: Column(
             children: [
               Row(
@@ -680,8 +700,9 @@ class _HomePageState extends State<HomePage> {
                         ? 'Search Results'
                         : 'Special Offers',
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
                     ),
                   ),
                   if (_searchQuery.isEmpty)
@@ -692,21 +713,21 @@ class _HomePageState extends State<HomePage> {
                       child: const Text(
                         'View All',
                         style: TextStyle(
-                          color: Colors.orange,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          color: AppColors.primaryOrange,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 12),
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 0.72,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                 ),
@@ -798,13 +819,12 @@ class _DiagonalSplitPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..shader = LinearGradient(
-            colors: [color, color.withOpacity(0.8), color.withOpacity(0.6)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [color, color.withOpacity(0.8), color.withOpacity(0.6)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final path = Path();
     path.moveTo(0, 0);

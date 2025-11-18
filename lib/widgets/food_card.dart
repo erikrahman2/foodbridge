@@ -38,11 +38,11 @@ class FoodCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(AppSizes.borderRadius),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -68,21 +68,21 @@ class FoodCard extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 120,
+          height: 140,
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.grey[200],
             borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(AppSizes.borderRadius),
-              topRight: Radius.circular(AppSizes.borderRadius),
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
           ),
           child:
               imagePath != null && imagePath!.isNotEmpty
                   ? ClipRRect(
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(AppSizes.borderRadius),
-                      topRight: Radius.circular(AppSizes.borderRadius),
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
                     ),
                     child: CachedNetworkImage(
                       imageUrl: imagePath!,
@@ -107,8 +107,8 @@ class FoodCard extends StatelessWidget {
                   : _buildPlaceholder(),
         ),
         Positioned(
-          top: 8,
-          right: 8,
+          top: 10,
+          right: 10,
           child: GestureDetector(
             onTap: () async {
               await favoriteProvider.toggleFavorite(id);
@@ -138,22 +138,29 @@ class FoodCard extends StatelessWidget {
             },
             child: Container(
               padding: const EdgeInsets.all(6),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red : Colors.grey,
-                size: 16,
+                color: isFavorite ? Colors.red : Colors.red.shade300,
+                size: 18,
               ),
             ),
           ),
         ),
         if (discount != null && discount! > 0)
           Positioned(
-            top: 8,
-            left: 8,
+            top: 10,
+            left: 10,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -165,7 +172,7 @@ class FoodCard extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -191,22 +198,28 @@ class FoodCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.bodyMedium.copyWith(
+            style: const TextStyle(
+              fontSize: 15,
               fontWeight: FontWeight.w600,
+              color: Colors.black87,
+              height: 1.2,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(Icons.star, color: Colors.orange, size: 14),
+              const Icon(Icons.star, color: Colors.amber, size: 16),
               const SizedBox(width: 4),
-              Text(rating.toString(), style: AppTextStyles.bodySmall),
-              const Spacer(),
-              const Icon(Icons.access_time, color: Colors.grey, size: 14),
-              const SizedBox(width: 4),
-              Text(time, style: AppTextStyles.bodySmall),
+              Text(
+                rating.toString(),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -215,18 +228,25 @@ class FoodCard extends StatelessWidget {
               if (discount != null && discount! > 0) ...[
                 Text(
                   'Rp ${(price * (1 + discount! / 100)).toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
-                  style: AppTextStyles.bodySmall.copyWith(
+                  style: const TextStyle(
+                    fontSize: 12,
                     decoration: TextDecoration.lineThrough,
                     color: Colors.grey,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const SizedBox(width: 8),
               ],
-              Text(
-                'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryOrange,
+              Flexible(
+                child: Text(
+                  'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.red,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
