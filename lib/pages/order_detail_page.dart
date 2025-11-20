@@ -746,6 +746,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     final total = totalVal ?? 117160.0;
 
     final paymentMethod = orderData?['paymentMethod'] ?? 'Cash on Delivery';
+    // Keuntungan driver: 30% dari subtotal
+    final driverProfit = (subtotal * 0.3).round();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -776,6 +778,12 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           const SizedBox(height: 12),
           _buildBreakdownRow('Payment Method', paymentMethod),
+          const SizedBox(height: 12),
+          _buildBreakdownRow(
+            'Keuntungan Driver (30%)',
+            'Rp ${_formatPrice(driverProfit)}',
+            isTotal: false,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(color: Colors.grey[200], thickness: 1, height: 1),

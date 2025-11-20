@@ -367,6 +367,10 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
       0,
       (sum, item) => sum + (item['quantity'] as int? ?? 0),
     );
+    // Hitung keuntungan driver: 30% dari harga produk (totalAmount atau totalPrice)
+    final hargaProduk =
+        (order['totalAmount'] ?? order['totalPrice'] ?? 0) as num;
+    final driverProfit = (hargaProduk * 0.3).round();
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -504,16 +508,22 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
               ],
             ),
             const SizedBox(height: 8),
+            // ...total harga dihilangkan sesuai permintaan...
+            const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.monetization_on, size: 20, color: Colors.grey),
+                const Icon(
+                  Icons.attach_money,
+                  size: 20,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
                 const SizedBox(width: 8),
                 Text(
-                  'Rp ${_formatPrice(order['totalAmount'] ?? 0)}',
+                  'Keuntungan Driver: Rp ${_formatPrice(driverProfit)}',
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryOrange,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green,
                   ),
                 ),
               ],
