@@ -458,7 +458,6 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
     final itemCount = items.length;
     final totalPrice =
         (order['totalPrice'] is num) ? (order['totalPrice'] as num).toInt() : 0;
-    final driverProfit = (totalPrice * 0.3).round();
     final rating =
         (order['rating'] is num) ? (order['rating'] as num).toDouble() : 5.0;
 
@@ -572,16 +571,7 @@ class _OrdersHistoryPageState extends State<OrdersHistoryPage> {
                           fontFamily: 'Poppins',
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Keuntungan Driver: Rp ${_formatPrice(driverProfit)}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.green,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
+                      // ...keuntungan driver dihapus...
                       const SizedBox(height: 8),
                       Row(
                         children: [
