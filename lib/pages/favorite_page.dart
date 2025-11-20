@@ -48,6 +48,16 @@ class _FavoritePageState extends State<FavoritePage> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           IconButton(
@@ -60,8 +70,8 @@ class _FavoritePageState extends State<FavoritePage> {
             child: Text(
               'Liked',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
                 fontFamily: 'Poppins',
               ),
@@ -76,20 +86,27 @@ class _FavoritePageState extends State<FavoritePage> {
 
   Widget _buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
         children: [
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
-                  Icon(Icons.search, color: Colors.grey[600], size: 20),
-                  const SizedBox(width: 8),
+                  Icon(Icons.search, color: Colors.grey[500], size: 20),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
@@ -99,19 +116,22 @@ class _FavoritePageState extends State<FavoritePage> {
                         });
                       },
                       decoration: InputDecoration(
-                        hintText: 'Search',
+                        hintText: 'Search favorites...',
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         hintStyle: TextStyle(
                           color: Colors.grey[500],
                           fontFamily: 'Poppins',
                           fontSize: 14,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                       style: const TextStyle(
                         fontSize: 14,
                         fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
                       ),
                     ),
                   ),
@@ -123,7 +143,7 @@ class _FavoritePageState extends State<FavoritePage> {
                           searchQuery = '';
                         });
                       },
-                      child: Icon(Icons.clear, color: Colors.grey[600], size: 18),
+                      child: Icon(Icons.clear, color: Colors.grey[500], size: 18),
                     ),
                 ],
               ),
@@ -133,10 +153,17 @@ class _FavoritePageState extends State<FavoritePage> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Icon(Icons.tune, color: Colors.grey[700], size: 20),
+            child: Icon(Icons.tune, color: Colors.grey[600], size: 20),
           ),
         ],
       ),
@@ -214,9 +241,9 @@ Widget _buildFavoriteCard(
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -280,9 +307,16 @@ Widget _buildFavoriteCard(
                   },
                   child: Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: const Icon(
                       Icons.favorite,
@@ -296,7 +330,7 @@ Widget _buildFavoriteCard(
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -315,7 +349,7 @@ Widget _buildFavoriteCard(
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
                           const Icon(Icons.star, color: Colors.orange, size: 14),
@@ -325,20 +359,20 @@ Widget _buildFavoriteCard(
                             style: const TextStyle(
                               fontSize: 12,
                               fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.access_time, color: Colors.grey, size: 14),
+                          const SizedBox(width: 10),
+                          Icon(Icons.access_time, color: Colors.grey[500], size: 12),
                           const SizedBox(width: 4),
                           Text(
                             time,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey,
+                              color: Colors.grey[600],
                             ),
                           ),
                         ],
@@ -356,6 +390,7 @@ Widget _buildFavoriteCard(
                             decoration: TextDecoration.lineThrough,
                             color: Colors.grey,
                             fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -364,7 +399,7 @@ Widget _buildFavoriteCard(
                         'Rp ${_formatPrice(price)}',
                         style: const TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: Colors.orange,
                           fontFamily: 'Poppins',
                         ),

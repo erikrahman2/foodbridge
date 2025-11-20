@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_bridge/routes/app_routes.dart';
+import 'package:food_bridge/services/onboarding_service.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -47,19 +48,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
     });
   }
 
-  void _nextPage() {
+  void _nextPage() async {
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      await OnboardingService.setOnboardingComplete();
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
+      }
     }
   }
 
-  void _skip() {
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
+  void _skip() async {
+    await OnboardingService.setOnboardingComplete();
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }
   }
 
   @override
@@ -145,8 +152,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       width: double.infinity,
                       height: 56,
                       child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, AppRoutes.home);
+                        onPressed: () async {
+                          await OnboardingService.setOnboardingComplete();
+                          if (mounted) {
+                            Navigator.pushReplacementNamed(context, AppRoutes.home);
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFFFF6B35),

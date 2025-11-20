@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_bridge/routes/app_routes.dart';
+import 'package:food_bridge/services/onboarding_service.dart';
 
 class IntroScreensPage extends StatefulWidget {
   const IntroScreensPage({super.key});
@@ -12,14 +13,31 @@ class _IntroScreensPageState extends State<IntroScreensPage> with TickerProvider
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool _isLoading = true;
-  late AnimationController _loadingController;
-  late AnimationController _fadeController;
-  late Animation<double> _loadingAnimation;
-  late Animation<double> _fadeAnimation;
+  bool _isInitialized = false;
+  AnimationController? _loadingController;
+  AnimationController? _fadeController;
+  Animation<double>? _loadingAnimation;
+  Animation<double>? _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _checkFirstTimeAndInitialize();
+  }
+
+  Future<void> _checkFirstTimeAndInitialize() async {
+    final isFirstTime = await OnboardingService.isFirstTime();
+    
+    if (!mounted) return;
+    
+    if (!isFirstTime) {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      return;
+    }
+
+    setState(() {
+      _isInitialized = true;
+    });
  
     _loadingController = AnimationController(
       vsync: this,
@@ -32,21 +50,21 @@ class _IntroScreensPageState extends State<IntroScreensPage> with TickerProvider
     );
  
     _loadingAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _loadingController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _loadingController!, curve: Curves.easeInOut),
     );
  
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
+      CurvedAnimation(parent: _fadeController!, curve: Curves.easeIn),
     );
  
-    _loadingController.forward();
+    _loadingController!.forward();
  
     Future.delayed(const Duration(milliseconds: 1800), () {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        _fadeController.forward().then((_) {
+        _fadeController!.forward().then((_) {
           _pageController.animateToPage(
             1,
             duration: const Duration(milliseconds: 600),
@@ -59,8 +77,8 @@ class _IntroScreensPageState extends State<IntroScreensPage> with TickerProvider
 
   @override
   void dispose() {
-    _loadingController.dispose();
-    _fadeController.dispose();
+    _loadingController?.dispose();
+    _fadeController?.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -91,6 +109,17 @@ class _IntroScreensPageState extends State<IntroScreensPage> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFFF6B4A),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Colors.white,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFFF6B4A),
       body: PageView(
@@ -118,7 +147,7 @@ class _IntroScreensPageState extends State<IntroScreensPage> with TickerProvider
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 80),
             child: AnimatedBuilder(
-              animation: _loadingAnimation,
+              animation: _loadingAnimation!,
               builder: (context, child) {
                 return Container(
                   height: 8,
@@ -128,7 +157,7 @@ class _IntroScreensPageState extends State<IntroScreensPage> with TickerProvider
                   ),
                   child: FractionallySizedBox(
                     alignment: Alignment.centerLeft,
-                    widthFactor: _loadingAnimation.value,
+                    widthFactor: _loadingAnimation!.value,
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
