@@ -1,0 +1,21 @@
+{
+  "name": "foodbridge",
+  "version": "1.0.0",
+  "description": "FoodBridge - A food delivery and sharing platform",
+  "private": true,
+  "scripts": {
+    "dev": "flutter run -d web",
+    "build": "flutter build web --release",
+    "start": "python3 -m http.server 8080 --directory build/web"
+  },
+  "keywords": [
+    "flutter",
+    "web",
+    "foodbridge"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
