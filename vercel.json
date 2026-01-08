@@ -1,5 +1,5 @@
 {
-  "buildCommand": "flutter build web --release",
+  "buildCommand": "echo 'Skipping build - using pre-built Flutter web'",
   "outputDirectory": "build/web",
   "installCommand": "echo 'Skip install'",
   "regions": ["iad1"]
